@@ -1,0 +1,191 @@
+import { Link } from 'react-router-dom';
+import OnasImage from '../../assets/Onas.png';
+import { IMAGE_POSITIONS } from '../../constants/imagePositions';
+
+const TEAM = [
+  { name: 'Александр Ковалёв', role: 'Основатель & Директор', avatar: 'https://i.pravatar.cc/150?img=52', desc: 'Более 10 лет в сфере социального предпринимательства. Основал движение в 2020 году.' },
+  { name: 'Анна Петрова', role: 'Руководитель направлений', avatar: 'https://i.pravatar.cc/150?img=47', desc: 'Координирует все основные направления волонтёрской деятельности.' },
+  { name: 'Иван Сидоров', role: 'Руководитель социального блока', avatar: 'https://i.pravatar.cc/150?img=12', desc: 'Отвечает за программы помощи ветеранам и пожилым людям.' },
+  { name: 'Мария Козлова', role: 'Куратор обучения', avatar: 'https://i.pravatar.cc/150?img=23', desc: 'Разрабатывает образовательные программы и тренинги для волонтёров.' },
+];
+
+const TIMELINE = [
+  { year: '2020', title: 'Основание движения', desc: 'ВолонтёрыПМР начали свою деятельность с 12 активистов и первой экологической акции в Тирасполе.' },
+  { year: '2021', title: 'Расширение географии', desc: 'Открылись представительства в Бендерах и Рыбнице. Количество волонтёров превысило 200 человек.' },
+  { year: '2022', title: 'Запуск портала', desc: 'Создан официальный онлайн-портал для координации деятельности и регистрации волонтёров.' },
+  { year: '2023', title: 'Признание и награды', desc: 'Движение получило статус официальной НКО и выиграло грант на развитие инфраструктуры.' },
+  { year: '2024', title: 'Тысяча волонтёров', desc: 'Сообщество преодолело отметку в 1000 активных волонтёров по всему Приднестровью.' },
+  { year: '2025–2026', title: 'Сегодня', desc: 'Более 1500 волонтёров, 50+ городов и сёл, 200+ проведённых акций. Движемся вперёд!' },
+];
+
+const VALUES = [
+  { icon: 'fa-heart', title: 'Доброта', desc: 'Каждое действие продиктовано искренним желанием помочь, без ожидания награды.', color: 'text-red-500 bg-red-50' },
+  { icon: 'fa-users', title: 'Единство', desc: 'Вместе мы сильнее. Мы верим в силу сообщества и коллективного действия.', color: 'text-blue-500 bg-blue-50' },
+  { icon: 'fa-leaf', title: 'Ответственность', desc: 'Мы заботимся о природе, обществе и будущих поколениях Приднестровья.', color: 'text-teal-500 bg-teal-50' },
+  { icon: 'fa-graduation-cap', title: 'Развитие', desc: 'Мы учимся и растём, делясь знаниями и опытом друг с другом.', color: 'text-purple-500 bg-purple-50' },
+];
+
+export function AboutPage() {
+  return (
+    <>
+      {/* HERO */}
+      <section className="relative py-20 sm:py-28 overflow-hidden">
+        {/* Background image */}
+        <div className="absolute inset-0">
+          <img
+            src={OnasImage}
+            alt="Background"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: IMAGE_POSITIONS.about }}
+          />
+          <div className="absolute inset-0"></div>
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-3xl">
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-6">
+                <i className="fas fa-hand-holding-heart" />О нас
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-heading font-extrabold text-gray-900 leading-tight mb-6">
+                Мы — <span className="text-primary">ВолонтёрыПМР</span>
+              </h1>
+              <p className="text-xl text-gray-600 leading-relaxed mb-6">
+                Официальный портал волонтёрского движения Приднестровья.
+                <br />
+                С 2020 года мы объединяем людей с добрыми сердцами
+                <br />
+                и направляем их энергию на позитивные изменения.
+              </p>
+              <p className="text-xl text-gray-600 leading-relaxed mb-6">
+                Наша миссия
+                <br/> — создать устойчивое сообщество неравнодушных граждан,
+                <br />
+                способных эффективно решать социальные,
+                <br/> и культурные проблемы региона.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link to="/register" className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg no-underline">
+                  <i className="fas fa-user-plus mr-2" />Присоединиться
+                </Link>
+                <Link to="/events" className="inline-flex items-center px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border border-gray-300 hover:border-primary hover:text-primary transition no-underline">
+                  Наши мероприятия
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ABOUT PLATFORM */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">О нас</h2>
+            </div>
+            <div className="space-y-6">
+              <p className="text-lg text-gray-700 leading-relaxed">
+                Это платформа для волонтёров, организаторов и организаций, которая содержит в себе самые актуальные новости из жизни добровольческого сообщества Приднестровья.
+              </p>
+              <p className="text-gray-700 leading-relaxed">
+                ЕИС "Волонтёры Приднестровья" объединяет различные запросы и предложения со стороны добровольцев и организаций в рамках одного ресурса, что позволяет всем гражданам, независимо от возраста, места жительства и интересов, находить возможности для оказания волонтерской помощи и самореализации через добровольчество.
+              </p>
+              <p className="text-gray-700 leading-relaxed">
+                Сайт разработан Министерством цифрового развития, связи и массовых коммуникаций Приднестровской Молдавской Республики совместно с Министерством просвещения Приднестровской Молдавской Республики в рамках реализации Плана работы Координационного совета по развитию добровольческого (волонтерского) движения в Приднестровской Молдавской Республике.
+              </p>
+              <div className="mt-10 pt-8 border-t border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900 mb-6">НАШИ УСИЛИЯ НАПРАВЛЕНЫ НА:</h3>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-3" />
+                    <p className="text-gray-700">РАЗВИТИЕ КУЛЬТУРЫ ДОБРЫХ ДЕЛ В ПРИДНЕСТРОВЬЕ;</p>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-3" />
+                    <p className="text-gray-700">КОНСОЛИДАЦИЮ ПОТЕНЦИАЛА ВОЛОНТЁРОВ;</p>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-3" />
+                    <p className="text-gray-700">ПОДДЕРЖКУ ПАРТНЕРОВ ЧЕРЕЗ КОМПЛЕКС УСЛУГ И РЕСУРСОВ.</p>
+                  </li>
+                </ul>
+                <p className="text-lg font-medium text-primary">
+                  Мы получаем уникальный опыт и жизненно важные навыки вместе с вами!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* MISSION & VALUES */}
+      <section className="py-4 sm:py-0 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">Наши ценности</h2>
+            <p className="text-gray-600 text-lg">Принципы, которыми мы руководствуемся в каждом проекте</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {VALUES.map(v => (
+              <div key={v.title} className="bg-gray-50 rounded-2xl p-6 text-center hover:shadow-lg transition">
+                <div className={`w-16 h-16 ${v.color} rounded-2xl flex items-center justify-center mx-auto mb-5`}>
+                  <i className={`fas ${v.icon} text-2xl`} />
+                </div>
+                <h3 className="font-bold text-gray-900 text-lg mb-2">{v.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{v.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* TEAM */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">Команда руководства</h2>
+            <p className="text-gray-600 text-lg">Люди, которые направляют движение вперёд</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {TEAM.map(m => (
+              <div key={m.name} className="bg-gray-50 rounded-2xl p-6 text-center hover:shadow-lg transition group">
+                <img src={m.avatar} alt={m.name} className="w-20 h-20 rounded-full object-cover mx-auto mb-4 shadow-md ring-4 ring-primary/10 group-hover:ring-primary/30 transition" />
+                <h3 className="font-bold text-gray-900">{m.name}</h3>
+                <p className="text-sm text-primary font-medium mb-3">{m.role}</p>
+                <p className="text-gray-600 text-xs leading-relaxed">{m.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CONTACTS */}
+      <section className="py-16 bg-gradient-to-br from-primary to-blue-900">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-heading font-bold text-white mb-4">Контакты</h2>
+            <p className="text-white text-lg">Мы открыты для общения и сотрудничества</p>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-6">
+            {[
+              { icon: 'fa-envelope', title: 'Email', value: 'info@volunteerspmr.org', href: 'mailto:info@volunteerspmr.org' },
+              { icon: 'fa-phone', title: 'Телефон', value: '+373 777 12-345', href: 'tel:+37377712345' },
+              { icon: 'fa-map-marker-alt', title: 'Адрес', value: 'г. Тирасполь, ул. Ленина, 1', href: null },
+            ].map(c => (
+              <div key={c.title} className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition">
+                <i className={`fas ${c.icon} text-3xl text-primary mb-3 block`} />
+                <p className="text-sm text-gray-400 mb-1">{c.title}</p>
+                {c.href
+                  ? <a href={c.href} className="font-semibold text-gray-900 hover:text-primary transition no-underline">{c.value}</a>
+                  : <p className="font-semibold text-gray-900">{c.value}</p>
+                }
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
