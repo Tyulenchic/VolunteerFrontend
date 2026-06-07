@@ -1,4 +1,9 @@
 import axios from "axios";
+console.log("ENV CHECK");
+console.log(import.meta.env);
+console.log(import.meta.env.VITE_API_URL);
+console.log("MODE =", import.meta.env.MODE);
+console.log("VITE_API_URL =", import.meta.env.VITE_API_URL);
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "https://localhost:7227",
