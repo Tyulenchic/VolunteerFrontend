@@ -10,13 +10,13 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: VolunteerFrontend
 
     steps:
       - uses: actions/checkout@v4
@@ -24,18 +24,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-         
 
-      - run: npm ci
+      - run: npm install
 
       - run: npm run build
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: VolunteerFrontend/dist
 
   deploy:
     needs: build
+
+    runs-on: ubuntu-latest
 
     permissions:
       pages: write
@@ -43,8 +44,6 @@ jobs:
 
     environment:
       name: github-pages
-
-    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/deploy-pages@v4
