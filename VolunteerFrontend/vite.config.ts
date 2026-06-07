@@ -8,7 +8,8 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'https://localhost:7227',
+        // target: 'https://localhost:7227',
+        target: 'https://volunteerapi-0x7y.onrender.com',
         changeOrigin: true,
       },
     },
