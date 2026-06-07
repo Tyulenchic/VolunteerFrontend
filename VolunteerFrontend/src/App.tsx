@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { Layout } from './components/Layout';
@@ -29,6 +29,7 @@ import { AdminParticipationsPage } from './pages/admin/AdminParticipationsPage';
 import { AdminNewsPage }         from './pages/admin/AdminNewsPage';
 import { AdminAnalyticsPage }    from './pages/admin/AdminAnalyticsPage';
 import { AdminAuditLogPage }     from './pages/admin/AdminAuditLogPage';
+import { Link } from 'react-router-dom';
 
 function WL({ children }: { children: React.ReactNode }) {
   return <Layout>{children}</Layout>;
@@ -39,20 +40,30 @@ function WAL({ children }: { children: React.ReactNode }) {
 
 function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-      <div className="text-8xl font-bold text-primary/20 mb-4">404</div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-3">Страница не найдена</h1>
-      <p className="text-gray-600 mb-8 max-w-md">К сожалению, запрашиваемая страница не существует.</p>
-      <a href="/" className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg" style={{textDecoration:'none'}}>
-        <i className="fas fa-home mr-2" />На главную
-      </a>
-    </div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <div className="text-8xl font-bold text-primary/20 mb-4">404</div>
+        <h1 className="text-3xl font-bold text-gray-900 mb-3">
+          Страница не найдена
+        </h1>
+        <p className="text-gray-600 mb-8 max-w-md">
+          К сожалению, запрашиваемая страница не существует.
+        </p>
+
+        <Link
+            to="/"
+            className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg"
+            style={{ textDecoration: 'none' }}
+        >
+          <i className="fas fa-home mr-2" />
+          На главную
+        </Link>
+      </div>
   );
 }
 
 export default function App() {
   return (
-    <BrowserRouter>
+      <HashRouter>
       <NotificationProvider>
         <AuthProvider>
           <Routes>
@@ -99,6 +110,6 @@ export default function App() {
           </Routes>
         </AuthProvider>
       </NotificationProvider>
-    </BrowserRouter>
+      </HashRouter>
   );
 }
