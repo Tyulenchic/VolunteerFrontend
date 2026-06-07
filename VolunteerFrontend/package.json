@@ -41,8 +41,6 @@
   "homepage": "https://tyulenchic.github.io/VolunteerFrontend/",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "build": "tsc -b && vite build"
   }
 }
