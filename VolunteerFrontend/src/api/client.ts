@@ -6,7 +6,7 @@ console.log("MODE =", import.meta.env.MODE);
 console.log("VITE_API_URL =", import.meta.env.VITE_API_URL);
 
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "https://localhost:7227",
+  baseURL: "https://volunteerapi-0x7y.onrender.com",
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
@@ -26,7 +26,7 @@ apiClient.interceptors.response.use(
         err.config._retry = true;
         try {
           const { data } = await axios.post(
-            (import.meta.env.VITE_API_URL ?? "https://localhost:7227") + "/api/auth/refresh",
+              "https://volunteerapi-0x7y.onrender.com" + "/api/auth/refresh",
             { refreshToken: refresh }
           );
           localStorage.setItem("accessToken", data.accessToken);
