@@ -11,6 +11,7 @@ dist/
 # Environmentgit status
 .env
 .env.*
+!.env.production
 
 # IDE
 .idea/
