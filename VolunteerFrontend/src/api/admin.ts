@@ -56,6 +56,10 @@ export const adminApi = {
     await apiClient.post(`${API_BASE}/users/${userId}/change-role`, { newRole });
   },
 
+  async deleteUser(userId: string) {
+    await apiClient.delete(`${API_BASE}/users/${userId}`);
+  },
+
   // ==================== NEWS ====================
 
   async getNews(skip = 0, take = 20, search?: string, status?: string) {

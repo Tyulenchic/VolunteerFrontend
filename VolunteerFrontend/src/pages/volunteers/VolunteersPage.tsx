@@ -1,19 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { publicUsersApi } from '../../api/publicUsers';
 import type { UserResponseDto } from '../../types/user';
 import { Spinner } from '../../components/Spinner';
-
-const MOCK_VOLUNTEERS: UserResponseDto[] = [
-  { id:'v1', email:'v1@vpmt.org', emailConfirmed:true, firstName:'Ольга', lastName:'Иванова', bio:'Помогаю в экологических акциях и уборке территорий. Активный участник с 2022 года.', role:'Volunteer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=48', createdAt:'2022-03-01', updatedAt:null },
-  { id:'v2', email:'v2@vpmt.org', emailConfirmed:true, firstName:'Алексей', lastName:'Петров', bio:'Волонтёр социального направления. Регулярно помогаю ветеранам и пожилым людям.', role:'Volunteer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=13', createdAt:'2021-07-15', updatedAt:null },
-  { id:'v3', email:'v3@vpmt.org', emailConfirmed:true, firstName:'Наталья', lastName:'Сорокина', bio:'Участвую в медицинских акциях и донорских программах. Медик по образованию.', role:'Volunteer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=25', createdAt:'2023-01-10', updatedAt:null },
-  { id:'v4', email:'v4@vpmt.org', emailConfirmed:true, firstName:'Михаил', lastName:'Захаров', bio:'Спортивные мероприятия — моя специализация. Помогаю организовывать забеги и соревнования.', role:'Volunteer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=9', createdAt:'2022-05-20', updatedAt:null },
-  { id:'v5', email:'v5@vpmt.org', emailConfirmed:true, firstName:'Татьяна', lastName:'Лебедева', bio:'Зооволонтёр. Помогаю приютам для животных, организую сбор корма и принадлежностей.', role:'Volunteer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=34', createdAt:'2020-09-05', updatedAt:null },
-  { id:'v6', email:'v6@vpmt.org', emailConfirmed:true, firstName:'Артём', lastName:'Соколов', bio:'Молодёжный волонтёр. Участвую в культурных и образовательных мероприятиях.', role:'Volunteer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=11', createdAt:'2024-02-14', updatedAt:null },
-  { id:'v7', email:'v7@vpmt.org', emailConfirmed:true, firstName:'Юлия', lastName:'Романова', bio:'Участвую в экологических и социальных проектах уже 3 года. Горжусь каждым добрым делом.', role:'Volunteer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=41', createdAt:'2021-12-01', updatedAt:null },
-  { id:'v8', email:'v8@vpmt.org', emailConfirmed:true, firstName:'Николай', lastName:'Кузнецов', bio:'Помогаю с техническими задачами и IT-сопровождением волонтёрских мероприятий.', role:'Volunteer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=17', createdAt:'2023-06-10', updatedAt:null },
-  { id:'v9', email:'v9@vpmt.org', emailConfirmed:true, firstName:'Светлана', lastName:'Борисова', bio:'Патриотическое направление — моя страсть. Участвую в памятных мероприятиях и уходе за мемориалами.', role:'Volunteer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=44', createdAt:'2022-08-22', updatedAt:null },
-];
 
 const LOCATIONS = ['Тирасполь', 'Бендеры', 'Рыбница', 'Дубоссары', 'Слободзея', 'Григориополь'];
 const CATEGORIES = ['Экология', 'Социальная помощь', 'Спорт', 'Обучение', 'Медицина', 'Животные', 'Патриотика', 'Культура'];
@@ -37,8 +26,7 @@ export function VolunteersPage() {
 
   useEffect(() => {
     publicUsersApi.getVolunteers(0, 50)
-      .then(res => setVolunteers(res.items.length ? res.items : MOCK_VOLUNTEERS))
-      .catch(() => setVolunteers(MOCK_VOLUNTEERS))
+      .then(res => setVolunteers(res.items.length ? res.items : [])) // API may return empty array with 200 status, treat as no volunteers
       .finally(() => setLoading(false));
   }, []);
 
@@ -114,42 +102,44 @@ export function VolunteersPage() {
                 const hash = v.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
                 const eventsCount = EVENTS_RANGE[hash % EVENTS_RANGE.length];
                 return (
-                  <article key={v.id} className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl hover:border-primary/30 transition-all duration-300 overflow-hidden group text-center">
-                    <div className="pt-8 pb-5 px-5">
-                      {v.avatarUrl ? (
-                        <img src={v.avatarUrl} alt={name} className="w-20 h-20 rounded-full object-cover mx-auto mb-4 shadow-md ring-4 ring-primary/10 group-hover:ring-primary/30 transition" />
-                      ) : (
-                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-blue-400/20 flex items-center justify-center mx-auto mb-4 ring-4 ring-primary/10 group-hover:ring-primary/30 transition">
-                          <span className="text-2xl font-bold text-primary">{initials}</span>
+                  <Link key={v.id} to={`/users/${v.id}`} className="no-underline">
+                    <article className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl hover:border-primary/30 transition-all duration-300 overflow-hidden group text-center cursor-pointer h-full flex flex-col">
+                      <div className="pt-8 pb-5 px-5 flex-grow">
+                        {v.avatarUrl ? (
+                          <img src={v.avatarUrl} alt={name} className="w-20 h-20 rounded-full object-cover mx-auto mb-4 shadow-md ring-4 ring-primary/10 group-hover:ring-primary/30 transition" />
+                        ) : (
+                          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-blue-400/20 flex items-center justify-center mx-auto mb-4 ring-4 ring-primary/10 group-hover:ring-primary/30 transition">
+                            <span className="text-2xl font-bold text-primary">{initials}</span>
+                          </div>
+                        )}
+                        <h3 className="font-bold text-gray-900 text-base group-hover:text-primary transition">{name}</h3>
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full mt-1">
+                          <i className="fas fa-heart text-[10px]" />Волонтёр
+                        </span>
+                        {v.bio && (
+                          <p className="text-gray-500 text-xs leading-relaxed mt-3 line-clamp-2">{v.bio}</p>
+                        )}
+                      </div>
+                      <div className="bg-gray-50 border-t border-gray-100 px-5 py-3 flex justify-around text-center">
+                        <div>
+                          <div className="text-sm font-bold text-gray-900">{meta.location}</div>
+                          <div className="text-xs text-gray-400 flex items-center gap-1 justify-center">
+                            <i className="fas fa-map-marker-alt text-primary text-[10px]" />Город
+                          </div>
                         </div>
-                      )}
-                      <h3 className="font-bold text-gray-900 text-base group-hover:text-primary transition">{name}</h3>
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full mt-1">
-                        <i className="fas fa-heart text-[10px]" />Волонтёр
-                      </span>
-                      {v.bio && (
-                        <p className="text-gray-500 text-xs leading-relaxed mt-3 line-clamp-2">{v.bio}</p>
-                      )}
-                    </div>
-                    <div className="bg-gray-50 border-t border-gray-100 px-5 py-3 flex justify-around text-center">
-                      <div>
-                        <div className="text-sm font-bold text-gray-900">{meta.location}</div>
-                        <div className="text-xs text-gray-400 flex items-center gap-1 justify-center">
-                          <i className="fas fa-map-marker-alt text-primary text-[10px]" />Город
+                        <div className="w-px bg-gray-200" />
+                        <div>
+                          <div className="text-sm font-bold text-gray-900">{eventsCount}</div>
+                          <div className="text-xs text-gray-400">Акций</div>
+                        </div>
+                        <div className="w-px bg-gray-200" />
+                        <div>
+                          <div className="text-sm font-bold text-gray-900 truncate max-w-[70px]">{meta.category}</div>
+                          <div className="text-xs text-gray-400">Категория</div>
                         </div>
                       </div>
-                      <div className="w-px bg-gray-200" />
-                      <div>
-                        <div className="text-sm font-bold text-gray-900">{eventsCount}</div>
-                        <div className="text-xs text-gray-400">Акций</div>
-                      </div>
-                      <div className="w-px bg-gray-200" />
-                      <div>
-                        <div className="text-sm font-bold text-gray-900 truncate max-w-[70px]">{meta.category}</div>
-                        <div className="text-xs text-gray-400">Категория</div>
-                      </div>
-                    </div>
-                  </article>
+                    </article>
+                  </Link>
                 );
               })}
             </div>

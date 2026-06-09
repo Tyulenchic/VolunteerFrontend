@@ -261,13 +261,6 @@ export function AdminEventsPage() {
                             <td className="px-4 py-3 text-center">
                               <div className="flex items-center justify-center gap-2">
                                 <button
-                                    onClick={() => setSelectedEvent(event)}
-                                    className="text-primary hover:underline text-xs"
-                                    title="Статистика"
-                                >
-                                  📊
-                                </button>
-                                <button
                                     onClick={() => {
                                       setSelectedEvent(event);
                                       setIsFormOpen(true);
@@ -383,27 +376,9 @@ export function AdminEventsPage() {
                 </div>
               </div>
             </div>
-        )}
+         )}
 
-        {/* Stats Modal */}
-        {selectedEvent && !isFormOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-              <div className="bg-gray-900 rounded-2xl border border-gray-800 max-w-md w-full p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold text-white">Статистика мероприятия</h2>
-                  <button
-                      onClick={() => setSelectedEvent(null)}
-                      className="text-gray-400 hover:text-white text-xl"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <StatsModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
-              </div>
-            </div>
-        )}
-
-        {/* Event Form Modal */}
+         {/* Event Form Modal */}
         <EventFormModal
             isOpen={isFormOpen}
             onClose={() => {

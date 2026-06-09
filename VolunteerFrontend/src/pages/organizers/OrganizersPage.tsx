@@ -1,17 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { publicUsersApi } from '../../api/publicUsers';
 import type { UserResponseDto } from '../../types/user';
 import { Spinner } from '../../components/Spinner';
-
-// Fallback mock data
-const MOCK_ORGANIZERS: UserResponseDto[] = [
-  { id:'1', email:'anna@vpmt.org', emailConfirmed:true, firstName:'Анна', lastName:'Петрова', bio:'Организатор экологических акций и субботников. Координирует более 20 волонтёров.', role:'Organizer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=47', createdAt:'2021-03-01', updatedAt:null },
-  { id:'2', email:'ivan@vpmt.org', emailConfirmed:true, firstName:'Иван', lastName:'Сидоров', bio:'Руководитель социального направления. Организует помощь ветеранам и пожилым людям.', role:'Organizer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=12', createdAt:'2020-06-15', updatedAt:null },
-  { id:'3', email:'maria@vpmt.org', emailConfirmed:true, firstName:'Мария', lastName:'Козлова', bio:'Куратор образовательных программ и тренингов. Сертифицированный тренер по первой помощи.', role:'Organizer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=23', createdAt:'2022-01-10', updatedAt:null },
-  { id:'4', email:'dmitry@vpmt.org', emailConfirmed:true, firstName:'Дмитрий', lastName:'Волков', bio:'Организатор спортивных мероприятий. Мастер спорта по лёгкой атлетике.', role:'Organizer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=8', createdAt:'2021-09-20', updatedAt:null },
-  { id:'5', email:'elena@vpmt.org', emailConfirmed:true, firstName:'Елена', lastName:'Морозова', bio:'Координатор медицинского направления. Помогает организовывать донорские акции.', role:'Organizer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=33', createdAt:'2020-11-05', updatedAt:null },
-  { id:'6', email:'sergey@vpmt.org', emailConfirmed:true, firstName:'Сергей', lastName:'Николаев', bio:'Ответственный за работу с животными и приютами. Основатель зооволонтёрского движения.', role:'Organizer', isActive:true, avatarUrl:'https://i.pravatar.cc/150?img=15', createdAt:'2023-02-14', updatedAt:null },
-];
 
 const LOCATIONS = ['Тирасполь', 'Бендеры', 'Рыбница', 'Дубоссары', 'Слободзея'];
 const CATEGORIES = ['Экология', 'Социальная помощь', 'Спорт', 'Обучение', 'Медицина', 'Животные'];
@@ -33,8 +24,7 @@ export function OrganizersPage() {
 
   useEffect(() => {
     publicUsersApi.getOrganizers(0, 50)
-      .then(res => setOrganizers(res.items.length ? res.items : MOCK_ORGANIZERS))
-      .catch(() => setOrganizers(MOCK_ORGANIZERS))
+      .then(res => setOrganizers(res.items.length ? res.items : [])) // API may return empty array with 200 status, treat as no organizers
       .finally(() => setLoading(false));
   }, []);
 
@@ -100,37 +90,39 @@ export function OrganizersPage() {
                 const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
                 const meta = getMeta(o.id);
                 return (
-                  <article key={o.id} className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl hover:border-primary/30 transition-all duration-300 overflow-hidden group">
-                    <div className="h-2 bg-gradient-to-r from-primary to-blue-500" />
-                    <div className="p-6">
-                      <div className="flex items-start gap-4 mb-4">
-                        {o.avatarUrl ? (
-                          <img src={o.avatarUrl} alt={name} className="w-16 h-16 rounded-2xl object-cover flex-shrink-0 shadow-sm" />
-                        ) : (
-                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-blue-400/30 flex items-center justify-center flex-shrink-0">
-                            <span className="text-xl font-bold text-primary">{initials}</span>
+                  <Link key={o.id} to={`/users/${o.id}`} className="no-underline">
+                    <article className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl hover:border-primary/30 transition-all duration-300 overflow-hidden group cursor-pointer h-full flex flex-col">
+                      <div className="h-2 bg-gradient-to-r from-primary to-blue-500" />
+                      <div className="p-6 flex-grow flex flex-col">
+                        <div className="flex items-start gap-4 mb-4">
+                          {o.avatarUrl ? (
+                            <img src={o.avatarUrl} alt={name} className="w-16 h-16 rounded-2xl object-cover flex-shrink-0 shadow-sm" />
+                          ) : (
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-blue-400/30 flex items-center justify-center flex-shrink-0">
+                              <span className="text-xl font-bold text-primary">{initials}</span>
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-grow">
+                            <h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-primary transition">{name}</h3>
+                            <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full mt-1">
+                              <i className="fas fa-star text-[10px]" />Организатор
+                            </span>
                           </div>
+                        </div>
+                        {o.bio && (
+                          <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">{o.bio}</p>
                         )}
-                        <div className="min-w-0">
-                          <h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-primary transition">{name}</h3>
-                          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full mt-1">
-                            <i className="fas fa-star text-[10px]" />Организатор
+                        <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100 text-xs text-gray-500 mt-auto">
+                          <span className="flex items-center gap-1">
+                            <i className="fas fa-map-marker-alt text-primary" />{meta.location}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <i className="fas fa-tag text-primary" />{meta.category}
                           </span>
                         </div>
                       </div>
-                      {o.bio && (
-                        <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">{o.bio}</p>
-                      )}
-                      <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100 text-xs text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <i className="fas fa-map-marker-alt text-primary" />{meta.location}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <i className="fas fa-tag text-primary" />{meta.category}
-                        </span>
-                      </div>
-                    </div>
-                  </article>
+                    </article>
+                  </Link>
                 );
               })}
             </div>

@@ -30,6 +30,7 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
   const { notify } = useNotification();
   const { error, capture } = useApiError();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const name = `${user.firstName} ${user.lastName}`.trim() || user.email.split('@')[0];
 
@@ -146,28 +147,63 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
               </button>
           )}
 
-          {user.role !== 'Admin' && (
-              <button
-                  onClick={() =>
-                      do_(
-                          'role',
-                          () => adminApi.changeUserRole(user.id, 'Admin'),
-                          'Роль изменена на Администратор'
-                      )
-                  }
-                  disabled={actionLoading === 'role'}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 text-white text-sm rounded-lg transition"
-              >
-                {actionLoading === 'role' ? 'Загрузка...' : 'Сделать администратором'}
-              </button>
-          )}
+           {user.role !== 'Admin' && (
+               <button
+                   onClick={() =>
+                       do_(
+                           'role',
+                           () => adminApi.changeUserRole(user.id, 'Admin'),
+                           'Роль изменена на Администратор'
+                       )
+                   }
+                   disabled={actionLoading === 'role'}
+                   className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 text-white text-sm rounded-lg transition"
+               >
+                 {actionLoading === 'role' ? 'Загрузка...' : 'Сделать администратором'}
+               </button>
+           )}
 
-          <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition"
-          >
-            Закрыть
-          </button>
+           <button
+               onClick={() => setShowDeleteConfirm(true)}
+               disabled={actionLoading !== null}
+               className="px-4 py-2 bg-red-700 hover:bg-red-800 disabled:bg-gray-700 text-white text-sm rounded-lg transition flex items-center gap-2 justify-center"
+           >
+             <i className="fas fa-trash-alt" />Удалить пользователя
+           </button>
+
+           {showDeleteConfirm && (
+               <div className="p-3 bg-red-900/40 border border-red-800 rounded-lg text-sm text-red-400 space-y-2">
+                 <p>Вы уверены? Это действие необратимо.</p>
+                 <div className="flex gap-2">
+                   <button
+                       onClick={() =>
+                           do_(
+                               'delete',
+                               () => adminApi.deleteUser(user.id),
+                               'Пользователь удалён'
+                           )
+                       }
+                       disabled={actionLoading === 'delete'}
+                       className="flex-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-700 text-white text-xs rounded transition"
+                   >
+                     {actionLoading === 'delete' ? 'Удаление...' : 'Да, удалить'}
+                   </button>
+                   <button
+                       onClick={() => setShowDeleteConfirm(false)}
+                       className="flex-1 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded transition"
+                   >
+                     Отменить
+                   </button>
+                 </div>
+               </div>
+           )}
+
+           <button
+               onClick={onClose}
+               className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition"
+           >
+             Закрыть
+           </button>
         </div>
       </div>
   );

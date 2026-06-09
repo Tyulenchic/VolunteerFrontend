@@ -1,4 +1,5 @@
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, useEffect } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { Layout } from './components/Layout';
@@ -22,6 +23,7 @@ import { RegisterPage }          from './pages/auth/RegisterPage';
 import { ForgotPasswordPage }    from './pages/auth/ForgotPasswordPage';
 import { ResetPasswordPage }     from './pages/auth/ResetPasswordPage';
 import { ProfilePage }           from './pages/profile/ProfilePage';
+import { UserProfilePage }       from './pages/profile/UserProfilePage';
 import { AdminDashboard }        from './pages/admin/AdminDashboard';
 import { AdminUsersPage }        from './pages/admin/AdminUsersPage';
 import { AdminEventsPage }       from './pages/admin/AdminEventsPage';
@@ -61,9 +63,21 @@ function NotFound() {
   );
 }
 
+// Компонент для прокрутки в верх при смене маршрута
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 export default function App() {
   return (
       <HashRouter>
+      <ScrollToTop />
       <NotificationProvider>
         <AuthProvider>
           <Routes>
@@ -84,6 +98,7 @@ export default function App() {
             <Route path="/organizations" element={<WL><OrganizationsPage /></WL>} />
             <Route path="/organizers"    element={<WL><OrganizersPage /></WL>} />
             <Route path="/volunteers"    element={<WL><VolunteersPage /></WL>} />
+            <Route path="/users/:id"     element={<WL><UserProfilePage /></WL>} />
             <Route path="/about"         element={<WL><AboutPage /></WL>} />
             <Route path="/faq"           element={<WL><FaqPage /></WL>} />
             <Route path="/rules"         element={<WL><SiteRulesPage /></WL>} />
