@@ -56,9 +56,9 @@ export function Layout({ children }: { children: ReactNode }) {
               {/* Desktop nav */}
               <nav className="hidden md:flex items-center justify-center flex-1 gap-6 lg:gap-8" aria-label="Главная навигация">
                 <NavLink to="/" className={navLinkClass}>Главная</NavLink>
+                <NavLink to="/about" className={navLinkClass}>О нас</NavLink>
                 <NavLink to="/news" className={navLinkClass}>Новости</NavLink>
                 <NavLink to="/events" className={navLinkClass}>Мероприятия</NavLink>
-                <NavLink to="/about" className={navLinkClass}>О нас</NavLink>
                 <button onClick={() => scrollTo('feedback')} className="font-medium text-gray-600 hover:text-primary transition bg-transparent border-none cursor-pointer p-0 text-base">
                   Контакты
                 </button>
