@@ -27,18 +27,6 @@ const CAT_OPTIONS: Array<{ key: EventCategory | 'all'; label: string; icon: stri
   { key: 'Urban', label: 'Урбанистика', icon: 'fa-city' },
 ];
 
-// const filtered = items.filter(ev => {
-//   // Фильтр по категории ✅
-//   if (cat !== 'all' && ev.category !== cat) {
-//     return false;
-//   }
-//
-//   // Фильтр по поиску
-//   if (!search) return true;
-//   const q = search.toLowerCase();
-//   return ev.title.toLowerCase().includes(q) || ev.location.toLowerCase().includes(q);
-// });
-
 const fmtDate = (s: string) => {
   const d = new Date(s);
   return {
@@ -110,10 +98,7 @@ export function EventsPage() {
   useEffect(() => {
     setLoading(true);
     publicEventsApi.getActual(0, 100)
-      .then(res => {
-        setItems(res.items);
-        console.log('Loaded events:', res.items);
-      })
+      .then(res => setItems(res.items))
       .finally(() => setLoading(false));
   }, []);
 
@@ -123,13 +108,17 @@ export function EventsPage() {
     setTimer(setTimeout(() => setSearch(v), 300));
   };
 
-  const filtered = items.filter(ev => {
-    if (cat !== 'all') return false; // category filter via API category field when available
-    if (!search) return true;
-    const q = search.toLowerCase();
-    return ev.title.toLowerCase().includes(q) || ev.location.toLowerCase().includes(q);
-  });
+const filtered = items.filter(ev => {
+  // Фильтр по категории ✅
+  if (cat !== 'all' && ev.category !== cat) {
+    return false;
+  }
 
+  // Фильтр по поиску
+  if (!search) return true;
+  const q = search.toLowerCase();
+  return ev.title.toLowerCase().includes(q) || ev.location.toLowerCase().includes(q);
+});
   return (
     <>
       {/* HERO */}
