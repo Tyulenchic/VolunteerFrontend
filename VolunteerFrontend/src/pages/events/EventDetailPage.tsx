@@ -7,7 +7,7 @@ import { Modal } from '../../components/Modal';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { eventsApi } from '../../api/events';
-import { STATIC_EVENTS } from '../../data/mockEvents';
+
 
 const fmtDate = (s: string) =>
   new Date(s).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -65,26 +65,6 @@ function ApplyModal({ event, onClose }: { event: EventResponseDto; onClose: () =
   );
 }
 
-// Stub from mock for fallback
-function mockEventToDto(id: string): EventResponseDto | null {
-  const numId = parseInt(id, 10);
-  const m = STATIC_EVENTS.find(e => e.id === numId);
-  if (!m) return null;
-  return {
-    id: String(m.id),
-    title: m.title,
-    description: m.description,
-    location: m.place,
-    startsAt: m.datetime,
-    endsAt: m.datetime,
-    maxParticipants: m.need,
-    approvedCount: 0,
-    status: 'Published',
-    createdByUserId: '0',
-    createdAt: m.datetime,
-    updatedAt: null,
-  };
-}
 
 export function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -97,10 +77,7 @@ export function EventDetailPage() {
     setLoading(true);
     publicEventsApi.getById(id)
       .then(setEvent)
-      .catch(() => {
-        const fallback = mockEventToDto(id);
-        setEvent(fallback);
-      })
+      .catch(() => { setEvent(null); })
       .finally(() => setLoading(false));
   }, [id]);
 

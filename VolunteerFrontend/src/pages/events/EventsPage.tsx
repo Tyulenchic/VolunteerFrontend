@@ -7,20 +7,37 @@ import { Spinner } from '../../components/Spinner';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { eventsApi } from '../../api/events';
-import { STATIC_EVENTS } from '../../data/mockEvents';
 import PhoneMeropriyatiyaImage from '../../assets/PhoneMeropriyatiya.png';
 import { IMAGE_POSITIONS } from '../../constants/imagePositions';
 
 const CAT_OPTIONS: Array<{ key: EventCategory | 'all'; label: string; icon: string }> = [
   { key: 'all', label: 'Все', icon: 'fa-th' },
-  { key: 'Ecological', label: 'Экология', icon: 'fa-leaf' },
-  { key: 'Social', label: 'Соц. помощь', icon: 'fa-hands-helping' },
+  { key: 'Ecological', label: 'Экологическое', icon: 'fa-leaf' },
+  { key: 'Social', label: 'Социальное', icon: 'fa-hands-helping' },
   { key: 'Donation', label: 'Донорство', icon: 'fa-heartbeat' },
-  { key: 'Education', label: 'Обучение', icon: 'fa-graduation-cap' },
-  { key: 'HealthyLife', label: 'Спорт', icon: 'fa-running' },
+  { key: 'Education', label: 'Образование', icon: 'fa-graduation-cap' },
+  { key: 'HealthyLife', label: 'ЗОЖ', icon: 'fa-running' },
   { key: 'Animals', label: 'Животные', icon: 'fa-paw' },
   { key: 'Veterans', label: 'Ветераны', icon: 'fa-medal' },
+  { key: 'Medical', label: 'Мед', icon: 'fa-stethoscope' },
+  { key: 'Culture', label: 'Культура', icon: 'fa-palette' },
+  { key: 'Media', label: 'Медиаволонтёрство', icon: 'fa-camera' },
+  { key: 'Events', label: 'Событийное', icon: 'fa-calendar' },
+  { key: 'Patriotic', label: 'Патриотическое', icon: 'fa-flag' },
+  { key: 'Urban', label: 'Урбанистика', icon: 'fa-city' },
 ];
+
+// const filtered = items.filter(ev => {
+//   // Фильтр по категории ✅
+//   if (cat !== 'all' && ev.category !== cat) {
+//     return false;
+//   }
+//
+//   // Фильтр по поиску
+//   if (!search) return true;
+//   const q = search.toLowerCase();
+//   return ev.title.toLowerCase().includes(q) || ev.location.toLowerCase().includes(q);
+// });
 
 const fmtDate = (s: string) => {
   const d = new Date(s);
@@ -93,19 +110,9 @@ export function EventsPage() {
   useEffect(() => {
     setLoading(true);
     publicEventsApi.getActual(0, 100)
-      .then(res => setItems(res.items.length ? res.items : buildMock()))
-      .catch(() => setItems(buildMock()))
+      .then(res => setItems(res.items))
       .finally(() => setLoading(false));
   }, []);
-
-  function buildMock(): EventResponseDto[] {
-    return STATIC_EVENTS.map(e => ({
-      id: String(e.id), title: e.title, description: e.description,
-      location: e.place, startsAt: e.datetime, endsAt: e.datetime,
-      maxParticipants: e.need, approvedCount: 0, status: 'Published' as const,
-      createdByUserId: '0', createdAt: e.datetime, updatedAt: null,
-    }));
-  }
 
   const onSearch = (v: string) => {
     setSearchRaw(v);

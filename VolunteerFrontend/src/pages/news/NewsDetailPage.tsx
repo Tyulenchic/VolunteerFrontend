@@ -20,9 +20,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   education: 'Обучение',
 };
 
-// Fallback mock detail for when API is unavailable
-import { MOCK_NEWS } from '../../data/mockNews';
-
 export function NewsDetailPage() {
   const { id } = useParams<{ id: string }>();
   
@@ -37,29 +34,7 @@ export function NewsDetailPage() {
 
     newsApi.getById(id)
       .then(setNews)
-      .catch(() => {
-        // Try fallback to mock data (numeric id)
-        const numId = parseInt(id, 10);
-        const mock = MOCK_NEWS.find(n => n.id === numId);
-        if (mock) {
-          setNews({
-            id: String(mock.id),
-            title: mock.title,
-            content: mock.excerpt + '\n\n' +
-              'Волонтёры нашего движения каждый день делают мир чуть лучше. Это мероприятие стало важным событием для всего сообщества. Участники работали с энтузиазмом и преданностью общему делу.\n\n' +
-              'Организаторы выражают огромную благодарность всем, кто принял участие. Благодаря вашей поддержке мы смогли достичь намеченных целей и даже превзойти их.\n\n' +
-              'Следите за нашими новостями, чтобы узнавать о предстоящих событиях и присоединяться к нашим акциям. Вместе мы сила!',
-            imageUrl: mock.image,
-            status: 'Published',
-            createdByUserId: '0',
-            authorName: mock.author,
-            createdAt: mock.date,
-            category: mock.category,
-          });
-        } else {
-          setError('Новость не найдена');
-        }
-      })
+      .catch(() => { setError('Новость не найдена'); })
       .finally(() => setLoading(false));
   }, [id]);
 

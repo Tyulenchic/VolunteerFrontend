@@ -8,8 +8,6 @@ import { Spinner } from '../../components/Spinner';
 import { newsApi, type NewsResponseDto } from '../../api/news';
 import { publicEventsApi } from '../../api/publicEvents';
 import type { EventResponseDto } from '../../types/event';
-import { MOCK_NEWS } from '../../data/mockNews';
-import { STATIC_EVENTS } from '../../data/mockEvents';
 import VolonterHomeImage from '../../assets/VolonterHome.png';
 
 // ─── Video carousel data ────────────────────────────────────────────────────
@@ -22,14 +20,24 @@ const REPORT_VIDEOS = [
 ];
 
 // ─── Event category color map ───────────────────────────────────────────────
+// ✅ Полная карта цветов для ВСЕХ 13 категорий из бэкенда
 const CATEGORY_COLORS: Record<string, string> = {
-  'Экология':   'bg-green-500',
-  'Социальное': 'bg-orange-500',
-  'Культура':   'bg-purple-500',
-  'Спорт':      'bg-sky-500',
-  'Образование':'bg-indigo-500',
+    'Экологическое': 'bg-green-500',
+    'Социальное': 'bg-orange-500',
+    'Культура': 'bg-purple-500',
+    'ЗОЖ': 'bg-sky-500',
+    'Образование': 'bg-indigo-500',
+    'Ветераны': 'bg-red-500',
+    'Мед': 'bg-teal-500',
+    'Донорство': 'bg-red-600',
+    'Животные': 'bg-yellow-500',
+    'Медиаволонтёрство': 'bg-cyan-500',
+    'Событийное': 'bg-pink-500',
+    'Патриотическое': 'bg-blue-700',
+    'Урбанистика': 'bg-gray-500',
 };
-const getCategoryColor = (cat?: string) =>
+
+const getCategoryColor = (cat?: string): string =>
     cat ? (CATEGORY_COLORS[cat] ?? 'bg-blue-600') : 'bg-blue-600';
 
 // ─── VideoCarousel ───────────────────────────────────────────────────────────
@@ -319,14 +327,12 @@ export function HomePage() {
   useEffect(() => {
     newsApi.getActual(0, 4)
         .then(res => setNewsItems(res.items))
-        .catch(() => setNewsItems(MOCK_NEWS.slice(0, 4).map(n => ({ id: String(n.id), title: n.title, content: n.excerpt, imageUrl: n.image, status: 'Published' as const, createdByUserId: '0', authorName: n.author, createdAt: n.date, category: n.category }))))
         .finally(() => setNewsLoading(false));
   }, []);
 
   useEffect(() => {
     publicEventsApi.getActual(0, 4)
         .then(res => setEvents(res.items))
-        .catch(() => setEvents(STATIC_EVENTS.slice(0, 4).map((e, i) => ({ id: String(e.id), title: e.title, description: e.description, location: e.place, startsAt: e.datetime, endsAt: e.datetime, maxParticipants: e.need, approvedCount: Math.floor(Math.random() * (e.need || 40)), status: 'Published' as const, createdByUserId: '0', createdAt: e.datetime, updatedAt: null, category: EVENT_CATS[i] ?? 'Экология', imageUrl: EVENT_IMAGES[i] }))))
         .finally(() => setEventsLoading(false));
   }, []);
 
