@@ -189,7 +189,7 @@ function FeedbackModal({ onClose }: { onClose: () => void }) {
             : form.message;
 
         try {
-            const res = await fetch('/api/feedback', {
+            const res = await fetch('https://volunteerapi-0x7y.onrender.com/api/feedback', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: form.name, email: form.email, message: fullMessage }),
