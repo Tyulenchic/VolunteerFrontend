@@ -168,30 +168,82 @@ function RegisterModal({ onClose, onSwitch }: { onClose: () => void; onSwitch: (
 }
 
 function FeedbackModal({ onClose }: { onClose: () => void }) {
-  const { notify } = useNotification();
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
-  const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
-    notify('Сообщение отправлено! 📬'); setLoading(false); onClose();
-  };
-  return (
-      <form onSubmit={submit} className="space-y-4">
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Ваше имя</label><input value={form.name} onChange={e => set('name', e.target.value)} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Иван Иванов" /></div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Email</label><input type="email" value={form.email} onChange={e => set('email', e.target.value)} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="your@email.com" /></div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Тема</label>
-          <select value={form.subject} onChange={e => set('subject', e.target.value)} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
-            <option value="">Выберите тему</option><option value="question">Вопрос</option><option value="suggestion">Предложение</option><option value="problem">Проблема</option><option value="cooperation">Сотрудничество</option>
-          </select>
-        </div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Сообщение</label><textarea value={form.message} onChange={e => set('message', e.target.value)} required rows={4} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition resize-none" /></div>
-        <button type="submit" disabled={loading} className="w-full py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition disabled:opacity-60 flex items-center justify-center gap-2">
-          {loading ? <><Spinner /> Отправка...</> : <><i className="fas fa-paper-plane mr-1" />Отправить</>}
-        </button>
-      </form>
-  );
+    const { notify } = useNotification();
+    const [loading, setLoading] = useState(false);
+    const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+    const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
+
+    const submit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        const subjectLabel: Record<string, string> = {
+            question: 'Вопрос',
+            suggestion: 'Предложение',
+            problem: 'Проблема',
+            cooperation: 'Сотрудничество',
+        };
+
+        const fullMessage = form.subject
+            ? `[${subjectLabel[form.subject] ?? form.subject}] ${form.message}`
+            : form.message;
+
+        try {
+            const res = await fetch('/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: form.name, email: form.email, message: fullMessage }),
+            });
+
+            if (res.status === 429) {
+                notify('Слишком много запросов. Попробуйте позже.');
+                return;
+            }
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => null);
+                notify(err?.detail ?? 'Ошибка при отправке. Попробуйте ещё раз.');
+                return;
+            }
+
+            notify('Сообщение отправлено! 📬');
+            onClose();
+        } catch {
+            notify('Нет соединения. Проверьте интернет и попробуйте снова.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <form onSubmit={submit} className="space-y-4">
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Ваше имя</label>
+                <input value={form.name} onChange={e => set('name', e.target.value)} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Иван Иванов" />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" value={form.email} onChange={e => set('email', e.target.value)} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="your@email.com" />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Тема</label>
+                <select value={form.subject} onChange={e => set('subject', e.target.value)} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    <option value="">Выберите тему</option>
+                    <option value="question">Вопрос</option>
+                    <option value="suggestion">Предложение</option>
+                    <option value="problem">Проблема</option>
+                    <option value="cooperation">Сотрудничество</option>
+                </select>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Сообщение</label>
+                <textarea value={form.message} onChange={e => set('message', e.target.value)} required rows={4} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition resize-none" />
+            </div>
+            <button type="submit" disabled={loading} className="w-full py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition disabled:opacity-60 flex items-center justify-center gap-2">
+                {loading ? <><Spinner /> Отправка...</> : <><i className="fas fa-paper-plane mr-1" />Отправить</>}
+            </button>
+        </form>
+    );
 }
 
 function EventModal({ title, onClose }: { title: string; onClose: () => void }) {
