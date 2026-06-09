@@ -110,7 +110,10 @@ export function EventsPage() {
   useEffect(() => {
     setLoading(true);
     publicEventsApi.getActual(0, 100)
-      .then(res => setItems(res.items))
+      .then(res => {
+        setItems(res.items);
+        console.log('Loaded events:', res.items);
+      })
       .finally(() => setLoading(false));
   }, []);
 
