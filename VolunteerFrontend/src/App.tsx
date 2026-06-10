@@ -13,6 +13,7 @@ import { NewsDetailPage }        from './pages/news/NewsDetailPage';
 import { EventsPage }            from './pages/events/EventsPage';
 import { EventDetailPage }       from './pages/events/EventDetailPage';
 import { OrganizationsPage }     from './pages/organizations/OrganizationsPage';
+import { OrganizationDetailPage } from './pages/organizations/OrganizationDetailPage.tsx';
 import { OrganizersPage }        from './pages/organizers/OrganizersPage';
 import { VolunteersPage }        from './pages/volunteers/VolunteersPage';
 import { AboutPage }             from './pages/about/AboutPage';
@@ -34,6 +35,7 @@ import { AdminAnalyticsPage }    from './pages/admin/AdminAnalyticsPage';
 import { AdminAuditLogPage }     from './pages/admin/AdminAuditLogPage';
 import { Link } from 'react-router-dom';
 
+<Route path="/organizations/:id" element={<OrganizationDetailPage />} />
 function WL({ children }: { children: React.ReactNode }) {
   return <Layout>{children}</Layout>;
 }
