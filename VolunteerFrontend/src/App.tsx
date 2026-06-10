@@ -111,7 +111,7 @@ export default function App() {
             {/* ── Volunteer-protected ─────────────────────────── */}
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<WL><ProfilePage /></WL>} />
-                <Route path="/MyFeedPage" element={<WL><MyFeedPage /></WL>} />
+                <Route path="/feed" element={<WL><MyFeedPage /></WL>} />
             </Route>
 
             {/* ── Admin panel ─────────────────────────────────── */}
