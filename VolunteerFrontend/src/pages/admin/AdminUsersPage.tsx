@@ -374,12 +374,27 @@ export function AdminUsersPage() {
                         </span>
                             </td>
                             <td className="px-4 py-3 text-center text-white">{user.participationsCount}</td>
-                            <td className="px-4 py-3 text-center">
+                            <td className="px-4 py-3 text-center space-x-2 flex items-center justify-center">
                               <button
                                   onClick={() => openDetail(user.id)}
                                   className="text-primary hover:underline text-sm"
                               >
                                 Подробнее
+                              </button>
+                              <button
+                                  onClick={async () => {
+                                    if (confirm(`Вы уверены? Это удалит пользователя ${user.fullName}`)) {
+                                      try {
+                                        await adminApi.deleteUser(user.id);
+                                        load();
+                                      } catch (e) {
+                                        console.error('Error deleting user:', e);
+                                      }
+                                    }
+                                  }}
+                                  className="text-red-400 hover:text-red-300 text-sm"
+                              >
+                                <i className="fas fa-trash-alt" />
                               </button>
                             </td>
                           </tr>
