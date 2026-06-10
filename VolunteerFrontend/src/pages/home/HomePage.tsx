@@ -369,7 +369,7 @@ export function HomePage() {
                       onClick={() => scrollTo('events')}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition shadow-md shadow-blue-600/25 text-sm"
                   >
-                    Найти мероприятие <i className="fas fa-arrow-right text-xs" />
+                    Перейти к мероприятиям <i className="fas fa-arrow-right text-xs" />
                   </button>
                   {user
                       ? <Link to="/profile" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:text-blue-600 transition text-sm no-underline">
