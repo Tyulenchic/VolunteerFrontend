@@ -3,7 +3,7 @@ import { adminApi } from '../../api/admin';
 import { useNotification } from '../../context/NotificationContext';
 import { Spinner } from '../../components/Spinner';
 import { EventFormModal } from './EventFormModal';
-import type { AdminEventListDto, AdminEventStatisticsDto } from '../../types/admin';
+import type { AdminEventListDto } from '../../types/admin';
 
 const TAKE = 20;
 
@@ -21,92 +21,92 @@ const STATUS_COLOR: Record<string, string> = {
   Completed: 'bg-blue-900/60 text-blue-400',
 };
 
-interface StatsModalProps {
-  event: AdminEventListDto;
-  onClose: () => void;
-}
+// interface StatsModalProps {
+//   event: AdminEventListDto;
+//   onClose: () => void;
+// }
 
-function StatsModal({ event, onClose }: StatsModalProps) {
-  const [stats, setStats] = useState<AdminEventStatisticsDto | null>(null);
-  const [loading, setLoading] = useState(true);
+// function StatsModal({ event, onClose }: StatsModalProps) {
+//   const [stats, setStats] = useState<AdminEventStatisticsDto | null>(null);
+//   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await adminApi.getEventStatistics(event.id);
-        setStats(data);
-      } catch (e) {
-        console.error('Error loading event statistics:', e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [event.id]);
-
-  if (loading) {
-    return (
-        <div className="flex items-center justify-center py-8">
-          <Spinner />
-        </div>
-    );
-  }
-
-  if (!stats) {
-    return <div className="text-center text-gray-500">Ошибка загрузки статистики</div>;
-  }
-
-  return (
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-white font-medium mb-3">{event.title}</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 bg-gray-800 rounded-lg">
-              <p className="text-gray-400 text-xs">Всего заявок</p>
-              <p className="text-white text-lg font-bold">{stats.totalApplications}</p>
-            </div>
-            <div className="p-3 bg-gray-800 rounded-lg">
-              <p className="text-gray-400 text-xs">Одобрено</p>
-              <p className="text-green-400 text-lg font-bold">{stats.approvedParticipants}</p>
-            </div>
-            <div className="p-3 bg-gray-800 rounded-lg">
-              <p className="text-gray-400 text-xs">Отклонено</p>
-              <p className="text-red-400 text-lg font-bold">{stats.rejectedParticipants}</p>
-            </div>
-            <div className="p-3 bg-gray-800 rounded-lg">
-              <p className="text-gray-400 text-xs">Посещение подтверждено</p>
-              <p className="text-blue-400 text-lg font-bold">{stats.attendanceConfirmed}</p>
-            </div>
-            <div className="p-3 bg-gray-800 rounded-lg col-span-2">
-              <p className="text-gray-400 text-xs mb-1">Процент заполнения</p>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
-                  <div
-                      className="h-full bg-primary transition-all"
-                      style={{ width: `${Math.min(stats.fillPercentage, 100)}%` }}
-                  />
-                </div>
-                <span className="text-white font-medium text-sm">{stats.fillPercentage.toFixed(1)}%</span>
-              </div>
-            </div>
-            {stats.freeSlots > 0 && (
-                <div className="p-3 bg-gray-800 rounded-lg col-span-2">
-                  <p className="text-gray-400 text-xs">Свободных мест</p>
-                  <p className="text-blue-400 text-lg font-bold">{stats.freeSlots}</p>
-                </div>
-            )}
-          </div>
-        </div>
-
-        <button
-            onClick={onClose}
-            className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition"
-        >
-          Закрыть
-        </button>
-      </div>
-  );
-}
+//   useEffect(() => {
+//     const load = async () => {
+//       try {
+//         const data = await adminApi.getEventStatistics(event.id);
+//         setStats(data);
+//       } catch (e) {
+//         console.error('Error loading event statistics:', e);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//     load();
+//   }, [event.id]);
+//
+//   if (loading) {
+//     return (
+//         <div className="flex items-center justify-center py-8">
+//           <Spinner />
+//         </div>
+//     );
+//   }
+//
+//   if (!stats) {
+//     return <div className="text-center text-gray-500">Ошибка загрузки статистики</div>;
+//   }
+//
+//   return (
+//       <div className="space-y-4">
+//         <div>
+//           <h3 className="text-white font-medium mb-3">{event.title}</h3>
+//           <div className="grid grid-cols-2 gap-3">
+//             <div className="p-3 bg-gray-800 rounded-lg">
+//               <p className="text-gray-400 text-xs">Всего заявок</p>
+//               <p className="text-white text-lg font-bold">{stats.totalApplications}</p>
+//             </div>
+//             <div className="p-3 bg-gray-800 rounded-lg">
+//               <p className="text-gray-400 text-xs">Одобрено</p>
+//               <p className="text-green-400 text-lg font-bold">{stats.approvedParticipants}</p>
+//             </div>
+//             <div className="p-3 bg-gray-800 rounded-lg">
+//               <p className="text-gray-400 text-xs">Отклонено</p>
+//               <p className="text-red-400 text-lg font-bold">{stats.rejectedParticipants}</p>
+//             </div>
+//             <div className="p-3 bg-gray-800 rounded-lg">
+//               <p className="text-gray-400 text-xs">Посещение подтверждено</p>
+//               <p className="text-blue-400 text-lg font-bold">{stats.attendanceConfirmed}</p>
+//             </div>
+//             <div className="p-3 bg-gray-800 rounded-lg col-span-2">
+//               <p className="text-gray-400 text-xs mb-1">Процент заполнения</p>
+//               <div className="flex items-center gap-2">
+//                 <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+//                   <div
+//                       className="h-full bg-primary transition-all"
+//                       style={{ width: `${Math.min(stats.fillPercentage, 100)}%` }}
+//                   />
+//                 </div>
+//                 <span className="text-white font-medium text-sm">{stats.fillPercentage.toFixed(1)}%</span>
+//               </div>
+//             </div>
+//             {stats.freeSlots > 0 && (
+//                 <div className="p-3 bg-gray-800 rounded-lg col-span-2">
+//                   <p className="text-gray-400 text-xs">Свободных мест</p>
+//                   <p className="text-blue-400 text-lg font-bold">{stats.freeSlots}</p>
+//                 </div>
+//             )}
+//           </div>
+//         </div>
+//
+//         <button
+//             onClick={onClose}
+//             className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition"
+//         >
+//           Закрыть
+//         </button>
+//       </div>
+//   );
+// }
 
 export function AdminEventsPage() {
   const { notify } = useNotification();
@@ -226,7 +226,6 @@ export function AdminEventsPage() {
                     <th className="px-4 py-3 text-left text-gray-300">Место</th>
                     <th className="px-4 py-3 text-center text-gray-300">Статус</th>
                     <th className="px-4 py-3 text-center text-gray-300">Участники</th>
-                    <th className="px-4 py-3 text-center text-gray-300">Просмотры</th>
                     <th className="px-4 py-3 text-center text-gray-300">Действия</th>
                   </tr>
                   </thead>
@@ -257,7 +256,6 @@ export function AdminEventsPage() {
                               <div className="text-white font-medium">{event.approvedParticipations}</div>
                               <div className="text-gray-500 text-xs">/ {event.totalParticipations}</div>
                             </td>
-                            <td className="px-4 py-3 text-center text-white font-medium">{event.views}</td>
                             <td className="px-4 py-3 text-center">
                               <div className="flex items-center justify-center gap-2">
                                 <button
