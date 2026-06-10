@@ -33,6 +33,7 @@ import { AdminParticipationsPage } from './pages/admin/AdminParticipationsPage';
 import { AdminNewsPage }         from './pages/admin/AdminNewsPage';
 import { AdminAnalyticsPage }    from './pages/admin/AdminAnalyticsPage';
 import { AdminAuditLogPage }     from './pages/admin/AdminAuditLogPage';
+import { MyFeedPage } from './pages/feed/MyFeedPage';
 import { Link } from 'react-router-dom';
 
 function WL({ children }: { children: React.ReactNode }) {
@@ -110,6 +111,7 @@ export default function App() {
             {/* ── Volunteer-protected ─────────────────────────── */}
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<WL><ProfilePage /></WL>} />
+                <Route path="/feed" element={<WL><MyFeedPage /></WL>} />
             </Route>
 
             {/* ── Admin panel ─────────────────────────────────── */}
