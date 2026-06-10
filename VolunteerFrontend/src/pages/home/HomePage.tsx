@@ -420,33 +420,91 @@ export function HomePage() {
               <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="grid grid-cols-1 gap-12">
 
-                      {/* News column — FIRST */}
+                      {/* News column */}
                       <div>
                           <div className="flex flex-col items-center text-center mb-6">
                               <h2 className="text-xl font-extrabold text-gray-900">Последние новости</h2>
-                              <Link to="/news" className="inline-flex items-center gap-1.5 text-blue-600 text-sm font-semibold hover:text-blue-700 no-underline mt-2">
+                              <Link
+                                  to="/news"
+                                  className="inline-flex items-center gap-1.5 text-blue-600 text-sm font-semibold hover:text-blue-700 no-underline mt-2"
+                              >
                                   Все новости <i className="fas fa-arrow-right text-xs" />
                               </Link>
                           </div>
 
-                          {newsLoading
-                              ? <div className="flex justify-center py-10"><Spinner /></div>
-                              : <div className="space-y-4 max-w-2xl mx-auto">
-                                  {newsItems.slice(0, 4).map(n => (
-                                      <Link key={n.id} to={`/news/${n.id}`} className="flex gap-3 group no-underline">
-                                          {n.imageUrl && (
-                                              <div className="w-[72px] h-[56px] rounded-xl overflow-hidden flex-shrink-0">
-                                                  <img src={n.imageUrl} alt={n.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                          {newsLoading ? (
+                              <div className="flex justify-center py-10">
+                                  <Spinner />
+                              </div>
+                          ) : (() => {
+                              const items = newsItems.slice(0, 10);
+                              const withImage = items.filter(n => n.imageUrl);
+                              const withoutImage = items.filter(n => !n.imageUrl);
+
+                              // Есть хотя бы одна новость с картинкой — показываем сетку 5 в ряд
+                              if (withImage.length > 0) {
+                                  return (
+                                      <div className="grid grid-cols-5 gap-3">
+                                          {withImage.map(n => (
+                                              <Link
+                                                  key={n.id}
+                                                  to={`/news/${n.id}`}
+                                                  className="flex flex-col gap-2 group no-underline"
+                                              >
+                                                  <div className="w-full overflow-hidden rounded-xl" style={{ aspectRatio: '16/10' }}>
+                                                      <img
+                                                          src={n.imageUrl}
+                                                          alt={n.title}
+                                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                          loading="lazy"
+                                                      />
+                                                  </div>
+                                                  <p className="text-[13px] font-semibold text-gray-800 group-hover:text-blue-600 transition leading-snug line-clamp-3 m-0">
+                                                      {n.title}
+                                                  </p>
+                                                  <time className="text-[11px] text-gray-400">{fmtDate(n.createdAt)}</time>
+                                              </Link>
+                                          ))}
+
+                                          {/* Текстовые новости (без картинок) идут отдельной строкой под сеткой */}
+                                          {withoutImage.length > 0 && (
+                                              <div className="col-span-5 grid grid-cols-2 gap-x-8 mt-2">
+                                                  {withoutImage.slice(0, 8).map(n => (
+                                                      <Link
+                                                          key={n.id}
+                                                          to={`/news/${n.id}`}
+                                                          className="flex flex-col gap-1 py-3 border-b border-gray-100 last:border-b-0 group no-underline"
+                                                      >
+                                                          <p className="text-[13px] font-semibold text-gray-800 group-hover:text-blue-600 transition leading-snug line-clamp-2 m-0">
+                                                              {n.title}
+                                                          </p>
+                                                          <time className="text-[11px] text-gray-400">{fmtDate(n.createdAt)}</time>
+                                                      </Link>
+                                                  ))}
                                               </div>
                                           )}
-                                          <div className="flex-1 min-w-0">
-                                              <p className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition leading-snug line-clamp-2 mb-1">{n.title}</p>
-                                              <time className="text-xs text-gray-400">{fmtDate(n.createdAt)}</time>
-                                          </div>
-                                      </Link>
-                                  ))}
-                              </div>
-                          }
+                                      </div>
+                                  );
+                              }
+
+                              // Все новости без картинок — 2 колонки по 4
+                              return (
+                                  <div className="grid grid-cols-2 gap-x-8">
+                                      {withoutImage.slice(0, 8).map(n => (
+                                          <Link
+                                              key={n.id}
+                                              to={`/news/${n.id}`}
+                                              className="flex flex-col gap-1 py-3 border-b border-gray-100 last:border-b-0 group no-underline"
+                                          >
+                                              <p className="text-[13px] font-semibold text-gray-800 group-hover:text-blue-600 transition leading-snug line-clamp-2 m-0">
+                                                  {n.title}
+                                              </p>
+                                              <time className="text-[11px] text-gray-400">{fmtDate(n.createdAt)}</time>
+                                          </Link>
+                                      ))}
+                                  </div>
+                              );
+                          })()}
                       </div>
 
                       {/* Events column — SECOND */}

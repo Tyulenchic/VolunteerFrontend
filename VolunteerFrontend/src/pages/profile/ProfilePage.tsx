@@ -137,7 +137,7 @@ export function ProfilePage() {
     {key:'activity', label:'Активность',  icon:'fa-calendar-check'},
     {key:'settings', label:'Настройки',   icon:'fa-cog'},
     {key:'security', label:'Безопасность',icon:'fa-lock'},
-    {key:'danger',   label:'Опасная зона',icon:'fa-exclamation-triangle'},
+    {key:'danger',   label:'Удалить аккаунт',icon:'fa-exclamation-triangle'},
   ];
 
   const inp = 'w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition';
