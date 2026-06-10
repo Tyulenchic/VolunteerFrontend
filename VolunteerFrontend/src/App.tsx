@@ -35,7 +35,6 @@ import { AdminAnalyticsPage }    from './pages/admin/AdminAnalyticsPage';
 import { AdminAuditLogPage }     from './pages/admin/AdminAuditLogPage';
 import { Link } from 'react-router-dom';
 
-<Route path="/organizations/:id" element={<OrganizationDetailPage />} />
 function WL({ children }: { children: React.ReactNode }) {
   return <Layout>{children}</Layout>;
 }
@@ -106,6 +105,7 @@ export default function App() {
             <Route path="/faq"           element={<WL><FaqPage /></WL>} />
             <Route path="/rules"         element={<WL><SiteRulesPage /></WL>} />
             <Route path="/privacy"       element={<WL><PrivacyPolicyPage /></WL>} />
+              <Route path="/organizations/:id" element={<OrganizationDetailPage />} />
 
             {/* ── Volunteer-protected ─────────────────────────── */}
             <Route element={<ProtectedRoute />}>
