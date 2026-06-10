@@ -1,4 +1,5 @@
-import { HashRouter, Routes, Route, useEffect } from 'react-router-dom';
+import { useEffect } from 'react';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';

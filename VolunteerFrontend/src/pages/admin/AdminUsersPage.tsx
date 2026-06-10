@@ -147,21 +147,39 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
               </button>
           )}
 
-           {user.role !== 'Admin' && (
-               <button
-                   onClick={() =>
-                       do_(
-                           'role',
-                           () => adminApi.changeUserRole(user.id, 'Admin'),
-                           'Роль изменена на Администратор'
-                       )
-                   }
-                   disabled={actionLoading === 'role'}
-                   className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 text-white text-sm rounded-lg transition"
-               >
-                 {actionLoading === 'role' ? 'Загрузка...' : 'Сделать администратором'}
-               </button>
-           )}
+           <div className="space-y-2">
+             {user.role !== 'Organizer' && (
+                 <button
+                     onClick={() =>
+                         do_(
+                             'role-organizer',
+                             () => adminApi.changeUserRole(user.id, 'Organizer'),
+                             'Роль изменена на Организатор'
+                         )
+                     }
+                     disabled={actionLoading === 'role-organizer'}
+                     className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 text-white text-sm rounded-lg transition"
+                 >
+                   {actionLoading === 'role-organizer' ? 'Загрузка...' : 'Сделать организатором'}
+                 </button>
+             )}
+
+             {user.role !== 'Admin' && (
+                 <button
+                     onClick={() =>
+                         do_(
+                             'role-admin',
+                             () => adminApi.changeUserRole(user.id, 'Admin'),
+                             'Роль изменена на Администратор'
+                         )
+                     }
+                     disabled={actionLoading === 'role-admin'}
+                     className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 text-white text-sm rounded-lg transition"
+                 >
+                   {actionLoading === 'role-admin' ? 'Загрузка...' : 'Сделать администратором'}
+                 </button>
+             )}
+           </div>
 
            <button
                onClick={() => setShowDeleteConfirm(true)}
