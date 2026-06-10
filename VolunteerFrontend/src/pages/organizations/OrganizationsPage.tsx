@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../../context/NotificationContext';
 
-const CAT_LABELS: Record<OrgCategory | 'all', string> = {
+export const CAT_LABELS: Record<OrgCategory | 'all', string> = {
   all:       'Все направления',
   eco:       'Экология',
   social:    'Соц. помощь',
@@ -25,7 +26,7 @@ const CAT_ICONS: Record<OrgCategory | 'all', string> = {
   health:    'fa-heartbeat',
 };
 
-const CAT_BADGE: Record<OrgCategory, string> = {
+export const CAT_BADGE: Record<OrgCategory, string> = {
   eco:       'bg-green-100 text-green-700',
   social:    'bg-red-100 text-red-700',
   patriotic: 'bg-blue-100 text-blue-800',
@@ -36,7 +37,7 @@ const CAT_BADGE: Record<OrgCategory, string> = {
   health:    'bg-pink-100 text-pink-700',
 };
 
-const CAT_BADGE_LABEL: Record<OrgCategory, string> = {
+export const CAT_BADGE_LABEL: Record<OrgCategory, string> = {
   eco:       'Экология',
   social:    'Соц. помощь',
   patriotic: 'Патриотическое',
@@ -49,11 +50,11 @@ const CAT_BADGE_LABEL: Record<OrgCategory, string> = {
 
 export function OrganizationsPage() {
   const { notify } = useNotification();
+  const navigate = useNavigate();
   const [cat, setCat] = useState<OrgCategory | 'all'>('all');
   const [searchRaw, setSearchRaw] = useState('');
   const [search, setSearch] = useState('');
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
-
 
   const onSearch = (v: string) => {
     setSearchRaw(v);
@@ -190,12 +191,26 @@ export function OrganizationsPage() {
                             ))}
                           </div>
 
-                          <button
-                              onClick={() => handleJoin(org.name)}
-                              className="inline-flex items-center justify-center w-full px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-md"
-                          >
-                            <i className="fas fa-user-plus mr-2" />Вступить в команду
-                          </button>
+                          {/* ── TWO-BUTTON ROW ── */}
+                          <div className="flex gap-2">
+                            {/* Подробнее */}
+                            <button
+                                onClick={() => navigate(`/organizations/${org.id}`)}
+                                className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition text-sm"
+                            >
+                              <i className="fas fa-info-circle mr-1.5" />
+                              Подробнее
+                            </button>
+
+                            {/* Вступить */}
+                            <button
+                                onClick={() => handleJoin(org.name)}
+                                className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-md text-sm"
+                            >
+                              <i className="fas fa-user-plus mr-1.5" />
+                              Вступить
+                            </button>
+                          </div>
                         </div>
                       </article>
                   ))}
@@ -235,6 +250,7 @@ export function OrganizationsPage() {
       </>
   );
 }
+
 export type OrgCategory = 'eco' | 'social' | 'patriotic' | 'cultural' | 'sport' | 'zoo' | 'youth' | 'health';
 export type OrgLevel = 'school' | 'college' | 'university';
 export type OrgCity =
@@ -261,22 +277,22 @@ export interface VolunteerMovement {
 
 export interface Organization {
   id: string;
-  name: string;           // название учебного заведения
-  shortName: string;      // короткое название для карточки
+  name: string;
+  shortName: string;
   city: OrgCity;
   level: OrgLevel;
   categories: OrgCategory[];
   movements: VolunteerMovement[];
-  icon: string;           // FontAwesome class
-  iconColor: string;      // Tailwind color class
-  bgImg: string;          // placeholder bg
+  icon: string;
+  iconColor: string;
+  bgImg: string;
   description: string;
   searchKey: string;
   stats: OrgStat[];
 }
 
 // ─── helpers ────────────────────────────────────────────────────────────────
-const eco   = (name: string, leader: string, phone?: string, email?: string): VolunteerMovement =>
+const eco = (name: string, leader: string, phone?: string, email?: string): VolunteerMovement =>
     ({ name, directions: ['Экологическое'], leader, phone, email });
 const social = (name: string, leader: string, phone?: string, email?: string): VolunteerMovement =>
     ({ name, directions: ['Социальное'], leader, phone, email });
