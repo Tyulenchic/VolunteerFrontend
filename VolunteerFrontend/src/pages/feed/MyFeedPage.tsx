@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
+import {apiClient} from "../../api/client.ts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -79,17 +80,12 @@ function authHeaders(token: string): HeadersInit {
  * Один запрос — бэкенд параллельно собирает профиль, историю участий
  * и ближайшие мероприятия (уже без тех, на которые подана заявка).
  */
-async function fetchFeed(token: string, take = 12): Promise<FeedData> {
-    const res = await fetch(`${API_BASE}/api/feed?take=${take}`, {
-        headers: authHeaders(token),
+async function fetchFeed(take = 12): Promise<FeedData> {
+    const { data } = await apiClient.get<FeedData>(`/api/feed`, {
+        params: { take },
     });
 
-    if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body?.error ?? 'Не удалось загрузить ленту');
-    }
-
-    return res.json();
+    return data;
 }
 
 /**
@@ -369,7 +365,7 @@ export function MyFeedPage() {
         setLoading(true);
         setError(null);
         try {
-            const d = await fetchFeed(getToken());
+            const d = await fetchFeed();
             setData(d);
             const ids = new Set(d.activities.map(a => a.eventId));
             setAppliedIds(ids);
@@ -390,7 +386,7 @@ export function MyFeedPage() {
             await applyToEvent(token, eventId);
             setAppliedIds(prev => new Set(prev).add(eventId));
             notify('Заявка успешно отправлена! 🎉');
-            const fresh = await fetchFeed(token);
+            const fresh = await fetchFeed();
             setData(fresh);
         } catch (e: unknown) {
             notify(e instanceof Error ? e.message : 'Ошибка при подаче заявки', 'error');
@@ -409,7 +405,7 @@ export function MyFeedPage() {
             });
             if (!res.ok) throw new Error('Не удалось отозвать заявку');
             notify('Заявка отозвана');
-            const fresh = await fetchFeed(token);
+            const fresh = await fetchFeed();
             setData(fresh);
             setAppliedIds(new Set(fresh.activities.map(a => a.eventId)));
         } catch (e: unknown) {
