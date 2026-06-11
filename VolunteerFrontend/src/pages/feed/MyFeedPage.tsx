@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import {apiClient} from "../../api/client.ts";
+import type {ParticipationResponseDto} from "../../types/event.ts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -92,18 +93,11 @@ async function fetchFeed(take = 12): Promise<FeedData> {
  * POST /api/feed/apply/{eventId}
  * Запись на мероприятие прямо из ленты — без перехода на страницу события.
  */
-async function applyToEvent(token: string, eventId: string): Promise<void> {
-    const res = await fetch(`${API_BASE}/api/feed/apply/${eventId}`, {
-        method: 'POST',
-        headers: authHeaders(token),
-    });
-
-    if (res.status === 409) throw new Error('Вы уже подали заявку на это мероприятие');
-    if (res.status === 400) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body?.error ?? 'Заявка не принята');
-    }
-    if (!res.ok) throw new Error('Не удалось подать заявку');
+async function applyToEvent(eventId: string): Promise<ParticipationResponseDto> {
+    const { data } = await apiClient.post<ParticipationResponseDto>(
+        `/api/feed/apply/${eventId}`
+    );
+    return data;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -379,11 +373,9 @@ export function MyFeedPage() {
     useEffect(() => { load(); }, [load]);
 
     const handleApply = async (eventId: string) => {
-        const token = getToken();
-        if (!token) return;
         setApplyingIds(prev => new Set(prev).add(eventId));
         try {
-            await applyToEvent(token, eventId);
+            await applyToEvent(eventId);
             setAppliedIds(prev => new Set(prev).add(eventId));
             notify('Заявка успешно отправлена! 🎉');
             const fresh = await fetchFeed();
