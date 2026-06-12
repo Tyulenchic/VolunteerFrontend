@@ -500,7 +500,7 @@ export function HomePage() {
                               );
                           })()}
 
-                          <div className="flex flex-col items-center text-center mb-6">
+                          <div className="flex flex-col items-center text-center mt-6">
                               <Link
                                   to="/news"
                                   className="inline-flex items-center gap-1.5 text-blue-600 text-sm font-semibold hover:text-blue-700 no-underline mt-2"
@@ -514,9 +514,6 @@ export function HomePage() {
                       <div>
                           <div className="flex flex-col items-center text-center mb-6">
                               <h2 className="text-xl font-extrabold text-gray-900">Популярные мероприятия</h2>
-                              <Link to="/events" className="inline-flex items-center gap-1.5 text-blue-600 text-sm font-semibold hover:text-blue-700 no-underline mt-2">
-                                  Все мероприятия <i className="fas fa-arrow-right text-xs" />
-                              </Link>
                           </div>
 
                           {eventsLoading
@@ -537,8 +534,8 @@ export function HomePage() {
                                               <div className="relative aspect-[16/10] overflow-hidden">
                                                   <img src={imgUrl} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                                                   <span className={`absolute top-2 left-2 px-2.5 py-1 ${getCategoryColor(cat)} text-white text-xs font-bold rounded-full`}>
-                        {cat}
-                      </span>
+                                                      {cat}
+                                                    </span>
                                                   <div className="absolute bottom-2 right-2 flex flex-col items-center bg-white rounded-xl px-2.5 py-1.5 shadow-md min-w-[44px]">
                                                       <span className="text-lg font-extrabold text-gray-900 leading-none">{dt.day}</span>
                                                       <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wide">{dt.month}</span>
@@ -596,6 +593,12 @@ export function HomePage() {
                                   );
                               })()
                           }
+
+                          <div className="flex flex-col items-center text-center mt-6">
+                              <Link to="/events" className="inline-flex items-center gap-1.5 text-blue-600 text-sm font-semibold hover:text-blue-700 no-underline mt-2">
+                                  Все мероприятия <i className="fas fa-arrow-right text-xs" />
+                              </Link>
+                          </div>
                       </div>
 
                   </div>
