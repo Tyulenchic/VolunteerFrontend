@@ -326,7 +326,7 @@ export function HomePage() {
   const [eventsLoading, setEventsLoading] = useState(true);
 
   useEffect(() => {
-    newsApi.getActual(0, 4)
+    newsApi.getActual(0, 5)
         .then(res => setNewsItems(res.items))
         .finally(() => setNewsLoading(false));
   }, []);

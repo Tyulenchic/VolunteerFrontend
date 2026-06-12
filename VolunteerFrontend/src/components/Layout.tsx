@@ -274,7 +274,7 @@ export function Layout({ children }: { children: ReactNode }) {
               <div>
                 <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Контакты</h3>
                 <ul className="space-y-3 text-sm">
-                  <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-envelope text-primary text-xs w-3" /><a href="mailto:info@volunteerspmr.org" className="hover:text-primary transition no-underline text-gray-600">info@volunteerspmr.org</a></li>
+                  <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-envelope text-primary text-xs w-3" /><a href="mailto:info@volunteerspmr.org" className="hover:text-primary transition no-underline text-gray-600">ump@minpros.gospmr.org</a></li>
                   <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-phone text-primary text-xs w-3" /><a href="tel:+37377712345" className="hover:text-primary transition no-underline text-gray-600">+373 777 12-345</a></li>
                   <li className="flex items-start gap-2 text-gray-600"><i className="fas fa-map-marker-alt text-primary text-xs w-3 mt-0.5" /><span>г. Тирасполь, ул. Ленина, 1</span></li>
                   <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-clock text-primary text-xs w-3" /><span>Пн-Пт: 9:00–18:00</span></li>
