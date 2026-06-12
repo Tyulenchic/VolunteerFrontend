@@ -174,7 +174,7 @@ export function AboutPage() {
 
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <i className="fas fa-envelope text-primary text-xl" />
+                    <i className="fas fa-envelope text-primary text-xl"/>
                   </div>
 
                   <div>
@@ -191,7 +191,7 @@ export function AboutPage() {
 
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <i className="fas fa-phone text-primary text-xl" />
+                    <i className="fas fa-phone text-primary text-xl"/>
                   </div>
 
                   <div>
@@ -212,7 +212,7 @@ export function AboutPage() {
 
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <i className="fas fa-map-marker-alt text-primary text-xl" />
+                    <i className="fas fa-map-marker-alt text-primary text-xl"/>
                   </div>
 
                   <div>
@@ -262,7 +262,7 @@ export function AboutPage() {
                       className="text-gray-500 hover:text-blue-600 transition"
                       aria-label="Telegram"
                   >
-                    <i className="fab fa-telegram" />
+                    <i className="fab fa-telegram"/>
                   </a>
 
                   <a
@@ -270,7 +270,7 @@ export function AboutPage() {
                       className="text-gray-500 hover:text-pink-600 transition"
                       aria-label="Instagram"
                   >
-                    <i className="fab fa-instagram" />
+                    <i className="fab fa-instagram"/>
                   </a>
 
                   <a
@@ -278,7 +278,7 @@ export function AboutPage() {
                       className="text-gray-500 hover:text-blue-700 transition"
                       aria-label="VK"
                   >
-                    <i className="fab fa-vk" />
+                    <i className="fab fa-vk"/>
                   </a>
 
                 </div>
@@ -299,13 +299,12 @@ export function AboutPage() {
                 <iframe
                     title="Карта"
                     className="w-full h-full border-0"
-                    src="https://yandex.ru/map-widget/v1/?um=constructor%3A5fe78c3b3f99d6edd0b14928a1aecbbe2b69aaa8345247b021d33f17660a7693&amp;source=constructor"
+                    src="https://yandex.ru/map-widget/v1/?um=constructor%3A0799eeb4096400b563b77e04c4ea998f8f6faa6419bd80cb46fe0629bd5a6d48&amp;source=constructor"
                     allowFullScreen
                 />
               </div>
 
             </div>
-
           </div>
         </div>
       </section>
