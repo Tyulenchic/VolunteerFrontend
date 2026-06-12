@@ -91,7 +91,6 @@ export function Layout({ children }: { children: ReactNode }) {
                      </>
                  )}
                </div>
-               {user && <NavLink to="/profile" className={navLinkClass}>Кабинет</NavLink>}
                {isAdmin && <NavLink to="/admin/users" className={navLinkClass}>Управление</NavLink>}
              </nav>
 
