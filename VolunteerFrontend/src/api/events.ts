@@ -49,6 +49,19 @@ export const eventsApi = {
     await apiClient.delete(`/api/events/${id}`);
   },
 
+  // ── Image management (Admin/Organizer) ────────────────────────────────────
+  uploadImage: async (id: string, file: File): Promise<EventResponseDto> => {
+    const form = new FormData();
+    form.append('file', file);
+    const { data } = await apiClient.post<EventResponseDto>(`/api/events/${id}/image`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data;
+  },
+  deleteImage: async (id: string): Promise<void> => {
+    await apiClient.delete(`/api/events/${id}/image`);
+  },
+
   // ── Status transitions ────────────────────────────────────────────────────
   publish: async (id: string): Promise<void> => {
     await apiClient.post(`/api/events/${id}/publish`);
@@ -63,20 +76,20 @@ export const eventsApi = {
   // ── Participations (Admin/Organizer) ──────────────────────────────────────
   getParticipations: async (eventId: string, status?: ParticipationStatus): Promise<ParticipationResponseDto[]> => {
     const { data } = await apiClient.get<ParticipationResponseDto[]>(
-      `/api/events/${eventId}/participations`,
-      { params: status ? { status } : {} }
+        `/api/events/${eventId}/participations`,
+        { params: status ? { status } : {} }
     );
     return data;
   },
   review: async (participationId: string, dto: ReviewParticipationDto): Promise<ParticipationResponseDto> => {
     const { data } = await apiClient.post<ParticipationResponseDto>(
-      `/api/participations/${participationId}/review`, dto
+        `/api/participations/${participationId}/review`, dto
     );
     return data;
   },
   confirmAttendance: async (participationId: string, dto?: ConfirmAttendanceDto): Promise<ParticipationResponseDto> => {
     const { data } = await apiClient.post<ParticipationResponseDto>(
-      `/api/participations/${participationId}/confirm-attendance`, dto ?? {}
+        `/api/participations/${participationId}/confirm-attendance`, dto ?? {}
     );
     return data;
   },

@@ -22,6 +22,7 @@ export interface NewsListResponseDto {
 }
 
 export const newsApi = {
+  // ── Public ────────────────────────────────────────────────────────────────
   getActual: async (skip = 0, take = 10, search?: string): Promise<NewsListResponseDto> => {
     const { data } = await apiClient.get<NewsListResponseDto>('/api/news/actual', {
       params: { skip, take, ...(search ? { search } : {}) },
@@ -36,6 +37,16 @@ export const newsApi = {
   },
   getById: async (id: string): Promise<NewsResponseDto> => {
     const { data } = await apiClient.get<NewsResponseDto>(`/api/news/${id}`);
+    return data;
+  },
+
+  // ── Admin: image management ──────────────────────────────────────────────
+  uploadImage: async (id: string, file: File): Promise<NewsResponseDto> => {
+    const form = new FormData();
+    form.append('file', file);
+    const { data } = await apiClient.post<NewsResponseDto>(`/api/news/${id}/image`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return data;
   },
 };

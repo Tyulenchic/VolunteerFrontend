@@ -13,6 +13,8 @@ import type {
   AdminNotificationDto,
 } from '../types/admin';
 import type { AuditLogEntryDto } from '../types/audit';
+import type { EventResponseDto } from '../types/event';
+import type { NewsResponseDto } from './news';
 
 const API_BASE = '/api/admin';
 
@@ -84,6 +86,15 @@ export const adminApi = {
     await apiClient.delete(`/api/news/${newsId}`);
   },
 
+  async uploadNewsImage(newsId: string, file: File): Promise<NewsResponseDto> {
+    const form = new FormData();
+    form.append('file', file);
+    const res = await apiClient.post<NewsResponseDto>(`/api/news/${newsId}/image`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+
   async publishNews(newsId: string) {
     await apiClient.post(`${API_BASE}/news/${newsId}/publish`);
   },
@@ -127,6 +138,19 @@ export const adminApi = {
 
   async deleteEvent(eventId: string) {
     await apiClient.delete(`/api/events/${eventId}`);
+  },
+
+  async uploadEventImage(eventId: string, file: File): Promise<EventResponseDto> {
+    const form = new FormData();
+    form.append('file', file);
+    const res = await apiClient.post<EventResponseDto>(`/api/events/${eventId}/image`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+
+  async deleteEventImage(eventId: string) {
+    await apiClient.delete(`/api/events/${eventId}/image`);
   },
 
   async publishEvent(eventId: string) {
