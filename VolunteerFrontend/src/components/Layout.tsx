@@ -177,7 +177,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <button onClick={() => scrollTo('feedback')}
                   className="flex items-center gap-3 w-full px-4 py-2.5 text-gray-700 hover:bg-primary/5 hover:text-primary rounded-xl transition bg-transparent border-none cursor-pointer text-sm text-left">
                   <i className="fas fa-envelope w-5 text-center" />
-                  <span className="font-medium">Контакты</span>
+                  <span className="font-medium">Обратная связь</span>
                 </button>
                 {user && (
                   <NavLink to="/profile" onClick={close}
