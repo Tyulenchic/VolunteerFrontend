@@ -299,7 +299,7 @@ export function AboutPage() {
                 <iframe
                     title="Карта"
                     className="w-full h-full border-0"
-                    src="https://yandex.ru/map-widget/v1/?um=constructor%3A2fb8ea9a0b3a44ccdf06246b527a50b547fccfddcbe5fd5687a1556e12aa4a26"
+                    src="https://yandex.ru/map-widget/v1/?um=constructor%3A5fe78c3b3f99d6edd0b14928a1aecbbe2b69aaa8345247b021d33f17660a7693&amp;source=constructor"
                     allowFullScreen
                 />
               </div>
