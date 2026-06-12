@@ -424,12 +424,6 @@ export function HomePage() {
                       <div>
                           <div className="flex flex-col items-center text-center mb-6">
                               <h2 className="text-xl font-extrabold text-gray-900">Последние новости</h2>
-                              <Link
-                                  to="/news"
-                                  className="inline-flex items-center gap-1.5 text-blue-600 text-sm font-semibold hover:text-blue-700 no-underline mt-2"
-                              >
-                                  Все новости <i className="fas fa-arrow-right text-xs" />
-                              </Link>
                           </div>
 
                           {newsLoading ? (
@@ -505,6 +499,15 @@ export function HomePage() {
                                   </div>
                               );
                           })()}
+
+                          <div className="flex flex-col items-center text-center mb-6">
+                              <Link
+                                  to="/news"
+                                  className="inline-flex items-center gap-1.5 text-blue-600 text-sm font-semibold hover:text-blue-700 no-underline mt-2"
+                              >
+                                  Все новости <i className="fas fa-arrow-right text-xs" />
+                              </Link>
+                          </div>
                       </div>
 
                       {/* Events column — SECOND */}
