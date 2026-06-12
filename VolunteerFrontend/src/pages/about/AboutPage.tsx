@@ -153,27 +153,159 @@ export function AboutPage() {
       </section>
 
       {/* CONTACTS */}
-      <section className="py-16 bg-gradient-to-br from-primary to-blue-900">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-heading font-bold text-white mb-4">Контакты</h2>
-            <p className="text-white text-lg">Мы открыты для общения и сотрудничества</p>
+      <section id="contacts" className="py-20 bg-gradient-to-br from-primary to-blue-900">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-4">
+              Контакты
+            </h2>
+            <p className="text-lg text-blue-100">
+              Мы открыты для общения, сотрудничества и новых инициатив
+            </p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {[
-              { icon: 'fa-envelope', title: 'Email', value: 'info@volunteerspmr.org', href: 'mailto:info@volunteerspmr.org' },
-              { icon: 'fa-phone', title: 'Телефон', value: '+373 777 12-345', href: 'tel:+37377712345' },
-              { icon: 'fa-map-marker-alt', title: 'Адрес', value: 'г. Тирасполь, ул. Ленина, 1', href: null },
-            ].map(c => (
-              <div key={c.title} className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition">
-                <i className={`fas ${c.icon} text-3xl text-primary mb-3 block`} />
-                <p className="text-sm text-gray-400 mb-1">{c.title}</p>
-                {c.href
-                  ? <a href={c.href} className="font-semibold text-gray-900 hover:text-primary transition no-underline">{c.value}</a>
-                  : <p className="font-semibold text-gray-900">{c.value}</p>
-                }
+
+          <div className="grid lg:grid-cols-2 gap-8">
+
+            {/* Левая колонка */}
+            <div className="bg-white rounded-3xl p-8 shadow-xl">
+
+              <div className="space-y-6">
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <i className="fas fa-envelope text-primary text-xl" />
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Email</p>
+
+                    <a
+                        href="mailto:ump@minpros.gospmr.org"
+                        className="font-semibold text-gray-900 hover:text-primary no-underline"
+                    >
+                      ump@minpros.gospmr.org
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <i className="fas fa-phone text-primary text-xl" />
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Телефон</p>
+
+                    <a
+                        href="tel:+37377712345"
+                        className="font-semibold text-gray-900 hover:text-primary no-underline block"
+                    >
+                      +373 777 12-345
+                    </a>
+
+                    <span className="text-sm text-gray-500">
+                                Пн–Пт, 9:00–18:00
+                            </span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <i className="fas fa-map-marker-alt text-primary text-xl" />
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Адрес</p>
+
+                    <p className="font-semibold text-gray-900">
+                      г. Тирасполь
+                    </p>
+
+                    <span className="text-sm text-gray-500">
+                                Управление молодежной политики
+                            </span>
+                  </div>
+                </div>
+
               </div>
-            ))}
+
+              {/* Кнопки */}
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+
+                <a
+                    href="mailto:ump@minpros.gospmr.org"
+                    className="flex-1 bg-primary text-white text-center py-3 rounded-xl font-semibold hover:opacity-90 transition no-underline"
+                >
+                  Написать Email
+                </a>
+
+                <a
+                    href="tel:+37377712345"
+                    className="flex-1 border border-primary text-primary text-center py-3 rounded-xl font-semibold hover:bg-primary hover:text-white transition no-underline"
+                >
+                  Позвонить
+                </a>
+
+              </div>
+
+              {/* Соцсети */}
+              <div className="mt-10 pt-8 border-t">
+                <h3 className="font-semibold text-gray-900 mb-4">
+                  Мы в социальных сетях
+                </h3>
+
+                <div className="flex gap-4 text-2xl">
+
+                  <a
+                      href="#"
+                      className="text-gray-500 hover:text-blue-600 transition"
+                      aria-label="Telegram"
+                  >
+                    <i className="fab fa-telegram" />
+                  </a>
+
+                  <a
+                      href="#"
+                      className="text-gray-500 hover:text-pink-600 transition"
+                      aria-label="Instagram"
+                  >
+                    <i className="fab fa-instagram" />
+                  </a>
+
+                  <a
+                      href="#"
+                      className="text-gray-500 hover:text-blue-700 transition"
+                      aria-label="VK"
+                  >
+                    <i className="fab fa-vk" />
+                  </a>
+
+                </div>
+              </div>
+
+            </div>
+
+            {/* Карта */}
+            <div className="overflow-hidden rounded-3xl shadow-xl bg-white">
+
+              <div className="p-6 border-b">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Как нас найти
+                </h3>
+              </div>
+
+              <div className="h-[500px]">
+                <iframe
+                    title="Карта"
+                    className="w-full h-full border-0"
+                    src="https://yandex.ru/map-widget/v1/?um=constructor%3A2fb8ea9a0b3a44ccdf06246b527a50b547fccfddcbe5fd5687a1556e12aa4a26"
+                    allowFullScreen
+                />
+              </div>
+
+            </div>
+
           </div>
         </div>
       </section>
