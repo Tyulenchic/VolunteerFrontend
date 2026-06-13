@@ -27,7 +27,7 @@ export const eventsApi = {
   withdraw: async (participationId: string): Promise<void> => {
     await apiClient.delete(`/api/participations/${participationId}`);
   },
-  getMyActivities: async (): Promise<ParticipationResponseDto[]> => {
+  getMyParticipations: async (): Promise<ParticipationResponseDto[]> => {
     const { data } = await apiClient.get<ParticipationResponseDto[]>('/api/users/me/activities');
     return data;
   },

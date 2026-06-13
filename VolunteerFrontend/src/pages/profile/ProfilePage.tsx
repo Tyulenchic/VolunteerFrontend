@@ -58,7 +58,7 @@ export function ProfilePage() {
   useEffect(() => {
     if (tab === 'activity') {
       setActLoading(true);
-      eventsApi.getMyActivities()
+      eventsApi.getMyParticipations()
         .then(setActivities)
         .catch(() => notify('Не удалось загрузить активности', 'error'))
         .finally(() => setActLoading(false));
