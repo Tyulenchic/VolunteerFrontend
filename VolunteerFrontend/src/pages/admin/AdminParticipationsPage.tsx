@@ -66,6 +66,14 @@ function UndoIcon({ className = 'w-4 h-4' }: { className?: string }) {
   );
 }
 
+function CommentIcon({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+      </svg>
+  );
+}
+
 // ==================== Конфигурация действий по статусам ====================
 interface ActionConfig {
   label: string;
@@ -220,6 +228,90 @@ function ActionModal({ participation, action, onClose, onSuccess }: ActionModalP
   );
 }
 
+// ==================== Модальное окно редактирования комментария ====================
+
+interface CommentModalProps {
+  participation: AdminParticipationDto;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+function CommentModal({ participation, onClose, onSuccess }: CommentModalProps) {
+  const { notify } = useNotification();
+  const [comment, setComment] = useState(participation.adminComment || '');
+  const [loading, setLoading] = useState(false);
+  const hasComment = !!participation.adminComment;
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const trimmed = comment.trim();
+      if (trimmed) {
+        if (hasComment) {
+          await adminApi.updateParticipationComment(participation.id, trimmed);
+        } else {
+          await adminApi.addParticipationComment(participation.id, trimmed);
+        }
+      } else if (hasComment) {
+        await adminApi.deleteParticipationComment(participation.id);
+      } else {
+        onClose();
+        return;
+      }
+      notify('Комментарий сохранён');
+      onSuccess();
+      onClose();
+    } catch (e) {
+      console.error('Error saving comment:', e);
+      notify('Ошибка при сохранении комментария', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+      <div className="space-y-4">
+        <div>
+          <p className="text-gray-400 text-sm mb-2">Пользователь</p>
+          <p className="text-white font-medium">{participation.userName}</p>
+          <p className="text-gray-500 text-xs">{participation.userEmail}</p>
+        </div>
+
+        <div>
+          <p className="text-gray-400 text-sm mb-2">Мероприятие</p>
+          <p className="text-white font-medium">{participation.eventTitle}</p>
+        </div>
+
+        <div>
+          <label className="text-gray-400 text-sm mb-2 block">Комментарий администратора</label>
+          <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Комментарий..."
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary resize-none"
+              rows={4}
+          />
+        </div>
+
+        <div className="flex gap-2">
+          <button
+              onClick={handleSave}
+              disabled={loading}
+              className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 disabled:bg-gray-700 text-white font-medium rounded-lg transition"
+          >
+            {loading ? 'Загрузка...' : 'Сохранить'}
+          </button>
+          <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition"
+          >
+            Отмена
+          </button>
+        </div>
+      </div>
+  );
+}
+
 export function AdminParticipationsPage() {
   const [participations, setParticipations] = useState<AdminParticipationDto[]>([]);
   const [total, setTotal] = useState(0);
@@ -229,6 +321,7 @@ export function AdminParticipationsPage() {
   const [loading, setLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [actionModal, setActionModal] = useState<{ participation: AdminParticipationDto; action: ParticipationAction } | null>(null);
+  const [commentModal, setCommentModal] = useState<AdminParticipationDto | null>(null);
   const { notify } = useNotification();
 
   const load = useCallback(async () => {
@@ -476,6 +569,14 @@ export function AdminParticipationsPage() {
                                         </button>
                                     );
                                   })}
+                                  <button
+                                      onClick={() => setCommentModal(p)}
+                                      title="Комментарий"
+                                      aria-label="Комментарий"
+                                      className="p-1.5 rounded-lg transition text-gray-400 hover:text-gray-200 hover:bg-gray-700/60"
+                                  >
+                                    <CommentIcon className="w-4 h-4" />
+                                  </button>
                                 </div>
                                 {p.adminComment && (
                                     <div className="text-gray-500 text-xs mt-1 text-center">
@@ -527,6 +628,21 @@ export function AdminParticipationsPage() {
                   participation={actionModal.participation}
                   action={actionModal.action}
                   onClose={() => setActionModal(null)}
+                  onSuccess={load}
+              />
+            </Modal>
+        )}
+
+        {/* Comment Modal */}
+        {commentModal && (
+            <Modal
+                title="Комментарий администратора"
+                isOpen={!!commentModal}
+                onClose={() => setCommentModal(null)}
+            >
+              <CommentModal
+                  participation={commentModal}
+                  onClose={() => setCommentModal(null)}
                   onSuccess={load}
               />
             </Modal>

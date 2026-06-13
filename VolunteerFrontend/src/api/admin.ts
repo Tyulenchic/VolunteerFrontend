@@ -18,6 +18,10 @@ import type { NewsResponseDto } from './news';
 
 const API_BASE = '/api/admin';
 
+export interface ParticipationActionDto {
+  comment?: string | null;
+}
+
 export const adminApi = {
   // ==================== DASHBOARD & STATS ====================
 
@@ -245,6 +249,31 @@ export const adminApi = {
     return res.data;
   },
 
+  async addComment(participationId: string, comment: string) {
+    const res = await apiClient.post(
+        `${API_BASE}/participations/${participationId}/comment`,
+        { comment }
+    );
+
+    return res.data;
+  },
+
+  async updateComment(participationId: string, comment: string) {
+    const res = await apiClient.put(
+        `${API_BASE}/participations/${participationId}/comment`,
+        { comment }
+    );
+
+    return res.data;
+  },
+
+  async deleteComment(participationId: string) {
+    const res = await apiClient.delete(
+        `${API_BASE}/participations/${participationId}/comment`
+    );
+
+    return res.data;
+  },
   // ==================== AUDIT LOG ====================
 
   async getAuditLog(skip = 0, take = 20, adminUserId?: string, actionType?: string) {
@@ -287,5 +316,27 @@ export const adminApi = {
 
   async markAllNotificationsAsRead() {
     await apiClient.post(`${API_BASE}/notifications/mark-all-read`);
+  },
+  async addParticipationComment(participationId: string, comment: string) {
+    const res = await apiClient.post(
+        `${API_BASE}/participations/${participationId}/comment`,
+        { comment } as ParticipationActionDto
+    );
+    return res.data;
+  },
+
+  async updateParticipationComment(participationId: string, comment: string) {
+    const res = await apiClient.put(
+        `${API_BASE}/participations/${participationId}/comment`,
+        { comment } as ParticipationActionDto
+    );
+    return res.data;
+  },
+
+  async deleteParticipationComment(participationId: string) {
+    const res = await apiClient.delete(
+        `${API_BASE}/participations/${participationId}/comment`
+    );
+    return res.data;
   },
 };
