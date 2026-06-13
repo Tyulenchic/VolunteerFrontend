@@ -28,7 +28,7 @@ export const eventsApi = {
     await apiClient.delete(`/api/participations/${participationId}`);
   },
   getMyParticipations: async (): Promise<ParticipationResponseDto[]> => {
-    const { data } = await apiClient.get<ParticipationResponseDto[]>('/api/users/me/activities');
+    const { data } = await apiClient.get<ParticipationResponseDto[]>('/api/users/me/participations');
     return data;
   },
 
