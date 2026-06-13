@@ -213,6 +213,38 @@ export const adminApi = {
     return { RejectedCount: res.data.rejectedCount };
   },
 
+  async confirmAttendance(participationId: string, comment?: string) {
+    const res = await apiClient.post(
+        `${API_BASE}/participations/${participationId}/confirm-attendance`,
+        { comment }
+    );
+    return res.data;
+  },
+
+  async returnToPending(participationId: string, comment?: string) {
+    const res = await apiClient.post(
+        `${API_BASE}/participations/${participationId}/return-to-pending`,
+        { comment }
+    );
+    return res.data;
+  },
+
+  async rejectApproved(participationId: string, comment?: string) {
+    const res = await apiClient.post(
+        `${API_BASE}/participations/${participationId}/reject-approved`,
+        { comment }
+    );
+    return res.data;
+  },
+
+  async revokeAttendance(participationId: string, comment?: string) {
+    const res = await apiClient.post(
+        `${API_BASE}/participations/${participationId}/revoke-attendance`,
+        { comment }
+    );
+    return res.data;
+  },
+
   // ==================== AUDIT LOG ====================
 
   async getAuditLog(skip = 0, take = 20, adminUserId?: string, actionType?: string) {
