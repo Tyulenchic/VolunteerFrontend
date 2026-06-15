@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../../context/NotificationContext';
+import { useFeedback } from '../../context/FeedbackContext';
 
 export const CAT_LABELS: Record<OrgCategory | 'all', string> = {
   all:       'Все направления',
@@ -55,6 +56,7 @@ export function OrganizationsPage() {
   const [searchRaw, setSearchRaw] = useState('');
   const [search, setSearch] = useState('');
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const { openFeedback } = useFeedback();
 
   const onSearch = (v: string) => {
     setSearchRaw(v);
@@ -69,8 +71,6 @@ export function OrganizationsPage() {
           o.searchKey.toLowerCase().includes(search.toLowerCase()) ||
           o.name.toLowerCase().includes(search.toLowerCase())
       );
-
-  const handleJoin = (name: string) => notify(`Заявка в «${name}» отправлена! 🎉`);
 
   return (
       <>
@@ -196,19 +196,10 @@ export function OrganizationsPage() {
                             {/* Подробнее */}
                             <button
                                 onClick={() => navigate(`/organizations/${org.id}`)}
-                                className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition text-sm"
+                                className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition text-sm"
                             >
-                              <i className="fas fa-info-circle mr-1.5" />
+                              <i className="fas fa-info-circle" />
                               Подробнее
-                            </button>
-
-                            {/* Вступить */}
-                            <button
-                                onClick={() => handleJoin(org.name)}
-                                className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-md text-sm"
-                            >
-                              <i className="fas fa-user-plus mr-1.5" />
-                              Вступить
                             </button>
                           </div>
                         </div>
@@ -239,7 +230,7 @@ export function OrganizationsPage() {
                 <i className="fas fa-paper-plane mr-2" />Подать заявку
               </button>
               <button
-                  onClick={() => notify('Форма обратной связи скоро будет доступна!', 'info')}
+                  onClick={openFeedback}
                   className="px-8 py-4 bg-transparent text-white border-2 border-white font-bold rounded-xl hover:bg-white/10 transition"
               >
                 <i className="fas fa-envelope mr-2" />Написать нам

@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { publicUsersApi } from '../../api/publicUsers';
 import type { UserResponseDto } from '../../types/user';
 import { Spinner } from '../../components/Spinner';
+import { useFeedback } from '../../context/FeedbackContext';
 
 const LOCATIONS = ['Тирасполь', 'Бендеры', 'Рыбница', 'Дубоссары', 'Слободзея'];
 const CATEGORIES = ['Экология', 'Социальная помощь', 'Спорт', 'Обучение', 'Медицина', 'Животные'];
+const { openFeedback } = useFeedback();
 
 function getMeta(id: string) {
   const hash = id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -136,7 +138,12 @@ export function OrganizersPage() {
           <h2 className="text-2xl font-heading font-bold text-gray-900 mb-3">Хотите стать организатором?</h2>
           <p className="text-gray-600 mb-6">Если вы хотите возглавить направление или организовать своё мероприятие — свяжитесь с нами!</p>
           <a href="mailto:info@volunteerspmr.org" className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg no-underline">
-            <i className="fas fa-envelope mr-2" />Написать нам
+            <button
+                onClick={openFeedback}
+                className="px-8 py-4 bg-transparent text-white border-2 border-white font-bold rounded-xl hover:bg-white/10 transition"
+            >
+              <i className="fas fa-envelope mr-2" />Написать нам
+            </button>
           </a>
         </div>
       </section>
