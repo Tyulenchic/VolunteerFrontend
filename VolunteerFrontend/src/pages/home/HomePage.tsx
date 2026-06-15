@@ -613,7 +613,6 @@ export function HomePage() {
               <p className="text-gray-500">Всего четыре простых шага</p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 relative">
-              <div className="hidden lg:block absolute top-8 left-[calc(12.5%+1rem)] right-[calc(12.5%+1rem)] h-px bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200 z-0" />
                {[
                  { n: 1, icon: 'fa-user-plus',      t: 'Зарегистрируйтесь',    d: 'Заполните простую форму за 5 минут', action: () => setModal('register') },
                  { n: 2, icon: 'fa-id-card',         t: 'Заполните профиль',    d: 'Расскажите о себе и своих интересах', action: () => user ? navigate('/profile') : setModal('register') },

@@ -152,14 +152,12 @@ export function FaqPage() {
           <h2 className="text-2xl font-heading font-bold text-gray-900 mb-3">Не нашли ответ?</h2>
           <p className="text-gray-600 mb-6">Свяжитесь с нами — мы ответим в течение рабочего дня.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a href="mailto:info@volunteerspmr.org" className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg no-underline">
               <button
                   onClick={openFeedback}
                   className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg"
               >
                 <i className="fas fa-envelope mr-2" />Написать нам
               </button>
-            </a>
             <Link to="/" className="inline-flex items-center justify-center px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border border-gray-300 hover:border-primary hover:text-primary transition no-underline">
               На главную
             </Link>
