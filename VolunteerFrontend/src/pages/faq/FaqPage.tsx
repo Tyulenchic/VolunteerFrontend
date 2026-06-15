@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFeedback } from '../../context/FeedbackContext';
 
-const { openFeedback } = useFeedback();
 
 const FAQS = [
   {
@@ -80,6 +79,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export function FaqPage() {
   const [search, setSearch] = useState('');
+  const { openFeedback } = useFeedback();
 
   const filtered = FAQS.map(cat => ({
     ...cat,

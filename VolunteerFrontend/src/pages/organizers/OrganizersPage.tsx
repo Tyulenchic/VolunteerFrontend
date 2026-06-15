@@ -7,7 +7,7 @@ import { useFeedback } from '../../context/FeedbackContext';
 
 const LOCATIONS = ['Тирасполь', 'Бендеры', 'Рыбница', 'Дубоссары', 'Слободзея'];
 const CATEGORIES = ['Экология', 'Социальная помощь', 'Спорт', 'Обучение', 'Медицина', 'Животные'];
-const { openFeedback } = useFeedback();
+
 
 function getMeta(id: string) {
   const hash = id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -23,6 +23,7 @@ export function OrganizersPage() {
   const [search, setSearch] = useState('');
   const [searchRaw, setSearchRaw] = useState('');
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const { openFeedback } = useFeedback();
 
   useEffect(() => {
     publicUsersApi.getOrganizers(0, 50)
