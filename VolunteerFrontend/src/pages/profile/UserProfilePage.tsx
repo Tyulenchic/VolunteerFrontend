@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import {useParams, Link, useLocation} from 'react-router-dom';
 import { publicUsersApi } from '../../api/publicUsers';
 import type { UserResponseDto } from '../../types/user';
 import { Spinner } from '../../components/Spinner';
 
 export function UserProfilePage() {
     const { id } = useParams<{ id: string }>();
+    const location = useLocation();
     const [user, setUser] = useState<UserResponseDto | null>(null);
     const [loading, setLoading] = useState(true);
+    const from: { path: string; label: string } = location.state?.from ?? {
+        path: '/users',
+        label: 'Пользователи',
+    };
 
     useEffect(() => {
         if (!id) return;
@@ -31,8 +36,8 @@ export function UserProfilePage() {
         return (
             <div className="container mx-auto px-4 py-12 text-center">
                 <p className="text-gray-500">Пользователь не найден</p>
-                <Link to="/users" className="text-primary hover:underline mt-2">
-                    ← К списку пользователей
+                <Link to={from.path} className="text-primary hover:underline mt-2">
+                    ← {from.label}
                 </Link>
             </div>
         );
@@ -42,17 +47,17 @@ export function UserProfilePage() {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-2xl">
-            {/* Breakdown */}
+            {/* Breadcrumb */}
             <div className="flex items-center gap-2 mb-6">
-                <Link to="/users" className="text-sm text-gray-500 hover:text-primary">
-                    Пользователи
+                <Link to={from.path} className="text-sm text-gray-500 hover:text-primary">
+                    {from.label}
                 </Link>
                 <i className="fas fa-chevron-right text-gray-300 text-xs" />
                 <span className="text-sm text-gray-700">{name}</span>
             </div>
 
             {/* Profile Card */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="bg-white ro unded-2xl border border-gray-200 p-6">
                 {/* Avatar */}
                 {user.avatarUrl ? (
                     <img

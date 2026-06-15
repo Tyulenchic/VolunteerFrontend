@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { FeedbackProvider } from './context/FeedbackContext';
 import { Layout } from './components/Layout';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { ProtectedRoute, AdminRoute, GuestRoute } from './components/ProtectedRoute';
@@ -82,6 +83,7 @@ export default function App() {
       <HashRouter>
       <ScrollToTop />
       <NotificationProvider>
+        <FeedbackProvider>
         <AuthProvider>
           <Routes>
             {/* ── Auth standalone (no navbar/footer) ─────────── */}
@@ -129,6 +131,7 @@ export default function App() {
             <Route path="*" element={<WL><NotFound /></WL>} />
           </Routes>
         </AuthProvider>
+        </FeedbackProvider>
       </NotificationProvider>
       </HashRouter>
   );
