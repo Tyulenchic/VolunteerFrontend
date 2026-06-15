@@ -47,6 +47,21 @@ export function ProfilePage() {
   const [deleting,    setDeleting]    = useState(false);
   const CONFIRM_WORD = 'УДАЛИТЬ';
 
+  const [withdrawingId, setWithdrawingId] = useState<string | null>(null);
+  const handleWithdraw = async (participationId: string) => {
+    if (!confirm('Вы уверены, что хотите отозвать заявку?')) return;
+    setWithdrawingId(participationId);
+    try {
+      await eventsApi.withdraw(participationId);
+      setActivities(prev => prev.filter(a => a.id !== participationId));
+    } catch (err) {
+      console.error('Withdraw failed:', err);
+      // surface your usual error toast here
+    } finally {
+      setWithdrawingId(null);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       setFirstName(user.firstName ?? '');
@@ -225,35 +240,49 @@ export function ProfilePage() {
 
             {/* ── ACTIVITY ──────────────────────────────────── */}
             {tab === 'activity' && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Мои заявки на мероприятия</h2>
-                {actLoading
-                  ? <div className="flex justify-center py-10"><Spinner /></div>
-                  : activities.length === 0
-                    ? <div className="text-center py-10 text-gray-500">
-                        <i className="fas fa-calendar-times text-4xl mb-3 block text-gray-300" />
-                        <p>Вы ещё не подавали заявок на мероприятия</p>
-                      </div>
-                    : <div className="space-y-3">
-                        {activities.map(a => (
-                          <div key={a.id} className="flex items-center justify-between gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                            <div>
-                              <p className="font-semibold text-gray-900">{a.eventTitle}</p>
-                              <p className="text-sm text-gray-500">{new Date(a.createdAt).toLocaleDateString('ru-RU')}</p>
-                              {a.adminComment && (
-                                <p className="text-sm text-gray-600 mt-1">
-                                  <i className="fas fa-comment mr-1 text-primary" />{a.adminComment}
-                                </p>
-                              )}
-                            </div>
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase flex-shrink-0 ${STATUS_COLOR[a.status] ?? 'bg-gray-100 text-gray-600'}`}>
-                              {STATUS_LABEL[a.status] ?? a.status}
-                            </span>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">Мои заявки на мероприятия</h2>
+                  {actLoading
+                      ? <div className="flex justify-center py-10"><Spinner /></div>
+                      : activities.length === 0
+                          ? <div className="text-center py-10 text-gray-500">
+                            <i className="fas fa-calendar-times text-4xl mb-3 block text-gray-300" />
+                            <p>Вы ещё не подавали заявок на мероприятия</p>
                           </div>
-                        ))}
-                      </div>
-                }
-              </div>
+                          : <div className="space-y-3">
+                            {activities.map(a => (
+                                <div key={a.id} className="flex items-center justify-between gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                  <div>
+                                    <p className="font-semibold text-gray-900">{a.eventTitle}</p>
+                                    <p className="text-sm text-gray-500">{new Date(a.createdAt).toLocaleDateString('ru-RU')}</p>
+                                    {a.adminComment && (
+                                        <p className="text-sm text-gray-600 mt-1">
+                                          <i className="fas fa-comment mr-1 text-primary" />{a.adminComment}
+                                        </p>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                    {a.status === 'Pending' && (
+                                        <button
+                                            onClick={() => handleWithdraw(a.id)}
+                                            disabled={withdrawingId === a.id}
+                                            className="px-3 py-1 rounded-full text-xs font-bold uppercase bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                          {withdrawingId === a.id
+                                              ? <i className="fas fa-spinner fa-spin" />
+                                              : 'Отозвать'
+                                          }
+                                        </button>
+                                    )}
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${STATUS_COLOR[a.status] ?? 'bg-gray-100 text-gray-600'}`}>
+                    {STATUS_LABEL[a.status] ?? a.status}
+                  </span>
+                                  </div>
+                                </div>
+                            ))}
+                          </div>
+                  }
+                </div>
             )}
 
             {/* ── SETTINGS ──────────────────────────────────── */}
