@@ -25,10 +25,10 @@ export function Layout({ children }: { children: ReactNode }) {
 
   const close = () => { setMenuOpen(false); setMoreOpen(false); };
 
-  const scrollTo = (id: string) => {
+  const scrollTo = (id: string, page = '/') => {
     close();
-    if (location.pathname !== '/') {
-      navigate('/');
+    if (location.pathname !== page) {
+      navigate(`${page}#${id}`);
       setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
     } else {
       document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -59,8 +59,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <NavLink to="/about" className={navLinkClass}>О нас</NavLink>
                 <NavLink to="/news" className={navLinkClass}>Новости</NavLink>
                 <NavLink to="/events" className={navLinkClass}>Мероприятия</NavLink>
-                <NavLink to="/about#contacts" className={navLinkClass}>Контакты</NavLink>
-                <button onClick={() => scrollTo('contacts')} className="font-medium text-gray-600 hover:text-primary transition bg-transparent border-none cursor-pointer p-0 text-base">
+                <button onClick={() => scrollTo('contacts', '/about')} className="font-medium text-gray-600 hover:text-primary transition bg-transparent border-none cursor-pointer p-0 text-base">
                   Контакты
                 </button>
                {/* More dropdown */}
