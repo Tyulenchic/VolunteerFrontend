@@ -59,7 +59,8 @@ export function Layout({ children }: { children: ReactNode }) {
                 <NavLink to="/about" className={navLinkClass}>О нас</NavLink>
                 <NavLink to="/news" className={navLinkClass}>Новости</NavLink>
                 <NavLink to="/events" className={navLinkClass}>Мероприятия</NavLink>
-                <button onClick={() => scrollTo('feedback')} className="font-medium text-gray-600 hover:text-primary transition bg-transparent border-none cursor-pointer p-0 text-base">
+                <NavLink to="/about#contacts" className={navLinkClass}>Контакты</NavLink>
+                <button onClick={() => scrollTo('contacts')} className="font-medium text-gray-600 hover:text-primary transition bg-transparent border-none cursor-pointer p-0 text-base">
                   Контакты
                 </button>
                {/* More dropdown */}
@@ -274,10 +275,10 @@ export function Layout({ children }: { children: ReactNode }) {
               <div>
                 <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Контакты</h3>
                 <ul className="space-y-3 text-sm">
-                  <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-envelope text-primary text-xs w-3" /><a href="mailto:info@volunteerspmr.org" className="hover:text-primary transition no-underline text-gray-600">ump@minpros.gospmr.org</a></li>
-                  <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-phone text-primary text-xs w-3" /><a href="tel:+37377712345" className="hover:text-primary transition no-underline text-gray-600">+373 777 12-345</a></li>
+                  <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-envelope text-primary text-xs w-3" /><a href="mailto:ump@minpros.gospmr.org" className="hover:text-primary transition no-underline text-gray-600">ump@minpros.gospmr.org</a></li>
+                  <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-phone text-primary text-xs w-3" /><a href="tel:0 (533) 2-22-29." className="hover:text-primary transition no-underline text-gray-600">+373 777 12-345</a></li>
                   <li className="flex items-start gap-2 text-gray-600"><i className="fas fa-map-marker-alt text-primary text-xs w-3 mt-0.5" /><span>г. Тирасполь, ул. Мира, 27</span></li>
-                  <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-clock text-primary text-xs w-3" /><span>Пн-Пт: 9:00–18:00</span></li>
+                  <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-clock text-primary text-xs w-3" /><span>Пн-Пт: 8:00–17:00</span></li>
                 </ul>
               </div>
             </div>
