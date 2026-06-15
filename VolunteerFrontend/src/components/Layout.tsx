@@ -243,7 +243,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 Официальный портал волонтёрского движения Приднестровья. Делаем мир лучше вместе с 2020 года.
               </p>
               <div className="flex gap-3">
-                {[{href:'https://vk.com',icon:'fab fa-vk'},{href:'https://volonter.gospmr.org',icon:'fab fa-telegram-plane'},{href:'https://www.instagram.com/volonterpmr',icon:'fab fa-instagram'}].map(s => (
+                {[{href:'https://vk.com',icon:'fab fa-vk'},{href:'t.me/volonterPMR',icon:'fab fa-telegram-plane'},{href:'https://www.instagram.com/volonterpmr',icon:'fab fa-instagram'}].map(s => (
                   <a key={s.icon} href={s.href} target="_blank" rel="noopener noreferrer"
                     className="w-11 h-11 bg-gray-100 hover:bg-primary hover:text-white text-gray-600 rounded-xl flex items-center justify-center transition-all hover:scale-110 no-underline">
                     <i className={`${s.icon} text-xl`} />
