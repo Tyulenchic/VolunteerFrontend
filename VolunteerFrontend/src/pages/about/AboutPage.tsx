@@ -256,7 +256,7 @@ export function AboutPage() {
                 <div className="flex gap-4 text-2xl">
 
                   <a
-                      href="https://volonter.gospmr.org/"
+                      href="https://t.me/volonterPMR"
                       className="text-gray-500 hover:text-blue-600 transition"
                       aria-label="Telegram"
                   >
