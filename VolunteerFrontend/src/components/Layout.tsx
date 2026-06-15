@@ -243,7 +243,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 Официальный портал волонтёрского движения Приднестровья. Делаем мир лучше вместе с 2020 года.
               </p>
               <div className="flex gap-3">
-                {[{href:'https://vk.com',icon:'fab fa-vk'},{href:'https://t.me',icon:'fab fa-telegram-plane'},{href:'https://instagram.com',icon:'fab fa-instagram'}].map(s => (
+                {[{href:'https://vk.com',icon:'fab fa-vk'},{href:'https://volonter.gospmr.org',icon:'fab fa-telegram-plane'},{href:'https://www.instagram.com/volonterpmr',icon:'fab fa-instagram'}].map(s => (
                   <a key={s.icon} href={s.href} target="_blank" rel="noopener noreferrer"
                     className="w-11 h-11 bg-gray-100 hover:bg-primary hover:text-white text-gray-600 rounded-xl flex items-center justify-center transition-all hover:scale-110 no-underline">
                     <i className={`${s.icon} text-xl`} />
@@ -276,7 +276,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <ul className="space-y-3 text-sm">
                   <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-envelope text-primary text-xs w-3" /><a href="mailto:info@volunteerspmr.org" className="hover:text-primary transition no-underline text-gray-600">ump@minpros.gospmr.org</a></li>
                   <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-phone text-primary text-xs w-3" /><a href="tel:+37377712345" className="hover:text-primary transition no-underline text-gray-600">+373 777 12-345</a></li>
-                  <li className="flex items-start gap-2 text-gray-600"><i className="fas fa-map-marker-alt text-primary text-xs w-3 mt-0.5" /><span>г. Тирасполь, ул. Ленина, 1</span></li>
+                  <li className="flex items-start gap-2 text-gray-600"><i className="fas fa-map-marker-alt text-primary text-xs w-3 mt-0.5" /><span>г. Тирасполь, ул. Мира, 27</span></li>
                   <li className="flex items-center gap-2 text-gray-600"><i className="fas fa-clock text-primary text-xs w-3" /><span>Пн-Пт: 9:00–18:00</span></li>
                 </ul>
               </div>

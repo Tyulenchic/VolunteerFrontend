@@ -109,7 +109,6 @@ export function AboutPage() {
         </div>
       </section>
 
-
       {/* MISSION & VALUES */}
       <section className="py-4 sm:py-0 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,7 +129,6 @@ export function AboutPage() {
           </div>
         </div>
       </section>
-
 
       {/* TEAM */}
       <section className="py-16 sm:py-20 bg-white">
@@ -198,14 +196,14 @@ export function AboutPage() {
                     <p className="text-sm text-gray-500 mb-1">Телефон</p>
 
                     <a
-                        href="tel:+37377712345"
+                        href="tel:0 (533) 2-22-29"
                         className="font-semibold text-gray-900 hover:text-primary no-underline block"
                     >
-                      +373 777 12-345
+                      0 (533) 2-22-29
                     </a>
 
                     <span className="text-sm text-gray-500">
-                                Пн–Пт, 9:00–18:00
+                                Пн–Пт, 8:00-17:00, перерыв 12:00-13:00
                             </span>
                   </div>
                 </div>
@@ -241,7 +239,7 @@ export function AboutPage() {
                 </a>
 
                 <a
-                    href="tel:+37377712345"
+                    href="tel:0 (533) 2-22-29"
                     className="flex-1 border border-primary text-primary text-center py-3 rounded-xl font-semibold hover:bg-primary hover:text-white transition no-underline"
                 >
                   Позвонить
@@ -258,7 +256,7 @@ export function AboutPage() {
                 <div className="flex gap-4 text-2xl">
 
                   <a
-                      href="#"
+                      href="https://volonter.gospmr.org/"
                       className="text-gray-500 hover:text-blue-600 transition"
                       aria-label="Telegram"
                   >
@@ -266,7 +264,7 @@ export function AboutPage() {
                   </a>
 
                   <a
-                      href="#"
+                      href="https://www.instagram.com/volonterpmr"
                       className="text-gray-500 hover:text-pink-600 transition"
                       aria-label="Instagram"
                   >
