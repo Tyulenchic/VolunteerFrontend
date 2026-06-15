@@ -8,8 +8,9 @@ import { Modal } from '../../components/Modal';
 import { Spinner } from '../../components/Spinner';
 import { newsApi, type NewsResponseDto } from '../../api/news';
 import { publicEventsApi } from '../../api/publicEvents';
-import type { EventResponseDto } from '../../types/event';
 import VolonterHomeImage from '../../assets/VolonterHome.png';
+import type { EventResponseDto } from '../../types/event';
+import { getCategoryColor, getCategoryLabel } from '../../types/event';
 
 // ─── Video carousel data ────────────────────────────────────────────────────
 const REPORT_VIDEOS = [
@@ -19,26 +20,6 @@ const REPORT_VIDEOS = [
     { id: 'v4', title: 'Помощь ветеранам: день добрых дел', description: 'Волонтёры посетили ветеранов в 12 городах одновременно.', thumbnail: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=640&h=360&fit=crop', duration: '3:20', date: 'Февраль 2026', src: null },
     { id: 'v5', title: 'Зооволонтёры: год помощи приютам', description: 'Итоги года работы нашего зооволонтёрского направления.', thumbnail: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=640&h=360&fit=crop', duration: '6:02', date: 'Декабрь 2025', src: null },
 ];
-
-// ─── Event category color map ───────────────────────────────────────────────
-const CATEGORY_COLORS: Record<string, string> = {
-    'Экологическое': 'bg-green-500',
-    'Социальное': 'bg-orange-500',
-    'Культура': 'bg-purple-500',
-    'ЗОЖ': 'bg-sky-500',
-    'Образование': 'bg-indigo-500',
-    'Ветераны': 'bg-red-500',
-    'Мед': 'bg-teal-500',
-    'Донорство': 'bg-red-600',
-    'Животные': 'bg-yellow-500',
-    'Медиаволонтёрство': 'bg-cyan-500',
-    'Событийное': 'bg-pink-500',
-    'Патриотическое': 'bg-blue-700',
-    'Урбанистика': 'bg-gray-500',
-};
-
-const getCategoryColor = (cat?: string): string =>
-    cat ? (CATEGORY_COLORS[cat] ?? 'bg-blue-600') : 'bg-blue-600';
 
 // ─── VideoCarousel ───────────────────────────────────────────────────────────
 function VideoCarousel() {
@@ -220,16 +201,6 @@ const HERO_FEATURES = [
     { icon: 'fa-handshake',       label: 'Поддержка\nорганизаций',   bg: 'bg-sky-100',    iconColor: 'text-sky-600'    },
 ];
 
-// ─── Mock event categories (fallback) ────────────────────────────────────────
-const EVENT_IMAGES = [
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=280&fit=crop',
-    'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&h=280&fit=crop',
-    'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=280&fit=crop',
-    'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=280&fit=crop',
-];
-const EVENT_CATS = ['Экология', 'Социальное', 'Экология', 'Культура'];
-
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 export function HomePage() {
     const { user } = useAuth();
@@ -253,7 +224,7 @@ export function HomePage() {
     }, []);
 
     useEffect(() => {
-        publicEventsApi.getActual(0, 4)
+        publicEventsApi.getActual(0, 5)
             .then(res => setEvents(res.items))
             .finally(() => setEventsLoading(false));
     }, []);
@@ -435,78 +406,59 @@ export function HomePage() {
 
                             {eventsLoading
                                 ? <div className="flex justify-center py-16"><Spinner /></div>
-                                : (() => {
-                                    const cols = 5;
-                                    const remainder = events.length % cols;
-                                    const hasRemainder = remainder !== 0;
-                                    const mainItems = hasRemainder ? events.slice(0, events.length - remainder) : events;
-                                    const lastItems = hasRemainder ? events.slice(events.length - remainder) : [];
-
-                                    const EventCard = (ev: EventResponseDto, idx: number) => {
-                                        const dt = fmtEventDate(ev.startsAt);
-                                        const cat = (ev as any).category ?? EVENT_CATS[idx] ?? 'Экология';
-                                        const imgUrl = (ev as any).imageUrl ?? EVENT_IMAGES[idx % EVENT_IMAGES.length];
-                                        return (
-                                            <article key={ev.id} className="bg-white rounded-2xl border border-gray-100 hover:shadow-lg hover:border-blue-100 transition-all duration-300 overflow-hidden group">
-                                                <div className="relative aspect-[16/10] overflow-hidden">
-                                                    <img src={imgUrl} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                                                    <span className={`absolute top-2 left-2 px-2.5 py-1 ${getCategoryColor(cat)} text-white text-xs font-bold rounded-full`}>
-                                                      {cat}
-                                                    </span>
-                                                    <div className="absolute bottom-2 right-2 flex flex-col items-center bg-white rounded-xl px-2.5 py-1.5 shadow-md min-w-[44px]">
-                                                        <span className="text-lg font-extrabold text-gray-900 leading-none">{dt.day}</span>
-                                                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wide">{dt.month}</span>
-                                                    </div>
-                                                </div>
-                                                <div className="p-4">
-                                                    <h3 className="font-bold text-gray-900 text-sm leading-snug mb-2 group-hover:text-blue-600 transition line-clamp-2">{ev.title}</h3>
-                                                    <div className="space-y-1 mb-3">
-                                                        <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                                                            <i className="fas fa-map-marker-alt text-gray-300 w-3 flex-shrink-0" />
-                                                            <span className="truncate">{ev.location}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                                                            <i className="far fa-clock text-gray-300 w-3 flex-shrink-0" />
-                                                            <span>{dt.full}</span>
+                                : (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                                        {events.map(ev => {
+                                            const dt = fmtEventDate(ev.startsAt);
+                                            return (
+                                                <article key={ev.id} className="bg-white rounded-2xl border border-gray-100 hover:shadow-lg hover:border-blue-100 transition-all duration-300 overflow-hidden group">
+                                                    <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+                                                        {ev.imageUrl ? (
+                                                            <img src={ev.imageUrl} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                                                        ) : (
+                                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+                                                                <i className="fas fa-image text-gray-300 text-3xl" />
+                                                            </div>
+                                                        )}
+                                                        <span className={`absolute top-2 left-2 px-2.5 py-1 ${getCategoryColor(ev.category)} text-white text-xs font-bold rounded-full`}>
+                              {getCategoryLabel(ev.category)}
+                            </span>
+                                                        <div className="absolute bottom-2 right-2 flex flex-col items-center bg-white rounded-xl px-2.5 py-1.5 shadow-md min-w-[44px]">
+                                                            <span className="text-lg font-extrabold text-gray-900 leading-none">{dt.day}</span>
+                                                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wide">{dt.month}</span>
                                                         </div>
                                                     </div>
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                                                            <i className="fas fa-users text-gray-400" />
-                                                            <span>{ev.approvedCount ?? 0} участников</span>
+                                                    <div className="p-4">
+                                                        <h3 className="font-bold text-gray-900 text-sm leading-snug mb-2 group-hover:text-blue-600 transition line-clamp-2">{ev.title}</h3>
+                                                        <div className="space-y-1 mb-3">
+                                                            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                                                                <i className="fas fa-map-marker-alt text-gray-300 w-3 flex-shrink-0" />
+                                                                <span className="truncate">{ev.location}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                                                                <i className="far fa-clock text-gray-300 w-3 flex-shrink-0" />
+                                                                <span>{dt.full}</span>
+                                                            </div>
                                                         </div>
-                                                        <button
-                                                            onClick={() => openEvent(ev.title)}
-                                                            className="text-gray-400 hover:text-blue-600 transition"
-                                                            aria-label="Сохранить"
-                                                        >
-                                                            <i className="far fa-bookmark text-base" />
-                                                        </button>
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                                                                <i className="fas fa-users text-gray-400" />
+                                                                <span>{ev.approvedCount ?? 0} участников</span>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => openEvent(ev.title)}
+                                                                className="text-gray-400 hover:text-blue-600 transition"
+                                                                aria-label="Сохранить"
+                                                            >
+                                                                <i className="far fa-bookmark text-base" />
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </article>
-                                        );
-                                    };
-
-                                    return (
-                                        <>
-                                            {mainItems.length > 0 && (
-                                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                                                    {mainItems.map((ev, idx) => EventCard(ev, idx))}
-                                                </div>
-                                            )}
-                                            {lastItems.length > 0 && (
-                                                <div className="flex justify-center gap-4 mt-4 flex-wrap">
-                                                    {lastItems.map((ev, idx) => (
-                                                        <div key={ev.id} className="w-[calc(20%-0.8rem)] min-w-[160px]">
-                                                            {EventCard(ev, mainItems.length + idx)}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </>
-                                    );
-                                })()
+                                                </article>
+                                            );
+                                        })}
+                                    </div>
+                                )
                             }
 
                             <div className="flex flex-col items-center text-center mt-6">
