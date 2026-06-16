@@ -1,3 +1,4 @@
+import { apiClient } from './client';
 import type {
     VideoLinkListResponseDto,
     VideoLinkResponseDto,
@@ -6,77 +7,41 @@ import type {
     ReorderVideoLinkDto,
 } from '../types/VideoLink';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7001';
-
-function authHeaders(): HeadersInit {
-    const token = localStorage.getItem('accessToken');
-    return {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-}
-
-async function handleResponse<T>(res: Response): Promise<T> {
-    if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`);
-    }
-    if (res.status === 204) return undefined as unknown as T;
-    return res.json() as Promise<T>;
-}
-
 // ── Public ────────────────────────────────────────────────────────────────────
 
 export async function getVideoLinks(skip = 0, take = 20): Promise<VideoLinkListResponseDto> {
-    const res = await fetch(
-        `${API_BASE}/api/video-links?skip=${skip}&take=${take}`,
-        { headers: { Accept: 'application/json' } },
+    const { data } = await apiClient.get<VideoLinkListResponseDto>(
+        `/api/video-links?skip=${skip}&take=${take}`,
     );
-    return handleResponse<VideoLinkListResponseDto>(res);
+    return data;
 }
 
 export async function getVideoLinkById(id: string): Promise<VideoLinkResponseDto> {
-    const res = await fetch(`${API_BASE}/api/video-links/${id}`, {
-        headers: { Accept: 'application/json' },
-    });
-    return handleResponse<VideoLinkResponseDto>(res);
+    const { data } = await apiClient.get<VideoLinkResponseDto>(`/api/video-links/${id}`);
+    return data;
 }
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
 
 export async function createVideoLink(dto: CreateVideoLinkDto): Promise<VideoLinkResponseDto> {
-    const res = await fetch(`${API_BASE}/api/video-links`, {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify(dto),
-    });
-    return handleResponse<VideoLinkResponseDto>(res);
+    const { data } = await apiClient.post<VideoLinkResponseDto>('/api/video-links', dto);
+    return data;
 }
 
-export async function updateVideoLink(id: string, dto: UpdateVideoLinkDto): Promise<VideoLinkResponseDto> {
-    const res = await fetch(`${API_BASE}/api/video-links/${id}`, {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify(dto),
-    });
-    return handleResponse<VideoLinkResponseDto>(res);
+export async function updateVideoLink(
+    id: string,
+    dto: UpdateVideoLinkDto,
+): Promise<VideoLinkResponseDto> {
+    const { data } = await apiClient.put<VideoLinkResponseDto>(`/api/video-links/${id}`, dto);
+    return data;
 }
 
 export async function reorderVideoLink(id: string, dto: ReorderVideoLinkDto): Promise<void> {
-    const res = await fetch(`${API_BASE}/api/video-links/${id}/sort-order`, {
-        method: 'PATCH',
-        headers: authHeaders(),
-        body: JSON.stringify(dto),
-    });
-    return handleResponse<void>(res);
+    await apiClient.patch(`/api/video-links/${id}/sort-order`, dto);
 }
 
 export async function deleteVideoLink(id: string): Promise<void> {
-    const res = await fetch(`${API_BASE}/api/video-links/${id}`, {
-        method: 'DELETE',
-        headers: authHeaders(),
-    });
-    return handleResponse<void>(res);
+    await apiClient.delete(`/api/video-links/${id}`);
 }
 
 export const videoLinksApi = {
