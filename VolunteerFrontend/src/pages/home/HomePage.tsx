@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -11,81 +11,7 @@ import { publicEventsApi } from '../../api/publicEvents';
 import VolonterHomeImage from '../../assets/VolonterHome.png';
 import type { EventResponseDto } from '../../types/event';
 import { getCategoryColor, getCategoryLabel } from '../../types/event';
-
-// ─── Video carousel data ────────────────────────────────────────────────────
-const REPORT_VIDEOS = [
-    { id: 'v1', title: 'Весенняя акция «Чистый Тирасполь» 2026', description: 'Более 300 волонтёров вышли на уборку города. Итоги акции.', thumbnail: 'https://images.unsplash.com/photo-1621451537084-482c78eab36d?w=640&h=360&fit=crop', duration: '4:32', date: 'Апрель 2026', src: null },
-    { id: 'v2', title: 'Отчёт о деятельности за 2025 год', description: '20+ мероприятий, 15+ волонтёров, 5+ населённых пунктов.', thumbnail: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=640&h=360&fit=crop', duration: '7:15', date: 'Январь 2026', src: null },
-    { id: 'v3', title: 'Донорская акция «Подари жизнь»', description: 'Как прошла самая большая донорская акция в истории движения.', thumbnail: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=640&h=360&fit=crop', duration: '5:48', date: 'Март 2026', src: null },
-    { id: 'v4', title: 'Помощь ветеранам: день добрых дел', description: 'Волонтёры посетили ветеранов в 12 городах одновременно.', thumbnail: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=640&h=360&fit=crop', duration: '3:20', date: 'Февраль 2026', src: null },
-    { id: 'v5', title: 'Зооволонтёры: год помощи приютам', description: 'Итоги года работы нашего зооволонтёрского направления.', thumbnail: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=640&h=360&fit=crop', duration: '6:02', date: 'Декабрь 2025', src: null },
-];
-
-// ─── VideoCarousel ───────────────────────────────────────────────────────────
-function VideoCarousel() {
-    const [current, setCurrent] = useState(0);
-    const [playing, setPlaying] = useState<string | null>(null);
-    const videoRef = useRef<HTMLVideoElement | null>(null);
-    const total = REPORT_VIDEOS.length;
-    const prev = () => setCurrent(p => (p - 1 + total) % total);
-    const next = () => setCurrent(p => (p + 1) % total);
-    const handlePlay = (id: string) => { if (playing === id) { setPlaying(null); return; } setPlaying(id); };
-
-    return (
-        <div className="w-full flex flex-col items-center">
-            <div className="relative rounded-2xl overflow-hidden shadow-xl mb-8 bg-gray-900 aspect-video max-h-[480px] w-full max-w-4xl">
-                {playing === REPORT_VIDEOS[current].id && REPORT_VIDEOS[current].src ? (
-                    <video ref={videoRef} src={REPORT_VIDEOS[current].src!} className="w-full h-full object-cover" controls autoPlay onEnded={() => setPlaying(null)} />
-                ) : (
-                    <>
-                        <img src={REPORT_VIDEOS[current].thumbnail} alt={REPORT_VIDEOS[current].title} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-                        <button onClick={() => handlePlay(REPORT_VIDEOS[current].id)} className="absolute inset-0 flex items-center justify-center group" aria-label="Воспроизвести">
-                            <div className="w-18 h-18 w-[72px] h-[72px] bg-white rounded-full flex items-center justify-center shadow-2xl transition-all group-hover:scale-110">
-                                <i className="fas fa-play text-blue-600 text-2xl ml-1" />
-                            </div>
-                        </button>
-                        <div className="absolute bottom-0 left-0 right-0 p-6">
-                            <div className="flex items-center gap-3 mb-2">
-                 <span className="px-2.5 py-1 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center gap-1.5">
-                   <i className="fas fa-video text-[10px]" />{REPORT_VIDEOS[current].duration}
-                 </span>
-                                <span className="text-white/70 text-sm">{REPORT_VIDEOS[current].date}</span>
-                            </div>
-                            <h3 className="text-white font-bold text-xl sm:text-2xl leading-tight mb-1">{REPORT_VIDEOS[current].title}</h3>
-                            <p className="text-white/70 text-sm hidden sm:block">{REPORT_VIDEOS[current].description}</p>
-                        </div>
-                    </>
-                )}
-                <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white rounded-full flex items-center justify-center transition z-10">
-                    <i className="fas fa-chevron-left text-sm" />
-                </button>
-                <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white rounded-full flex items-center justify-center transition z-10">
-                    <i className="fas fa-chevron-right text-sm" />
-                </button>
-            </div>
-
-            {/* Thumbnail strip */}
-            <div className="flex justify-center gap-3 mb-6 flex-wrap max-w-4xl px-4">
-                {REPORT_VIDEOS.map((v, i) => (
-                    <button key={v.id} onClick={() => { setCurrent(i); setPlaying(null); }}
-                            className={`relative rounded-xl overflow-hidden aspect-video transition-all duration-200 w-20 h-12 ${i === current ? 'ring-2 ring-blue-600 ring-offset-2 shadow-md scale-110' : 'opacity-50 hover:opacity-75'}`}>
-                        <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" />
-                        <span className="absolute bottom-0.5 right-0.5 text-[8px] bg-black/70 text-white px-0.5 py-0.5 rounded font-mono">{v.duration}</span>
-                    </button>
-                ))}
-            </div>
-
-            {/* Dots */}
-            <div className="flex justify-center gap-2">
-                {REPORT_VIDEOS.map((_, i) => (
-                    <button key={i} onClick={() => { setCurrent(i); setPlaying(null); }}
-                            className={`rounded-full transition-all duration-300 ${i === current ? 'w-6 h-2.5 bg-blue-600' : 'w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400'}`} />
-                ))}
-            </div>
-        </div>
-    );
-}
+import { VideoCarousel } from '../../components/VideoCarousel';
 
 // ─── Auth Modals ─────────────────────────────────────────────────────────────
 function LoginModal({ onClose, onSwitch }: { onClose: () => void; onSwitch: () => void }) {
@@ -421,8 +347,8 @@ export function HomePage() {
                                                             </div>
                                                         )}
                                                         <span className={`absolute top-2 left-2 px-2.5 py-1 ${getCategoryColor(ev.category)} text-white text-xs font-bold rounded-full`}>
-                              {getCategoryLabel(ev.category)}
-                            </span>
+                                                            {getCategoryLabel(ev.category)}
+                                                        </span>
                                                         <div className="absolute bottom-2 right-2 flex flex-col items-center bg-white rounded-xl px-2.5 py-1.5 shadow-md min-w-[44px]">
                                                             <span className="text-lg font-extrabold text-gray-900 leading-none">{dt.day}</span>
                                                             <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wide">{dt.month}</span>
@@ -472,6 +398,22 @@ export function HomePage() {
                 </div>
             </section>
 
+            {/* ── VIDEO CAROUSEL ──────────────────────────────────────────────── */}
+            <section className="py-16 sm:py-20 bg-white">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+                        <div>
+                            <span className="inline-flex items-center gap-1.5 text-blue-600 text-xs font-bold uppercase tracking-widest mb-2">
+                                <i className="fas fa-film" />Видеоотчёт
+                            </span>
+                            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Отчёт деятельности</h2>
+                            <p className="text-gray-400 mt-1 text-sm">Видеоматериалы наших акций и мероприятий</p>
+                        </div>
+                    </div>
+                    <VideoCarousel />
+                </div>
+            </section>
+
             {/* ── HOW TO START ────────────────────────────────────────────────── */}
             <section className="py-16 sm:py-20 bg-gray-50">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -504,25 +446,6 @@ export function HomePage() {
                             ? <Link to="/profile" className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition shadow-md no-underline text-sm">Перейти в профиль <i className="fas fa-arrow-right ml-2" /></Link>
                             : <button onClick={() => setModal('register')} className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition shadow-md text-sm">Начать сейчас <i className="fas fa-arrow-right ml-2" /></button>}
                     </div>
-                </div>
-            </section>
-
-            {/* ── VIDEO CAROUSEL ──────────────────────────────────────────────── */}
-            <section className="py-16 sm:py-20 bg-white">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-                        <div>
-              <span className="inline-flex items-center gap-1.5 text-blue-600 text-xs font-bold uppercase tracking-widest mb-2">
-                <i className="fas fa-film" />Видеоотчёт
-              </span>
-                            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Отчёт деятельности</h2>
-                            <p className="text-gray-400 mt-1 text-sm">Видеоматериалы наших акций и мероприятий</p>
-                        </div>
-                        <span className="flex items-center gap-2 text-sm text-gray-400 bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
-              <i className="fas fa-video text-blue-600" />{REPORT_VIDEOS.length} видео
-            </span>
-                    </div>
-                    <VideoCarousel />
                 </div>
             </section>
 
@@ -560,9 +483,9 @@ export function HomePage() {
                         <div className="grid lg:grid-cols-2 gap-10 items-center">
                             <div>
                                 <div className="text-center lg:text-left">
-            <span className="inline-flex items-center gap-1.5 text-blue-600 text-xs font-bold uppercase tracking-widest mb-4">
-              <i className="fas fa-users" />Сообщество
-            </span>
+                                    <span className="inline-flex items-center gap-1.5 text-blue-600 text-xs font-bold uppercase tracking-widest mb-4">
+                                        <i className="fas fa-users" />Сообщество
+                                    </span>
                                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Наше сообщество</h2>
                                     <p className="text-gray-600 text-base mb-6 leading-relaxed">Волонтеры Приднестровья — это большая команда неравнодушных людей, которые меняют Приднестровье к лучшему каждый день.</p>
                                 </div>

@@ -16,6 +16,7 @@ const NAV: NavItem[] = [
   { to: '/admin/events',       icon: 'fa-calendar-alt',    label: 'Мероприятия' },
   { to: '/admin/news',         icon: 'fa-newspaper',       label: 'Новости' },
   { to: '/admin/participations',icon: 'fa-clipboard-list', label: 'Заявки' },
+  { to: '/admin/videos',       icon: 'fa-video',           label: 'Видеоотчёты' },
   { to: '/admin/analytics',    icon: 'fa-chart-bar',       label: 'Аналитика' },
   { to: '/admin/audit-log',    icon: 'fa-history',         label: 'Журнал аудита' },
 ];

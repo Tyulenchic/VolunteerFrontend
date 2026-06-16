@@ -36,6 +36,8 @@ import { AdminAnalyticsPage }    from './pages/admin/AdminAnalyticsPage';
 import { AdminAuditLogPage }     from './pages/admin/AdminAuditLogPage';
 import { MyFeedPage } from './pages/feed/MyFeedPage';
 import { Link } from 'react-router-dom';
+import {AdminVideoLinksPage} from "./pages/admin/AdminVideoLinksPage.tsx";
+
 
 function WL({ children }: { children: React.ReactNode }) {
   return <Layout>{children}</Layout>;
@@ -123,6 +125,7 @@ export default function App() {
               <Route path="/admin/events"          element={<WAL><AdminEventsPage /></WAL>} />
               <Route path="/admin/news"            element={<WAL><AdminNewsPage /></WAL>} />
               <Route path="/admin/participations"  element={<WAL><AdminParticipationsPage /></WAL>} />
+              <Route path="/admin/videos"          element={<WAL><AdminVideoLinksPage /></WAL>} />
               <Route path="/admin/analytics"       element={<WAL><AdminAnalyticsPage /></WAL>} />
               <Route path="/admin/audit-log"       element={<WAL><AdminAuditLogPage /></WAL>} />
             </Route>
