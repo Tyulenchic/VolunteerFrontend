@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { videoLinksApi } from '../api/VideoLink.ts';
 import type { VideoLinkResponseDto } from '../types/VideoLink';
+import { CroppedImage } from './ImageCropper';
 
 // ── Spinner ───────────────────────────────────────────────────────────────────
 
@@ -74,6 +75,10 @@ export function VideoCarousel() {
         /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
     );
     const youtubeId = youtubeMatch?.[1] ?? null;
+    // Instagram (Reels, посты, IGTV): ссылку нельзя проиграть как видеофайл, но у неё есть встраиваемая версия /embed/.
+    const instagramCode = item.url.match(/instagram\.com\/(?:[A-Za-z0-9_.]+\/)?(?:reels?|p|tv)\/([A-Za-z0-9_-]+)/i)?.[1] ?? null;
+    // Прямой видеофайл можно проиграть тегом <video>; всё остальное (VK, TikTok, Telegram…) — только по ссылке.
+    const isDirectFile = /\.(mp4|webm|ogg|mov)(\?|#|$)/i.test(item.url);
 
     return (
         <div className="w-full flex flex-col items-center">
@@ -88,8 +93,18 @@ export function VideoCarousel() {
                         allowFullScreen
                         title={item.title}
                     />
-                ) : playing === item.id && !youtubeId ? (
-                    /* Fallback for non-YouTube direct video URLs */
+                ) : playing === item.id && instagramCode ? (
+                    <div className="w-full h-full flex justify-center bg-black">
+                        <iframe
+                            key={instagramCode}
+                            src={`https://www.instagram.com/reel/${instagramCode}/embed/`}
+                            className="h-full w-full max-w-[420px] border-0"
+                            allow="autoplay; encrypted-media; fullscreen"
+                            allowFullScreen
+                            title={item.title}
+                        />
+                    </div>
+                ) : playing === item.id && isDirectFile ? (
                     <video
                         ref={videoRef}
                         src={item.url}
@@ -97,15 +112,30 @@ export function VideoCarousel() {
                         controls
                         autoPlay
                         onEnded={() => setPlaying(null)}
+                        onError={() => console.error('[video] Видеофайл не загрузился:', item.url)}
                     />
+                ) : playing === item.id ? (
+                    /* Ссылка на сервис, который нельзя встроить: открываем в новой вкладке вместо чёрного экрана */
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-center p-6">
+                        <p className="text-white/80 text-sm">Это видео нельзя воспроизвести прямо на сайте.</p>
+                        <a href={item.url} target="_blank" rel="noopener noreferrer"
+                           className="px-5 py-2.5 bg-white text-gray-900 rounded-xl font-semibold no-underline hover:bg-gray-100">
+                            Открыть видео <i className="fas fa-arrow-up-right-from-square ml-1" aria-hidden />
+                        </a>
+                    </div>
                 ) : (
                     <>
                         {item.thumbnailUrl ? (
-                            <img
-                                src={item.thumbnailUrl}
-                                alt={item.title}
-                                className="w-full h-full object-cover"
-                            />
+                            item.hasCustomCover ? (
+                                <CroppedImage src={item.thumbnailUrl} crop={item.coverCrop} aspect={16 / 9} alt={item.title}
+                                    className="!rounded-none w-full h-full" />
+                            ) : (
+                                <img
+                                    src={item.thumbnailUrl}
+                                    alt={item.title}
+                                    className="w-full h-full object-cover"
+                                />
+                            )
                         ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
                                 <i className="fas fa-film text-white/10 text-6xl" />

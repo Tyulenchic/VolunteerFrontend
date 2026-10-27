@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { publicUsersApi } from '../../api/publicUsers';
-import type { UserResponseDto } from '../../types/user';
+import type { PublicUserDto } from '../../types/user';
 import { Spinner } from '../../components/Spinner';
 
 const EVENTS_RANGE = [3, 5, 8, 12, 15, 20, 25];
 
 export function VolunteersPage() {
-  const [volunteers, setVolunteers] = useState<UserResponseDto[]>([]);
+  const [volunteers, setVolunteers] = useState<PublicUserDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [searchRaw, setSearchRaw] = useState('');
@@ -58,7 +58,7 @@ export function VolunteersPage() {
       </section>
 
       {/* SEARCH */}
-      <div className="sticky top-16 z-30 bg-white border-b border-gray-200 py-4 shadow-sm">
+      <div className="sticky top-[3.75rem] z-20 bg-white border-b border-gray-200 py-4 shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative max-w-md mx-auto">
             <input
@@ -86,7 +86,7 @@ export function VolunteersPage() {
           ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {filtered.map(v => {
-                  const name = [v.firstName, v.lastName].filter(Boolean).join(' ') || v.email.split('@')[0];
+                  const name = [v.firstName, v.lastName].filter(Boolean).join(' ') || 'Волонтёр';
                   const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
                   const hash = v.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
                   const eventsCount = EVENTS_RANGE[hash % EVENTS_RANGE.length];

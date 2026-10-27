@@ -48,7 +48,7 @@ export interface UpcomingEventDto {
   location: string;
   approvedParticipantsCount: number;
   maxParticipants?: number;
-  status: 'Draft' | 'Published' | 'Cancelled' | 'Completed';
+  status: 'Draft' | 'Published' | 'Cancelled' | 'Completed' | 'Archived';
 }
 
 export interface RecentParticipationDto {
@@ -71,6 +71,8 @@ export interface AdminUserListItemDto {
   createdAt: string;
   participationsCount: number;
   attendedEventsCount: number;
+  /** Подтверждена ли почта (в списке и в карточке). */
+  emailConfirmed?: boolean;
 }
 
 export interface AdminUserDetailDto extends AdminUserListItemDto {
@@ -95,8 +97,7 @@ export interface AdminEventListDto {
   freeSlots?: number;
   createdAt: string;
   createdBy: string;
-  views: number;
-  status: 'Draft' | 'Published' | 'Cancelled' | 'Completed';
+  status: 'Draft' | 'Published' | 'Cancelled' | 'Completed' | 'Archived';
 }
 
 export interface AdminEventStatisticsDto {
@@ -141,8 +142,9 @@ export interface AdminParticipationDto {
   userEmail: string;
   eventTitle: string;
   createdAt: string;
-  status: 'Pending' | 'Approved' | 'Rejected' | 'AttendanceConfirmed';
+  status: 'Pending' | 'Approved' | 'Rejected' | 'AttendanceConfirmed' | 'Withdrawn';
   adminComment?: string;
+  withdrawalReason?: string | null;
 }
 
 // ==================== NEWS MANAGEMENT ====================
@@ -154,7 +156,6 @@ export interface AdminNewsListDto {
   createdBy: string;
   createdAt: string;
   publishedAt?: string;
-  views: number;
   status: 'Draft' | 'Published' | 'Archived';
 }
 
@@ -186,7 +187,6 @@ export interface PopularEventDto {
   id: string;
   title: string;
   participantsCount: number;
-  views: number;
 }
 
 export interface ActiveVolunteerDto {

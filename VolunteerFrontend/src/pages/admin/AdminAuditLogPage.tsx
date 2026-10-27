@@ -1,153 +1,134 @@
-import { useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import { adminApi } from '../../api/admin';
-import { Spinner } from '../../components/Spinner';
+import { AUDIT_ACTIONS, auditAction } from '../../utils/auditActions';
+import { useLatestRequest, usePaging } from '../../hooks/useListHelpers';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { PageHeader } from '../../components/ui/PageHeader';
+import { Pagination } from '../../components/ui/Pagination';
+import { EmptyState, ErrorState } from '../../components/ui/PageStates';
+import { ListSkeleton } from '../../components/ui/Skeleton';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import type { AuditLogEntryDto } from '../../types/audit';
 
 const TAKE = 20;
 
-const ACTION_ICON: Record<string, string> = {
-  BlockUser: 'fa-ban',
-  UnblockUser: 'fa-check',
-  ChangeUserRole: 'fa-key',
-  PublishNews: 'fa-globe',
-  UnpublishNews: 'fa-eye-slash',
-  ArchiveNews: 'fa-archive',
-  RestoreNews: 'fa-redo',
-  ApproveParticipation: 'fa-check-circle',
-  RejectParticipation: 'fa-times-circle',
-  BulkApproveParticipations: 'fa-check-double',
-  BulkRejectParticipations: 'fa-times-circle',
-};
-
-const ACTION_COLOR: Record<string, string> = {
-  BlockUser: 'text-red-400',
-  UnblockUser: 'text-green-400',
-  ChangeUserRole: 'text-purple-400',
-  PublishNews: 'text-green-400',
-  UnpublishNews: 'text-yellow-400',
-  ArchiveNews: 'text-gray-400',
-  RestoreNews: 'text-blue-400',
-  ApproveParticipation: 'text-green-400',
-  RejectParticipation: 'text-red-400',
-  BulkApproveParticipations: 'text-green-400',
-  BulkRejectParticipations: 'text-red-400',
-};
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('ru-RU');
+const fmtTime = (iso: string) => new Date(iso).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
 export function AdminAuditLogPage() {
   const [logs, setLogs] = useState<AuditLogEntryDto[]>([]);
   const [total, setTotal] = useState(0);
-  const [skip, setSkip] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [actionType, setActionType] = useState('');
+  const [skip, setSkip] = usePaging(actionType);
+  const beginRequest = useLatestRequest();
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
 
   const load = useCallback(async () => {
+    const isCurrent = beginRequest();
     setLoading(true);
+    setFailed(false);
     try {
-      const res = await adminApi.getAuditLog(skip, TAKE);
-      // ✅ Исправление: защита от undefined
+      const res = await adminApi.getAuditLog(skip, TAKE, undefined, actionType || undefined);
+      if (!isCurrent()) return;
       setLogs(res.Items || []);
       setTotal(res.Total || 0);
     } catch (e) {
+      if (!isCurrent()) return;
       console.error('Error loading audit log:', e);
-      setLogs([]); // ✅ установить пустой массив при ошибке
+      setLogs([]);
       setTotal(0);
+      setFailed(true);
     } finally {
-      setLoading(false);
+      if (isCurrent()) setLoading(false);
     }
-  }, [skip]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skip, actionType]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const pages = Math.ceil(total / TAKE) || 1;
-  const currentPage = Math.floor(skip / TAKE) + 1;
+  useEffect(() => { load(); }, [load]);
 
   return (
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-white">Журнал аудита</h1>
-          <p className="text-gray-500 text-sm mt-1">История действий администраторов</p>
-        </div>
+    <div className="space-y-5">
+      <PageHeader title="Журнал действий" description="Что и когда делали администраторы. Новые записи сверху." />
 
-        {/* Loading */}
-        {loading && (
-            <div className="flex items-center justify-center py-12">
-              <Spinner />
-            </div>
-        )}
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="flex items-center gap-2 text-[13px] text-ink-500">
+          Действие
+          <select value={actionType} onChange={e => setActionType(e.target.value)} className="px-3 py-2 text-sm min-w-[16rem]">
+            <option value="">Все действия</option>
+            {Object.entries(AUDIT_ACTIONS).map(([key, a]) => <option key={key} value={key}>{a.label}</option>)}
+          </select>
+        </label>
+        {actionType && <Button variant="ghost" size="sm" onClick={() => setActionType('')}>Сбросить</Button>}
+        <span className="meta ml-auto">Поиск по тексту журнал не поддерживает</span>
+      </div>
 
-        {/* Audit Log Table */}
-        {!loading && (
-            <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-800/50 border-b border-gray-700">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-gray-300">Дата и время</th>
-                    <th className="px-4 py-3 text-left text-gray-300">Администратор</th>
-                    <th className="px-4 py-3 text-left text-gray-300">Действие</th>
-                    <th className="px-4 py-3 text-left text-gray-300">Подробности</th>
-                    <th className="px-4 py-3 text-left text-gray-300">IP адрес</th>
-                  </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-800">
-                  {logs.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-                          Записей в журнале не найдено
+      <Card className="overflow-hidden">
+        {loading && logs.length === 0 ? (
+          <ListSkeleton rows={10} />
+        ) : failed ? (
+          <ErrorState message="Не удалось загрузить журнал" onRetry={load} />
+        ) : logs.length === 0 ? (
+          <EmptyState icon="fa-clock-rotate-left"
+            title={actionType ? 'Записей с таким действием нет' : 'Журнал пока пуст'}
+            hint={actionType ? 'Выберите другой тип действия.' : 'Действия администраторов будут фиксироваться здесь автоматически.'}
+            action={actionType ? <Button variant="secondary" size="sm" onClick={() => setActionType('')}>Показать все</Button> : undefined} />
+        ) : (
+          <div className={`relative overflow-x-auto scroll-soft transition-opacity ${loading ? 'opacity-60' : ''}`}>
+            <table className="rtable w-full text-sm">
+              <thead className="sticky top-0 z-10">
+                <tr>
+                  <th className="px-4 text-left w-[10.5rem]">Время</th>
+                  <th className="px-4 text-left">Администратор</th>
+                  <th className="px-4 text-left">Действие</th>
+                  <th className="px-4 text-left hidden lg:table-cell">Подробности</th>
+                  <th className="px-4 text-left hidden 2xl:table-cell">IP</th>
+                  <th className="w-10" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {logs.map(l => {
+                  const a = auditAction(l.actionType);
+                  const expanded = open === l.id;
+                  return (
+                    <Fragment key={l.id}>
+                      <tr className="cursor-pointer" onClick={() => setOpen(expanded ? null : l.id)}>
+                        <td className="px-4 py-2.5 whitespace-nowrap rt-full">
+                          <time dateTime={l.createdAt} className="mono text-ink-700">{fmtDate(l.createdAt)} <span className="text-ink-400">{fmtTime(l.createdAt)}</span></time>
+                        </td>
+                        <td className="px-4 py-2.5 text-ink-900 whitespace-nowrap">{l.adminName}</td>
+                        <td className="px-4 py-2.5"><StatusBadge tone={a.tone}>{a.label}</StatusBadge></td>
+                        <td className="px-4 py-2.5 hidden lg:table-cell text-ink-500 max-w-[28rem] truncate">{l.details}</td>
+                        <td className="px-4 py-2.5 hidden 2xl:table-cell mono text-ink-400">{l.ipAddress ?? '—'}</td>
+                        <td className="px-2 py-2.5 rt-end">
+                          <button type="button" className="icon-btn !w-7 !h-7" aria-expanded={expanded} aria-label={expanded ? 'Скрыть подробности' : 'Показать подробности'}
+                            onClick={e => { e.stopPropagation(); setOpen(expanded ? null : l.id); }}>
+                            <i className={`fas fa-chevron-down text-[10px] transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                          </button>
                         </td>
                       </tr>
-                  ) : (
-                      logs.map((log) => (
-                          <tr key={log.id} className="hover:bg-gray-800/50 transition">
-                            <td className="px-4 py-3 text-gray-300 text-xs">
-                              {new Date(log.createdAt).toLocaleString('ru-RU')}
-                            </td>
-                            <td className="px-4 py-3 text-white font-medium">{log.adminName}</td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-2">
-                                <i
-                                    className={`fas ${ACTION_ICON[log.actionType] || 'fa-question'} ${ACTION_COLOR[log.actionType] || 'text-gray-400'}`}
-                                />
-                                <span className="text-gray-300 text-xs">{log.actionType}</span>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3">
-                              <p className="text-gray-400 text-xs truncate max-w-xs">{log.details}</p>
-                            </td>
-                            <td className="px-4 py-3 text-gray-500 text-xs">{log.ipAddress || '-'}</td>
-                          </tr>
-                      ))
-                  )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              <div className="px-4 py-4 border-t border-gray-800 flex items-center justify-between">
-                <div className="text-sm text-gray-400">
-                  Страница {currentPage} из {pages || 1} • Всего: {total}
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                      onClick={() => setSkip(Math.max(0, skip - TAKE))}
-                      disabled={skip === 0}
-                      className="px-3 py-1 bg-gray-800 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-600 text-white rounded text-sm transition"
-                  >
-                    ← Назад
-                  </button>
-                  <button
-                      onClick={() => setSkip(skip + TAKE)}
-                      disabled={currentPage >= pages}
-                      className="px-3 py-1 bg-gray-800 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-600 text-white rounded text-sm transition"
-                  >
-                    Далее →
-                  </button>
-                </div>
-              </div>
-            </div>
+                      {expanded && (
+                        <tr className="!bg-surface-2">
+                          <td colSpan={6} className="px-4 py-3">
+                            <dl className="grid gap-x-8 gap-y-2 sm:grid-cols-[auto_1fr] text-[13px]">
+                              <dt className="text-ink-400">Тип</dt><dd className="mono text-ink-700">{l.actionType}</dd>
+                              <dt className="text-ink-400">Подробности</dt><dd className="text-ink-700 whitespace-pre-wrap break-words">{l.details || '—'}</dd>
+                              <dt className="text-ink-400">IP-адрес</dt><dd className="mono text-ink-700">{l.ipAddress ?? '—'}</dd>
+                            </dl>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
-      </div>
+        <Pagination skip={skip} take={TAKE} total={total} onChange={setSkip} />
+      </Card>
+    </div>
   );
 }

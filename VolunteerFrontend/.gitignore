@@ -8,10 +8,10 @@ dist/
 .cache/
 .vite/
 
-# Environmentgit status
+# Environment
 .env
 .env.*
-!.env.production
+!.env.example
 
 # IDE
 .idea/

@@ -8,9 +8,10 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        // target: 'https://localhost:7227',
-        target: 'https://volunteerapi-0x7y.onrender.com',
+        // Используется, только если VITE_API_URL пуст (запросы идут на origin dev-сервера). Локальный API.
+        target: 'https://localhost:7227',
         changeOrigin: true,
+        secure: false, // dev-сертификат ASP.NET
       },
     },
   },

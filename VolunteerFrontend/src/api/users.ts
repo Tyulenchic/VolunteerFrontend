@@ -1,5 +1,8 @@
 import { apiClient } from './client';
-import type { UserResponseDto, UserListResponseDto, UpdateProfileDto, ChangePasswordDto, UserRole } from '../types/user';
+import { appendCrop } from './images';
+import { downloadFile, type DossierFormat } from '../utils/downloadFile';
+import type { ImageCropDto } from '../types/organization';
+import type { UserResponseDto, UpdateProfileDto, ChangePasswordDto } from '../types/user';
 
 export const usersApi = {
   // ── Self ──────────────────────────────────────────────────────────────────
@@ -15,13 +18,16 @@ export const usersApi = {
     await apiClient.put('/api/users/me/password', dto);
   },
   // Upload avatar as multipart/form-data
-  uploadAvatar: async (file: File): Promise<string> => {
+  // Квадратный кадр (доли 0…1) выбирается в редакторе фото; сервер сжимает фото и проверяет пропорции кадра.
+  uploadAvatar: async (file: File, crop?: ImageCropDto | null): Promise<void> => {
     const form = new FormData();
     form.append('file', file);
-    const { data } = await apiClient.post<{ avatarUrl: string }>('/api/users/me/avatar', form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return data.avatarUrl;
+    appendCrop(form, crop);
+    await apiClient.post('/api/users/me/avatar', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+  },
+  // Только кадр — без повторной загрузки файла и без повторной проверки модератором.
+  setAvatarCrop: async (crop: ImageCropDto): Promise<void> => {
+    await apiClient.put('/api/users/me/avatar/crop', crop);
   },
   deleteAvatar: async (): Promise<void> => {
     await apiClient.delete('/api/users/me/avatar');
@@ -29,28 +35,11 @@ export const usersApi = {
   deleteAccount: async (): Promise<void> => {
     await apiClient.delete('/api/users/me');
   },
+  /** Скачать все свои данные файлом (Excel / PDF / Word). */
+  exportMyData: (format: DossierFormat): Promise<void> =>
+    downloadFile('/api/users/me/export', { format }, `moi-dannye.${format}`),
   revokeConsent: async (): Promise<void> => {
     await apiClient.post('/api/users/me/revoke-consent');
   },
 
-  // ── Admin ─────────────────────────────────────────────────────────────────
-  getAll: async (skip = 0, take = 20): Promise<UserListResponseDto> => {
-    const { data } = await apiClient.get<UserListResponseDto>('/api/users', { params: { skip, take } });
-    return data;
-  },
-  getById: async (id: string): Promise<UserResponseDto> => {
-    const { data } = await apiClient.get<UserResponseDto>(`/api/users/${id}`);
-    return data;
-  },
-  block: async (id: string): Promise<void> => {
-    await apiClient.post(`/api/users/${id}/block`);
-  },
-  unblock: async (id: string): Promise<void> => {
-    await apiClient.post(`/api/users/${id}/unblock`);
-  },
-  changeRole: async (id: string, role: UserRole): Promise<void> => {
-    await apiClient.put(`/api/users/${id}/role`, JSON.stringify(role), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  },
 };

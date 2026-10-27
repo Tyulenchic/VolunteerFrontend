@@ -1,25 +1,26 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useNotification } from '../../context/NotificationContext';
 import { useApiError } from '../../hooks/useApiError';
 import { Spinner } from '../../components/Spinner';
+import { RegistrationSuccess } from '../../components/RegistrationSuccess';
+import { validateNewPassword } from '../../utils/password';
 
 export function RegisterPage() {
   const { register } = useAuth();
-  const { notify } = useNotification();
-  const navigate = useNavigate();
   const { error, capture } = useApiError();
   const [form, setForm] = useState({ email: '', password: '', confirm: '', firstName: '', lastName: '', consent: false });
   const [fieldErr, setFieldErr] = useState<Record<string,string>>({});
   const [loading, setLoading] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
 
   const set = (k: string, v: string | boolean) => setForm(p => ({...p, [k]: v}));
 
   const validate = () => {
     const e: Record<string,string> = {};
     if (!form.email) e.email = 'Обязательно';
-    if (form.password.length < 8) e.password = 'Минимум 8 символов';
+    const weak = validateNewPassword(form.password);
+    if (weak) e.password = weak;
     if (form.password !== form.confirm) e.confirm = 'Пароли не совпадают';
     if (!form.consent) e.consent = 'Необходимо согласие';
     setFieldErr(e);
@@ -31,14 +32,25 @@ export function RegisterPage() {
     if (!validate()) return;
     setLoading(true);
     try {
-      await register({ email: form.email, password: form.password, firstName: form.firstName || undefined, lastName: form.lastName || undefined, consentGiven: form.consent });
-      notify('Регистрация успешна! 🎉');
-      navigate('/profile');
+      await register({ email: form.email.trim(), password: form.password, firstName: form.firstName || undefined, lastName: form.lastName || undefined, consentGiven: form.consent });
+      // 202 Accepted: токенов нет, вход — после подтверждения email. Ответ одинаков для нового и существующего email.
+      setRegisteredEmail(form.email.trim());
     } catch (err) { capture(err); }
     finally { setLoading(false); }
   };
 
   const inp = (err?: string) => `w-full px-4 py-2.5 border ${err ? 'border-red-400' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition`;
+
+  if (registeredEmail) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4 py-12">
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+          <RegistrationSuccess email={registeredEmail} />
+          <Link to="/login" className="block mt-6 text-sm text-gray-500 hover:text-primary no-underline"><i className="fas fa-arrow-left mr-1" />К входу</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4 py-12">
@@ -63,12 +75,12 @@ export function RegisterPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Пароль * <span className="text-gray-400 font-normal">(мин. 8 символов)</span></label>
-            <input type="password" value={form.password} onChange={e => set('password', e.target.value)} required className={inp(fieldErr.password)} placeholder="••••••••" />
+            <input type="password" value={form.password} onChange={e => set('password', e.target.value)} required autoComplete="new-password" className={inp(fieldErr.password)} placeholder="••••••••" />
             {fieldErr.password && <p className="text-red-500 text-xs mt-1">{fieldErr.password}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Повтор пароля *</label>
-            <input type="password" value={form.confirm} onChange={e => set('confirm', e.target.value)} required className={inp(fieldErr.confirm)} placeholder="••••••••" />
+            <input type="password" value={form.confirm} onChange={e => set('confirm', e.target.value)} required autoComplete="new-password" className={inp(fieldErr.confirm)} placeholder="••••••••" />
             {fieldErr.confirm && <p className="text-red-500 text-xs mt-1">{fieldErr.confirm}</p>}
           </div>
           <div>

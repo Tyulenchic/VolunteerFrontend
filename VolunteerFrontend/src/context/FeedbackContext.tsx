@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
+import axios from 'axios';
+import { apiClient } from '../api/client';
 import { useNotification } from './NotificationContext';
+import { Modal } from '../components/Modal';
 
 interface FeedbackContextValue {
     openFeedback: () => void;
@@ -33,20 +36,16 @@ function FeedbackModal({ onClose }: { onClose: () => void }) {
             : form.message;
 
         try {
-            const res = await fetch('https://volunteerapi-0x7y.onrender.com/api/feedback', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: form.name, email: form.email, message: fullMessage }),
-            });
-
-            if (res.status === 429) {
-                notify('Слишком много запросов. Попробуйте позже.');
-                return;
-            }
-
-            if (!res.ok) {
-                const err = await res.json().catch(() => null);
-                notify(err?.detail ?? 'Ошибка при отправке. Попробуйте ещё раз.');
+            try {
+                await apiClient.post('/api/feedback', { name: form.name, email: form.email, message: fullMessage });
+            } catch (err) {
+                if (!axios.isAxiosError(err) || !err.response) throw err;
+                if (err.response.status === 429) {
+                    notify('Слишком много запросов. Попробуйте позже.');
+                    return;
+                }
+                const d = err.response.data;
+                notify(d?.error ?? d?.detail ?? 'Ошибка при отправке. Попробуйте ещё раз.');
                 return;
             }
 
@@ -60,15 +59,8 @@ function FeedbackModal({ onClose }: { onClose: () => void }) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
-                <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                    <h2 className="text-xl font-bold text-gray-900">Написать нам</h2>
-                    <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition text-gray-400 hover:text-gray-600">
-                        <i className="fas fa-times" />
-                    </button>
-                </div>
-                <form onSubmit={submit} className="p-6 space-y-4">
+        <Modal isOpen onClose={onClose} title="Написать нам" maxWidth="max-w-lg">
+                <form onSubmit={submit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Имя</label>
@@ -134,8 +126,7 @@ function FeedbackModal({ onClose }: { onClose: () => void }) {
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+        </Modal>
     );
 }
 

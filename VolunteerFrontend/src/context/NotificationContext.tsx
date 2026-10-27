@@ -18,7 +18,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider value={{ notify }}>
       {children}
-      <div className="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none" aria-live="polite">
+      <div className="fixed top-20 right-4 z-[70] flex flex-col gap-2 pointer-events-none" aria-live="polite">
         {items.map(n => (
           <div key={n.id} className={"pointer-events-auto px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium flex items-center gap-2 anim-slide " + bg(n.type)}>
             <i className={"fas " + icon(n.type)} />

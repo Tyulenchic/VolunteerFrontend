@@ -12,7 +12,7 @@ export function ForgotPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setLoading(true);
-    try { await authApi.forgotPassword({ email }); setSent(true); }
+    try { await authApi.forgotPassword({ email: email.trim() }); setSent(true); }
     catch (err) { capture(err); }
     finally { setLoading(false); }
   };
@@ -23,8 +23,8 @@ export function ForgotPasswordPage() {
         {sent ? (
           <>
             <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-envelope text-3xl text-green-600" /></div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Письмо отправлено!</h1>
-            <p className="text-gray-600 mb-6">Мы отправили ссылку на восстановление пароля на <strong>{email}</strong>. Проверьте почту.</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Проверьте почту</h1>
+            <p className="text-gray-600 mb-6">Если аккаунт с таким адресом существует, мы отправили письмо с инструкциями.</p>
             <Link to="/login" className="inline-flex items-center text-primary hover:underline font-medium no-underline"><i className="fas fa-arrow-left mr-2" />Вернуться к входу</Link>
           </>
         ) : (

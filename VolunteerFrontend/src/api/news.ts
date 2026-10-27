@@ -5,7 +5,10 @@ export interface NewsResponseDto {
   title: string;
   content: string;
   excerpt?: string;
+  summary?: string | null;
   imageUrl?: string;
+  imageThumbnailUrl?: string | null;
+  imageCrop?: import('../types/organization').ImageCropDto | null;
   status: 'Draft' | 'Published' | 'Archived';
   createdByUserId: string;
   authorName?: string;

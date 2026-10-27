@@ -1,3 +1,4 @@
+import { adminErrorMessage } from '../utils/adminErrors';
 import { useRef, useState } from 'react';
 
 interface ImageUploadFieldProps {
@@ -45,7 +46,7 @@ export function ImageUploadField({
             await onUpload(file);
         } catch (err) {
             console.error(err);
-            setError('Ошибка загрузки изображения');
+            setError(adminErrorMessage(err, 'Не удалось загрузить изображение. Попробуйте другой файл.'));
             setPreview(null);
         } finally {
             setBusy(false);
@@ -61,7 +62,7 @@ export function ImageUploadField({
             setPreview(null);
         } catch (err) {
             console.error(err);
-            setError('Ошибка удаления изображения');
+            setError(adminErrorMessage(err, 'Не удалось удалить изображение.'));
         } finally {
             setBusy(false);
         }

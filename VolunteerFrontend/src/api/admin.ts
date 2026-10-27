@@ -6,7 +6,6 @@ import type {
   AdminUserDetailDto,
   AdminParticipationDto,
   AdminEventListDto,
-  AdminEventStatisticsDto,
   AdminNewsListDto,
   AdminAnalyticsDto,
   UnreadNotificationsResponseDto,
@@ -15,6 +14,9 @@ import type {
 import type { AuditLogEntryDto } from '../types/audit';
 import type { EventResponseDto } from '../types/event';
 import type { NewsResponseDto } from './news';
+import type { ImageCropDto } from '../types/organization';
+import { appendCrop } from './images';
+import { downloadFile, type DossierFormat } from '../utils/downloadFile';
 
 const API_BASE = '/api/admin';
 
@@ -62,6 +64,11 @@ export const adminApi = {
     await apiClient.post(`${API_BASE}/users/${userId}/change-role`, { newRole });
   },
 
+  /** Скачать досье пользователя файлом (Excel / PDF / Word); выгрузка фиксируется в журнале аудита. */
+  exportUserDossier(userId: string, format: DossierFormat): Promise<void> {
+    return downloadFile(`${API_BASE}/users/${userId}/dossier/export`, { format }, `dossier-${userId}.${format}`);
+  },
+
   async deleteUser(userId: string) {
     await apiClient.delete(`${API_BASE}/users/${userId}`);
   },
@@ -90,9 +97,10 @@ export const adminApi = {
     await apiClient.delete(`/api/news/${newsId}`);
   },
 
-  async uploadNewsImage(newsId: string, file: File): Promise<NewsResponseDto> {
+  async uploadNewsImage(newsId: string, file: File, crop?: ImageCropDto | null): Promise<NewsResponseDto> {
     const form = new FormData();
     form.append('file', file);
+    appendCrop(form, crop);
     const res = await apiClient.post<NewsResponseDto>(`/api/news/${newsId}/image`, form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
@@ -125,11 +133,6 @@ export const adminApi = {
     return { Items: res.data.items, Total: res.data.total };
   },
 
-  async getEventStatistics(eventId: string) {
-    const res = await apiClient.get<AdminEventStatisticsDto>(`/api/events/${eventId}/statistics`);
-    return res.data;
-  },
-
   async createEvent(data: any) {
     const res = await apiClient.post<AdminEventListDto>(`/api/events`, data);
     return res.data;
@@ -144,13 +147,29 @@ export const adminApi = {
     await apiClient.delete(`/api/events/${eventId}`);
   },
 
-  async uploadEventImage(eventId: string, file: File): Promise<EventResponseDto> {
+  async uploadEventImage(eventId: string, file: File, crop?: ImageCropDto | null): Promise<EventResponseDto> {
     const form = new FormData();
     form.append('file', file);
+    appendCrop(form, crop);
     const res = await apiClient.post<EventResponseDto>(`/api/events/${eventId}/image`, form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return res.data;
+  },
+
+  /** Меняет только кадр уже загруженного фото (файл заново не отправляется). */
+  async setEventImageCrop(eventId: string, crop: ImageCropDto): Promise<EventResponseDto> {
+    const res = await apiClient.put<EventResponseDto>(`/api/events/${eventId}/image/crop`, crop);
+    return res.data;
+  },
+
+  async setNewsImageCrop(newsId: string, crop: ImageCropDto): Promise<NewsResponseDto> {
+    const res = await apiClient.put<NewsResponseDto>(`/api/news/${newsId}/image/crop`, crop);
+    return res.data;
+  },
+
+  async deleteNewsImage(newsId: string) {
+    await apiClient.delete(`/api/news/${newsId}/image`);
   },
 
   async deleteEventImage(eventId: string) {
@@ -161,10 +180,6 @@ export const adminApi = {
     await apiClient.post(`/api/events/${eventId}/publish`);
   },
 
-  async unpublishEvent(eventId: string) {
-    await apiClient.post(`/api/events/${eventId}/unpublish`);
-  },
-
   async cancelEvent(eventId: string, reason?: string) {
     await apiClient.post(`/api/events/${eventId}/cancel`, { reason });
   },
@@ -173,8 +188,9 @@ export const adminApi = {
     await apiClient.post(`/api/events/${eventId}/complete`);
   },
 
-  async updateEventMaxParticipants(eventId: string, maxParticipants: number) {
-    await apiClient.patch(`/api/events/${eventId}/max-participants`, { maxParticipants });
+  /** Завершённое мероприятие — в архив: запись остаётся, посетителям не показывается. */
+  async archiveEvent(eventId: string) {
+    await apiClient.post(`/api/events/${eventId}/archive`);
   },
 
   // ==================== PARTICIPATIONS ====================

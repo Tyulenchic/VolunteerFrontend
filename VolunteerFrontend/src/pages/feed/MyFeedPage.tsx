@@ -4,10 +4,11 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import {apiClient} from "../../api/client.ts";
 import type {ParticipationResponseDto} from "../../types/event.ts";
+import { SecureImage } from '../../components/SecureImage';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ParticipationStatus = 'Pending' | 'Approved' | 'Rejected' | 'AttendanceConfirmed';
+type ParticipationStatus = 'Pending' | 'Approved' | 'Rejected' | 'AttendanceConfirmed' | 'Withdrawn';
 type EventCategory =
     | 'Veterans' | 'Medical' | 'Donation' | 'Animals' | 'HealthyLife' | 'Culture'
     | 'Education' | 'Media' | 'Social' | 'Events' | 'Patriotic' | 'Urban' | 'Ecological';
@@ -32,6 +33,7 @@ interface ParticipationRecord {
     userFullName?: string | null;
     status: ParticipationStatus;
     adminComment?: string | null;
+    withdrawalReason?: string | null;
     createdAt: string;
     updatedAt?: string | null;
 }
@@ -70,12 +72,6 @@ interface FeedData {
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
-
-function authHeaders(token: string): HeadersInit {
-    return { Authorization: `Bearer ${token}`, Accept: 'application/json' };
-}
-
 /**
  * GET /api/feed?take=12
  * Один запрос — бэкенд параллельно собирает профиль, историю участий
@@ -90,12 +86,12 @@ async function fetchFeed(take = 12): Promise<FeedData> {
 }
 
 /**
- * POST /api/feed/apply/{eventId}
+ * POST /api/events/{eventId}/apply
  * Запись на мероприятие прямо из ленты — без перехода на страницу события.
  */
 async function applyToEvent(eventId: string): Promise<ParticipationResponseDto> {
     const { data } = await apiClient.post<ParticipationResponseDto>(
-        `/api/feed/apply/${eventId}`
+        `/api/events/${eventId}/apply`
     );
     return data;
 }
@@ -107,6 +103,7 @@ const STATUS_META: Record<ParticipationStatus, { label: string; cls: string; ico
     Approved:            { label: 'Одобрено',         cls: 'bg-green-100 text-green-700',  icon: 'fas fa-check-circle' },
     Rejected:            { label: 'Отклонено',         cls: 'bg-red-100 text-red-700',     icon: 'fas fa-times-circle' },
     AttendanceConfirmed: { label: 'Присутствие',       cls: 'bg-blue-100 text-blue-700',   icon: 'fas fa-star' },
+    Withdrawn:           { label: 'Отозвана',          cls: 'bg-gray-100 text-gray-600',   icon: 'fas fa-ban' },
 };
 
 const CAT_LABELS: Record<EventCategory, string> = {
@@ -189,6 +186,9 @@ function ActivityCard({ rec, onRevoke }: {
                     {rec.eventTitle}
                 </Link>
                 <p className="text-xs text-gray-400 mt-1">Заявка от {formatDate(rec.createdAt)}</p>
+                {rec.status === 'Withdrawn' && rec.withdrawalReason && (
+                    <p className="text-xs text-gray-500 mt-1 italic">Ваш комментарий: «{rec.withdrawalReason}»</p>
+                )}
                 {rec.adminComment && (
                     <p className="text-xs text-gray-500 mt-1 italic">«{rec.adminComment}»</p>
                 )}
@@ -248,7 +248,7 @@ function EventCard({ event, participatedIds, pendingSet, onApply }: {
             {/* image or placeholder */}
             <div className="relative h-36 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden flex-shrink-0">
                 {event.imageUrl ? (
-                    <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <SecureImage src={event.imageUrl} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center">
                         <i className="fas fa-hands-helping text-4xl text-gray-300" />
@@ -351,9 +351,6 @@ export function MyFeedPage() {
     // tab: 'feed' | 'history'
     const [tab, setTab] = useState<'feed' | 'history'>('feed');
 
-    // Токен хранится в localStorage (см. AuthContext → authApi.login)
-    const getToken = useCallback(() => localStorage.getItem('accessToken') ?? '', []);
-
     const load = useCallback(async () => {
         if (!user) return;
         setLoading(true);
@@ -361,14 +358,14 @@ export function MyFeedPage() {
         try {
             const d = await fetchFeed();
             setData(d);
-            const ids = new Set(d.activities.map(a => a.eventId));
+            const ids = new Set(d.activities.filter(a => a.status !== 'Withdrawn').map(a => a.eventId));
             setAppliedIds(ids);
         } catch (e: unknown) {
             setError(e instanceof Error ? e.message : 'Ошибка загрузки');
         } finally {
             setLoading(false);
         }
-    }, [user, getToken]);
+    }, [user]);
 
     useEffect(() => { load(); }, [load]);
 
@@ -388,18 +385,16 @@ export function MyFeedPage() {
     };
 
     const handleRevoke = async (participationId: string) => {
-        const token = getToken();
-        if (!token) return;
         try {
-            const res = await fetch(`${API_BASE}/api/participations/${participationId}`, {
-                method: 'DELETE',
-                headers: authHeaders(token),
-            });
-            if (!res.ok) throw new Error('Не удалось отозвать заявку');
+            try {
+                await apiClient.delete(`/api/participations/${participationId}`);
+            } catch {
+                throw new Error('Не удалось отозвать заявку');
+            }
             notify('Заявка отозвана');
             const fresh = await fetchFeed();
             setData(fresh);
-            setAppliedIds(new Set(fresh.activities.map(a => a.eventId)));
+            setAppliedIds(new Set(fresh.activities.filter(a => a.status !== 'Withdrawn').map(a => a.eventId)));
         } catch (e: unknown) {
             notify(e instanceof Error ? e.message : 'Ошибка', 'error');
         }
@@ -516,7 +511,7 @@ export function MyFeedPage() {
             </section>
 
             {/* ── TABS ─────────────────────────────────────────────────────── */}
-            <div className="bg-white border-b border-gray-200 sticky top-16 z-30">
+            <div className="bg-white border-b border-gray-200 sticky top-[3.75rem] z-20">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex gap-0">
                         {(['feed', 'history'] as const).map(t => (
@@ -554,7 +549,7 @@ export function MyFeedPage() {
                     {tab === 'feed' && (
                         <>
                             {/* section header */}
-                            <div className="flex items-center justify-between mb-6">
+                            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                                 <div>
                                     <h2 className="text-xl font-bold text-gray-900">Ближайшие мероприятия</h2>
                                     <p className="text-sm text-gray-500 mt-0.5">
@@ -580,7 +575,7 @@ export function MyFeedPage() {
 
                             {upcomingEvents.length === 0 ? (
                                 <div className="text-center py-20 text-gray-400">
-                                    <i className="fas fa-calendar-times text-5xl mb-4 block" />
+                                    <i className="fas fa-calendar-times text-4xl sm:text-5xl mb-4 block" />
                                     <p className="text-lg font-semibold text-gray-600">Нет актуальных мероприятий</p>
                                     <p className="text-sm mt-1">Загляните позже — новые события появятся скоро.</p>
                                 </div>
@@ -603,7 +598,7 @@ export function MyFeedPage() {
                     {/* ── TAB: HISTORY ── */}
                     {tab === 'history' && (
                         <>
-                            <div className="flex items-center justify-between mb-6">
+                            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                                 <div>
                                     <h2 className="text-xl font-bold text-gray-900">История участий</h2>
                                     <p className="text-sm text-gray-500 mt-0.5">{activities.length} заявок за всё время</p>
@@ -612,7 +607,7 @@ export function MyFeedPage() {
 
                             {sortedActivities.length === 0 ? (
                                 <div className="text-center py-20 text-gray-400">
-                                    <i className="fas fa-inbox text-5xl mb-4 block" />
+                                    <i className="fas fa-inbox text-4xl sm:text-5xl mb-4 block" />
                                     <p className="text-lg font-semibold text-gray-600">Вы ещё не участвовали в мероприятиях</p>
                                     <button
                                         onClick={() => setTab('feed')}
