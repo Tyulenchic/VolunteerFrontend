@@ -1,23 +1,43 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { useApiError } from '../../hooks/useApiError';
 import { usersApi } from '../../api/users';
 import { eventsApi } from '../../api/events';
+import { publicUsersApi } from '../../api/publicUsers';
 import { Spinner } from '../../components/Spinner';
+import { DossierExportButtons } from '../../components/DossierExportButtons';
+import { AvatarPanel } from '../../components/profile/AvatarPanel';
+import { MyOrganizationsPanel } from '../../components/profile/MyOrganizationsPanel';
+import { PublicProfileView } from '../../components/profile/PublicProfileView';
+import { checkPhone, phoneError, PHONE_HINT, PHONE_PLACEHOLDER } from '../../utils/phone';
+import { CancelParticipationDialog } from '../../components/CancelParticipationDialog';
+import type { PublicUserDto } from '../../types/user';
 import type { ParticipationResponseDto } from '../../types/event';
+import type { ProfileField } from '../../types/user';
+
+const VISIBILITY_OPTIONS: Array<{ key: ProfileField; label: string }> = [
+  { key: 'FullName',    label: 'ФИО' },
+  { key: 'Photo',       label: 'Фотография' },
+  { key: 'City',        label: 'Город проживания' },
+  { key: 'BookNumber',  label: 'Номер книжки' },
+  { key: 'About',       label: 'О себе' },
+  { key: 'SocialLinks', label: 'Социальные сети' },
+  { key: 'Events',      label: 'Мероприятия, в которых я участвовал' },
+  { key: 'Organizations', label: 'Организации, в которых я состою' },
+];
 
 const STATUS_LABEL: Record<string, string> = {
   Pending:'На рассмотрении', Approved:'Одобрено',
-  Rejected:'Отклонено', AttendanceConfirmed:'Посещение подтверждено',
+  Rejected:'Отклонено', AttendanceConfirmed:'Посещение подтверждено', Withdrawn:'Отозвана',
 };
 const STATUS_COLOR: Record<string, string> = {
   Pending:'bg-amber-100 text-amber-700', Approved:'bg-green-100 text-green-700',
-  Rejected:'bg-red-100 text-red-700', AttendanceConfirmed:'bg-blue-100 text-blue-700',
+  Rejected:'bg-red-100 text-red-700', AttendanceConfirmed:'bg-blue-100 text-blue-700', Withdrawn:'bg-gray-100 text-gray-600',
 };
 
-type Tab = 'info' | 'activity' | 'settings' | 'security' | 'danger';
+type Tab = 'info' | 'public' | 'activity' | 'organizations' | 'settings' | 'security' | 'danger';
 
 export function ProfilePage() {
   const { user, logout, refreshUser } = useAuth();
@@ -25,14 +45,22 @@ export function ProfilePage() {
   const navigate = useNavigate();
   const { error: apiErr, capture, setError } = useApiError();
   const [tab, setTab] = useState<Tab>('info');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [publicView, setPublicView] = useState<PublicUserDto | null>(null);
 
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName,  setLastName]  = useState(user?.lastName  ?? '');
   const [bio,       setBio]       = useState(user?.bio       ?? '');
+  const [middleName, setMiddleName] = useState(user?.middleName ?? '');
+  const [birthYear,  setBirthYear]  = useState(user?.birthYear ? String(user.birthYear) : '');
+  const [city,       setCity]       = useState(user?.city ?? '');
+  const [bookNumber, setBookNumber] = useState(user?.bookNumber ?? '');
+  const [phone,      setPhone]      = useState(user?.phoneNumber ?? '');
+  const [phoneErr,   setPhoneErr]   = useState('');
+  const [cities,     setCities]     = useState<string[]>([]);
+  const [socialText, setSocialText] = useState((user?.socialLinks ?? []).join('\n'));
+  const [publicFields, setPublicFields] = useState<ProfileField[]>(user?.publicFields ?? []);
+  const [isClosed,  setIsClosed]  = useState(user?.isProfileClosed ?? false);
   const [saving,    setSaving]    = useState(false);
-
-  const [avatarLoading, setAvatarLoading] = useState(false);
 
   const [curPw,     setCurPw]   = useState('');
   const [newPw,     setNewPw]   = useState('');
@@ -48,15 +76,18 @@ export function ProfilePage() {
   const CONFIRM_WORD = 'УДАЛИТЬ';
 
   const [withdrawingId, setWithdrawingId] = useState<string | null>(null);
-  const handleWithdraw = async (participationId: string) => {
-    if (!confirm('Вы уверены, что хотите отозвать заявку?')) return;
-    setWithdrawingId(participationId);
+  const [cancelling, setCancelling] = useState<ParticipationResponseDto | null>(null);
+  const handleCancel = async (reason: string) => {
+    if (!cancelling) return;
+    setWithdrawingId(cancelling.id);
     try {
-      await eventsApi.withdraw(participationId);
-      setActivities(prev => prev.filter(a => a.id !== participationId));
+      await eventsApi.cancelParticipation(cancelling.id, reason);
+      // Запись остаётся в списке со статусом «Отозвана» и вашим комментарием.
+      setActivities(prev => prev.map(a => a.id === cancelling.id ? { ...a, status: 'Withdrawn', withdrawalReason: reason || null } : a));
+      notify(cancelling.status === 'Approved' ? 'Вы отказались от участия. Организатор получит уведомление.' : 'Заявка отозвана', 'info');
+      setCancelling(null);
     } catch (err) {
-      console.error('Withdraw failed:', err);
-      // surface your usual error toast here
+      capture(err);
     } finally {
       setWithdrawingId(null);
     }
@@ -67,8 +98,20 @@ export function ProfilePage() {
       setFirstName(user.firstName ?? '');
       setLastName(user.lastName  ?? '');
       setBio(user.bio ?? '');
+      setMiddleName(user.middleName ?? '');
+      setBirthYear(user.birthYear ? String(user.birthYear) : '');
+      setCity(user.city ?? '');
+      setBookNumber(user.bookNumber ?? '');
+      setPhone(user.phoneNumber ?? '');
+      setSocialText((user.socialLinks ?? []).join('\n'));
+      setPublicFields(user.publicFields ?? []);
+      setIsClosed(user.isProfileClosed ?? false);
     }
   }, [user]);
+
+  useEffect(() => {
+    publicUsersApi.getCities().then(setCities).catch(() => setCities([]));
+  }, []);
 
   useEffect(() => {
     if (tab === 'activity') {
@@ -80,6 +123,11 @@ export function ProfilePage() {
     }
   }, [tab]);
 
+  // Вкладка «Как видят другие»: профиль так, как его отдаёт сервер посторонним (с учётом скрытых полей).
+  useEffect(() => {
+    if (tab === 'public' && user && true) publicUsersApi.getById(user.id).then(setPublicView).catch(() => notify('Не удалось загрузить публичный вид', 'error'));
+  }, [tab, user?.id, user?.publicFields]);
+
   if (!user) return null;
 
   const displayName = user.firstName
@@ -88,39 +136,28 @@ export function ProfilePage() {
 
   const saveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    const phoneCheck = checkPhone(phone);
+    if (!phoneCheck.ok) { setPhoneErr(phoneCheck.error); document.getElementById('profile-phone')?.focus(); return; }
+    setPhoneErr('');
     setSaving(true); setError(undefined);
     try {
       await usersApi.updateProfile({
-        firstName: firstName || undefined,
-        lastName:  lastName  || undefined,
-        bio:       bio       || undefined,
+        firstName:  firstName  || undefined,
+        lastName:   lastName   || undefined,
+        middleName: middleName || undefined,
+        bio:        bio        || undefined,
+        birthYear:  birthYear ? Number(birthYear) : undefined,
+        city:       city       || undefined,
+        bookNumber: bookNumber || undefined,
+        phoneNumber: phoneCheck.value || undefined,
+        socialLinks: socialText.split('\n').map(l => l.trim()).filter(Boolean),
+        publicFields,
+        isProfileClosed: user.role !== 'Volunteer' ? isClosed : false,
       });
       await refreshUser();
       notify('Профиль обновлён!');
     } catch(err) { capture(err); }
     finally { setSaving(false); }
-  };
-
-  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setAvatarLoading(true);
-    try {
-      await usersApi.uploadAvatar(file);
-      await refreshUser();
-      notify('Аватар обновлён!');
-    } catch(err) { capture(err); }
-    finally { setAvatarLoading(false); if (fileInputRef.current) fileInputRef.current.value = ''; }
-  };
-
-  const removeAvatar = async () => {
-    setAvatarLoading(true);
-    try {
-      await usersApi.deleteAvatar();
-      await refreshUser();
-      notify('Аватар удалён');
-    } catch(err) { capture(err); }
-    finally { setAvatarLoading(false); }
   };
 
   const changePassword = async (e: React.FormEvent) => {
@@ -149,7 +186,9 @@ export function ProfilePage() {
 
   const tabs: Array<{key:Tab; label:string; icon:string}> = [
     {key:'info',     label:'Информация',  icon:'fa-user'},
+    {key:'public',   label:'Как видят другие', icon:'fa-eye'},
     {key:'activity', label:'Активность',  icon:'fa-calendar-check'},
+    {key:'organizations', label:'Организации', icon:'fa-building-columns'},
     {key:'settings', label:'Настройки',   icon:'fa-cog'},
     {key:'security', label:'Безопасность',icon:'fa-lock'},
     {key:'danger',   label:'Удалить аккаунт',icon:'fa-exclamation-triangle'},
@@ -238,6 +277,8 @@ export function ProfilePage() {
               </div>
             )}
 
+            {tab === 'public' && (publicView ? <PublicProfileView user={publicView} isOwner /> : <div className="flex justify-center py-10"><Spinner /></div>)}
+
             {/* ── ACTIVITY ──────────────────────────────────── */}
             {tab === 'activity' && (
                 <div>
@@ -251,10 +292,15 @@ export function ProfilePage() {
                           </div>
                           : <div className="space-y-3">
                             {activities.map(a => (
-                                <div key={a.id} className="flex items-center justify-between gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                  <div>
+                                <div key={a.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                  <div className="min-w-0">
                                     <p className="font-semibold text-gray-900">{a.eventTitle}</p>
                                     <p className="text-sm text-gray-500">{new Date(a.createdAt).toLocaleDateString('ru-RU')}</p>
+                                    {a.status === 'Withdrawn' && a.withdrawalReason && (
+                                        <p className="text-sm text-gray-600 mt-1">
+                                          <i className="fas fa-comment-dots mr-1 text-primary" />Ваш комментарий: {a.withdrawalReason}
+                                        </p>
+                                    )}
                                     {a.adminComment && (
                                         <p className="text-sm text-gray-600 mt-1">
                                           <i className="fas fa-comment mr-1 text-primary" />{a.adminComment}
@@ -264,7 +310,7 @@ export function ProfilePage() {
                                   <div className="flex items-center gap-2 flex-shrink-0">
                                     {a.status === 'Pending' && (
                                         <button
-                                            onClick={() => handleWithdraw(a.id)}
+                                            onClick={() => setCancelling(a)}
                                             disabled={withdrawingId === a.id}
                                             className="px-3 py-1 rounded-full text-xs font-bold uppercase bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
@@ -272,6 +318,12 @@ export function ProfilePage() {
                                               ? <i className="fas fa-spinner fa-spin" />
                                               : 'Отозвать'
                                           }
+                                        </button>
+                                    )}
+                                    {a.status === 'Approved' && (
+                                        <button onClick={() => setCancelling(a)} disabled={withdrawingId === a.id}
+                                            className="px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors disabled:opacity-50">
+                                          Не смогу прийти
                                         </button>
                                     )}
                                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${STATUS_COLOR[a.status] ?? 'bg-gray-100 text-gray-600'}`}>
@@ -286,6 +338,8 @@ export function ProfilePage() {
             )}
 
             {/* ── SETTINGS ──────────────────────────────────── */}
+            {tab === 'organizations' && <MyOrganizationsPanel />}
+
             {tab === 'settings' && (
               <div className="space-y-8">
                 {apiErr && <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm">{apiErr}</div>}
@@ -294,7 +348,7 @@ export function ProfilePage() {
                 <div>
                   <h2 className="text-xl font-bold text-gray-900 mb-4">Личные данные</h2>
                   <form onSubmit={saveProfile} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Имя</label>
                         <input value={firstName} onChange={e => setFirstName(e.target.value)} className={inp} placeholder="Иван" />
@@ -305,9 +359,68 @@ export function ProfilePage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">О себе</label>
-                      <textarea value={bio} onChange={e => setBio(e.target.value)} rows={3} className={inp + ' resize-none'} placeholder="Расскажите немного о себе..." />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Отчество</label>
+                      <input value={middleName} onChange={e => setMiddleName(e.target.value)} className={inp} placeholder="Иванович" maxLength={100} />
                     </div>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Год рождения</label>
+                        <input type="number" inputMode="numeric" min={1920} max={new Date().getFullYear()} value={birthYear}
+                          onChange={e => setBirthYear(e.target.value)} className={inp} placeholder="2000" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Город проживания</label>
+                        <select value={city} onChange={e => setCity(e.target.value)} className={inp}>
+                          <option value="">Не указан</option>
+                          {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
+                      <input id="profile-phone" type="tel" value={phone} onChange={e => { setPhone(e.target.value); if (phoneErr) setPhoneErr(''); }}
+                        onBlur={() => setPhoneErr(phoneError(phone))} className={inp} placeholder={PHONE_PLACEHOLDER} maxLength={32} autoComplete="tel"
+                        aria-invalid={phoneErr ? 'true' : undefined} aria-describedby="profile-phone-hint" />
+                      <p id="profile-phone-hint" role={phoneErr ? 'alert' : undefined} className={`text-xs mt-1 ${phoneErr ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                        {phoneErr || `${PHONE_HINT} Телефон и год рождения видят только организаторы и администраторы.`}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Номер личной книжки добровольца</label>
+                      <input value={bookNumber} onChange={e => setBookNumber(e.target.value)} className={inp} maxLength={50} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">О себе</label>
+                      <textarea value={bio} onChange={e => setBio(e.target.value)} rows={3} maxLength={1000} className={inp + ' resize-none'} placeholder="Расскажите немного о себе..." />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Социальные сети <span className="text-gray-400 font-normal">(по одной ссылке в строке, https, до 5)</span></label>
+                      <textarea value={socialText} onChange={e => setSocialText(e.target.value)} rows={3} className={inp + ' resize-none'} placeholder="https://t.me/username" />
+                    </div>
+
+                    {user.role !== 'Volunteer' && (
+                      <label className="flex items-start gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer">
+                        <input type="checkbox" className="mt-1" checked={isClosed} onChange={e => setIsClosed(e.target.checked)} />
+                        <span>
+                          <span className="block text-sm font-semibold text-gray-700"><i className="fas fa-lock mr-1" />Закрыть профиль</span>
+                          <span className="block text-xs text-gray-500 mt-0.5">Посторонние увидят только имя и фото, остальное скрыто. Администраторам профиль виден полностью.</span>
+                        </span>
+                      </label>
+                    )}
+
+                    <fieldset className="border border-gray-200 rounded-xl p-4">
+                      <legend className="px-2 text-sm font-semibold text-gray-700">Что видно другим посетителям сайта</legend>
+                      <p className="text-xs text-gray-500 mb-3">По умолчанию все данные скрыты. Отметьте только то, что хотите показать в публичном профиле.</p>
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {VISIBILITY_OPTIONS.map(o => (
+                          <label key={o.key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                            <input type="checkbox" checked={publicFields.includes(o.key)}
+                              onChange={() => setPublicFields(prev => prev.includes(o.key) ? prev.filter(k => k !== o.key) : [...prev, o.key])} />
+                            {o.label}
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
                     <button type="submit" disabled={saving}
                       className="px-6 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-60 flex items-center gap-2">
                       {saving ? <><Spinner /> Сохранение...</> : <><i className="fas fa-save mr-1" />Сохранить</>}
@@ -316,31 +429,7 @@ export function ProfilePage() {
                 </div>
 
                 {/* Avatar */}
-                <div className="border-t border-gray-100 pt-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">Аватар</h2>
-                  <div className="flex items-center gap-4 mb-4">
-                    {user.avatarUrl
-                      ? <img src={user.avatarUrl} alt="Avatar" className="w-16 h-16 rounded-2xl object-cover border-2 border-gray-200" />
-                      : <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                          <span className="text-2xl font-bold text-primary">{displayName.charAt(0).toUpperCase()}</span>
-                        </div>
-                    }
-                    <div className="flex gap-2">
-                      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAvatarFile} className="hidden" />
-                      <button onClick={() => fileInputRef.current?.click()} disabled={avatarLoading}
-                        className="px-4 py-2 text-sm font-medium bg-primary text-white border border-primary rounded-xl hover:bg-primary-dark transition disabled:opacity-60 flex items-center gap-2">
-                        {avatarLoading ? <Spinner /> : <><i className="fas fa-upload" />Загрузить</>}
-                      </button>
-                      {user.avatarUrl && (
-                        <button onClick={removeAvatar} disabled={avatarLoading}
-                          className="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition disabled:opacity-60">
-                          Удалить
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-gray-500 text-xs">Допустимые форматы: JPG, PNG, WEBP. Максимальный размер: 5 МБ.</p>
-                </div>
+                <AvatarPanel />
               </div>
             )}
 
@@ -372,6 +461,16 @@ export function ProfilePage() {
               </div>
             )}
 
+            {tab === 'security' && (
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Скачать мои данные</h2>
+                <p className="text-gray-600 text-sm mb-4">
+                  Все сведения о вашем аккаунте: профиль, заявки на мероприятия, обращения и другое.
+                </p>
+                <DossierExportButtons onExport={usersApi.exportMyData} />
+              </div>
+            )}
+
             {/* ── DANGER ────────────────────────────────────── */}
             {tab === 'danger' && (
               <div className="space-y-6">
@@ -399,6 +498,8 @@ export function ProfilePage() {
           </div>
         </div>
       </div>
+      <CancelParticipationDialog isOpen={cancelling !== null} eventTitle={cancelling?.eventTitle ?? ''} approved={cancelling?.status === 'Approved'}
+        busy={cancelling !== null && withdrawingId === cancelling.id} onConfirm={handleCancel} onClose={() => setCancelling(null)} />
     </div>
   );
 }

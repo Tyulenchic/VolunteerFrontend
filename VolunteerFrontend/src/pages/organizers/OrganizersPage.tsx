@@ -1,24 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { publicUsersApi } from '../../api/publicUsers';
-import type { UserResponseDto } from '../../types/user';
+import type { PublicUserDto } from '../../types/user';
 import { Spinner } from '../../components/Spinner';
 import { useFeedback } from '../../context/FeedbackContext';
 
-const LOCATIONS = ['Тирасполь', 'Бендеры', 'Рыбница', 'Дубоссары', 'Слободзея'];
-const CATEGORIES = ['Экология', 'Социальная помощь', 'Спорт', 'Обучение', 'Медицина', 'Животные'];
-
-
-function getMeta(id: string) {
-  const hash = id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  return {
-    location: LOCATIONS[hash % LOCATIONS.length],
-    category: CATEGORIES[hash % CATEGORIES.length],
-  };
-}
-
 export function OrganizersPage() {
-  const [organizers, setOrganizers] = useState<UserResponseDto[]>([]);
+  const [organizers, setOrganizers] = useState<PublicUserDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [searchRaw, setSearchRaw] = useState('');
@@ -62,7 +50,7 @@ export function OrganizersPage() {
       </section>
 
       {/* SEARCH */}
-      <div className="sticky top-16 z-30 bg-white border-b border-gray-200 py-4 shadow-sm">
+      <div className="sticky top-[3.75rem] z-20 bg-white border-b border-gray-200 py-4 shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative max-w-md mx-auto">
             <input
@@ -89,9 +77,8 @@ export function OrganizersPage() {
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map(o => {
-                const name = [o.firstName, o.lastName].filter(Boolean).join(' ') || o.email.split('@')[0];
+                const name = [o.firstName, o.lastName].filter(Boolean).join(' ') || 'Пользователь'; // роль уже в бейдже ниже
                 const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-                const meta = getMeta(o.id);
                 return (
                   <Link key={o.id} to={`/users/${o.id}`} className="no-underline">
                     <article className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl hover:border-primary/30 transition-all duration-300 overflow-hidden group cursor-pointer h-full flex flex-col">
@@ -115,13 +102,18 @@ export function OrganizersPage() {
                         {o.bio && (
                           <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">{o.bio}</p>
                         )}
-                        <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100 text-xs text-gray-500 mt-auto">
-                          <span className="flex items-center gap-1">
-                            <i className="fas fa-map-marker-alt text-primary" />{meta.location}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <i className="fas fa-tag text-primary" />{meta.category}
-                          </span>
+                        <div className="flex flex-col gap-2 pt-4 border-t border-gray-100 text-xs text-gray-600 mt-auto">
+                          {o.city && (
+                            <span className="flex items-center gap-1">
+                              <i className="fas fa-map-marker-alt text-primary" aria-hidden />{o.city}
+                            </span>
+                          )}
+                          {o.organizations && o.organizations.length > 0 && (
+                            <span className="flex items-start gap-1">
+                              <i className="fas fa-building-columns text-primary mt-0.5" aria-hidden />
+                              <span className="min-w-0 break-words">{o.organizations.map(org => org.name).join(', ')}</span>
+                            </span>
+                          )}
                         </div>
                       </div>
                     </article>
@@ -138,14 +130,10 @@ export function OrganizersPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-xl">
           <h2 className="text-2xl font-heading font-bold text-gray-900 mb-3">Хотите стать организатором?</h2>
           <p className="text-gray-600 mb-6">Если вы хотите возглавить направление или организовать своё мероприятие — свяжитесь с нами!</p>
-          <a href="mailto:info@volunteerspmr.org" className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg no-underline">
-            <button
-                onClick={openFeedback}
-                className="px-8 py-4 bg-transparent text-white border-2 border-white font-bold rounded-xl hover:bg-white/10 transition"
-            >
-              <i className="fas fa-envelope mr-2" />Написать нам
-            </button>
-          </a>
+          <button type="button" onClick={openFeedback}
+            className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg">
+            <i className="fas fa-envelope mr-2" aria-hidden />Написать нам
+          </button>
         </div>
       </section>
     </>

@@ -1,0 +1,993 @@
+<title>Волонтёры ПМР</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Макет: главная. Тот же язык, что у афиши: асимметричный герой с фото в «капле», новости с датами-рельсой,
+     билеты-карточки мероприятий, лента шагов, мягкий векторный фон по бокам. Шрифты и синий как на сайте,
+     второй акцент зелёный. Только светлая тема. */
+  :root {
+    color-scheme: light;
+    --bg: #f3f6fc;
+    --surface: #ffffff;
+    --fg: #0f1b33;
+    --head: #0a2438;
+    --muted: #4a5873;
+    --faint: #5e6a82;
+    --quiet: #7b879d;
+    --line: #e2e8f2;
+    --rule: #cbd5e4;
+    --accent: #2563eb;
+    --accent-fg: #ffffff;
+    --accent-soft: #eaf1ff;
+    --green: #10b981;
+    --green-soft: #e1f6ee;
+    --mint: #b6efd6;
+    --warn: #d92d20;
+    --font-display: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
+    --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+  html { font-size: 15px; }
+  body {
+    background-color: var(--bg);
+    background-image: linear-gradient(180deg, #f6f8fd 0%, #eef3fd 45%, #f4f7fd 100%);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  .font-display { font-family: var(--font-display); }
+  /* единый заголовок секции: один размер и цвет на всём сайте */
+  .h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 3.1vw, 2.5rem);
+    line-height: 1.08;
+    letter-spacing: -.022em;
+    color: var(--head);
+    text-wrap: balance;
+  }
+  .on-dark .h2 { color: #fff; }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  .glass { background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(10px); }
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .on-dark :focus-visible { outline-color: #fff; }
+  /* невидимое расширение зоны нажатия до 44px без изменения внешнего вида */
+  .tap::after { content: ''; position: absolute; inset: -5px; }
+  .tap-2::after { content: ''; position: absolute; inset: -3.5px; }
+  .tap-6::after { content: ''; position: absolute; inset: -7px; }
+  button, a { transition: background-color .15s, color .15s, border-color .15s, opacity .15s; }
+  .mark {
+    background: linear-gradient(transparent 60%, var(--mint) 60%, var(--mint) 92%, transparent 92%);
+    padding: 0 .1em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  /* зернистая текстура поверх фото: тонкий шум, смешивается мягким светом */
+  .grain {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    mix-blend-mode: soft-light;
+    opacity: .5;
+  }
+  /* стекло: один ровный полупрозрачный слой + размытие, как системные материалы iOS */
+  .glass-dark {
+    background: rgba(10, 24, 45, .42);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, .16);
+  }
+  .band { height: 5px; background: linear-gradient(90deg, var(--accent), var(--green)); }
+  /* та же полоса в подвале: приглушена под тёмный сине-зелёный фон */
+  .band-soft { background: linear-gradient(90deg, #24507f, #256b5c); }
+
+  .side-art {
+    display: none;
+    position: absolute;
+    top: 0; bottom: 0;
+    z-index: 0;
+    width: clamp(150px, calc((100vw - 76rem) / 2 + 3rem), 400px);
+    background-size: 100% auto;
+    background-repeat: repeat-y;
+    pointer-events: none;
+  }
+  .side-art-l {
+    left: 0;
+    background-image: url('data:image/svg+xml;base64,__ART_L__');
+    background-position: left top;
+    -webkit-mask-image: linear-gradient(to right, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 55%, transparent 100%);
+  }
+  .side-art-r {
+    right: 0;
+    background-image: url('data:image/svg+xml;base64,__ART_R__');
+    background-position: right top;
+    -webkit-mask-image: linear-gradient(to left, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to left, #000 55%, transparent 100%);
+  }
+  @media (min-width: 1200px) { .side-art { display: block; } }
+  .footer-art {
+    background-image:
+      radial-gradient(55% 80% at 100% 100%, #e4edff 0%, rgba(228, 237, 255, 0) 72%),
+      radial-gradient(30% 50% at 0% 0%, #eef4ff 0%, rgba(238, 244, 255, 0) 70%);
+  }
+
+  /* мобильное меню, окна */
+  @keyframes slidein { from { transform: translateX(100%); } to { transform: none; } }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  .drawer { animation: slidein .26s cubic-bezier(.2, .8, .2, 1); }
+  .fade { animation: fadein .2s ease; }
+  /* рамка выбора области фото: затемнение снаружи + сетка третей */
+  .crop-frame {
+    box-shadow: 0 0 0 9999px rgba(15, 27, 51, .6);
+    background-image:
+      linear-gradient(to right, transparent calc(33.33% - .5px), rgba(255, 255, 255, .6) calc(33.33% - .5px), rgba(255, 255, 255, .6) calc(33.33% + .5px), transparent calc(33.33% + .5px), transparent calc(66.66% - .5px), rgba(255, 255, 255, .6) calc(66.66% - .5px), rgba(255, 255, 255, .6) calc(66.66% + .5px), transparent calc(66.66% + .5px)),
+      linear-gradient(to bottom, transparent calc(33.33% - .5px), rgba(255, 255, 255, .6) calc(33.33% - .5px), rgba(255, 255, 255, .6) calc(33.33% + .5px), transparent calc(33.33% + .5px), transparent calc(66.66% - .5px), rgba(255, 255, 255, .6) calc(66.66% - .5px), rgba(255, 255, 255, .6) calc(66.66% + .5px), transparent calc(66.66% + .5px));
+  }
+  .dots {
+    background-image: radial-gradient(circle, var(--accent) 1.6px, transparent 1.9px);
+    background-size: 15px 15px;
+  }
+
+  /* билет: вырезы у корешка делает маска, контур даёт drop-shadow на обёртке */
+  .ticket-wrap {
+    filter: drop-shadow(0 0 0.6px rgba(15, 27, 51, 0.55)) drop-shadow(0 8px 14px rgba(15, 27, 51, 0.05));
+    transition: filter .2s, transform .2s;
+  }
+  .ticket-wrap:hover {
+    transform: translateY(-2px);
+    filter: drop-shadow(0 0 0.6px rgba(15, 27, 51, 0.7)) drop-shadow(0 14px 20px rgba(15, 27, 51, 0.12));
+  }
+  .ticket {
+    --stubh: 3.25rem;
+    --r: 9px;
+    background: var(--surface);
+    border-radius: 16px;
+    -webkit-mask:
+      radial-gradient(circle var(--r) at 0 calc(100% - var(--stubh)), #0000 calc(var(--r) - .5px), #000 var(--r)) left / 51% 100% no-repeat,
+      radial-gradient(circle var(--r) at 100% calc(100% - var(--stubh)), #0000 calc(var(--r) - .5px), #000 var(--r)) right / 51% 100% no-repeat;
+    mask:
+      radial-gradient(circle var(--r) at 0 calc(100% - var(--stubh)), #0000 calc(var(--r) - .5px), #000 var(--r)) left / 51% 100% no-repeat,
+      radial-gradient(circle var(--r) at 100% calc(100% - var(--stubh)), #0000 calc(var(--r) - .5px), #000 var(--r)) right / 51% 100% no-repeat;
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div id="root"></div>
+
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: 'var(--bg)', surface: 'var(--surface)', line: 'var(--line)', rule: 'var(--rule)', fg: 'var(--fg)',
+          muted: 'var(--muted)', faint: 'var(--faint)', quiet: 'var(--quiet)', head: 'var(--head)', accent: 'var(--accent)',
+          'accent-fg': 'var(--accent-fg)', 'accent-soft': 'var(--accent-soft)', green: 'var(--green)',
+          'green-soft': 'var(--green-soft)', mint: 'var(--mint)', warn: 'var(--warn)'
+        }
+      }
+    }
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+(function () {
+  const { useState, useEffect, useRef } = React;
+  const html = htm.bind(React.createElement);
+  document.documentElement.lang = 'ru';
+
+  /* модальное окно: фокус внутрь при открытии, Tab по кругу внутри, Esc закрывает, фокус возвращается на кнопку */
+  const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),textarea,select,[tabindex]:not([tabindex="-1"])';
+  function useDialog(ref, onClose, initial) {
+    const close = useRef(onClose); close.current = onClose;
+    useEffect(() => {
+      const back = document.activeElement;
+      const list = () => [...ref.current.querySelectorAll(FOCUSABLE)].filter(e => e.getClientRects().length);
+      const first = (initial && ref.current.querySelector(initial)) || list()[0];
+      if (first) first.focus({ preventScroll: true });
+      const h = ev => {
+        if (ev.key === 'Escape') { ev.preventDefault(); close.current(); return; }
+        if (ev.key !== 'Tab') return;
+        const f = list(); if (!f.length) return;
+        const a = f[0], z = f[f.length - 1], cur = document.activeElement;
+        if (!ref.current.contains(cur)) { ev.preventDefault(); a.focus(); }
+        else if (ev.shiftKey && cur === a) { ev.preventDefault(); z.focus(); }
+        else if (!ev.shiftKey && cur === z) { ev.preventDefault(); a.focus(); }
+      };
+      document.addEventListener('keydown', h);
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.removeEventListener('keydown', h);
+        document.body.style.overflow = prev;
+        if (back && document.contains(back)) back.focus({ preventScroll: true });
+      };
+    }, []);
+  }
+
+  /* Изображения: логотип сайта и фото из админки. В проекте это imageUrl из API */
+  const LOGO = 'data:image/webp;base64,__ICON__';
+  const HERO = 'data:image/webp;base64,__HERO__';
+  const N1 = 'data:image/jpeg;base64,__N1__';
+  const N2 = 'data:image/jpeg;base64,__N2__';
+  const N3 = 'data:image/jpeg;base64,__N3__';
+  const EV1 = 'data:image/jpeg;base64,__EV1__';
+  const EV2 = 'data:image/jpeg;base64,__EV2__';
+  const EV3 = 'data:image/jpeg;base64,__EV3__';
+  const PEOPLE = 'data:image/jpeg;base64,__PEOPLE__';
+  const G1 = 'data:image/jpeg;base64,__G1__';
+  const G2 = 'data:image/jpeg;base64,__G2__';
+  const G3 = 'data:image/jpeg;base64,__G3__';
+  const G4 = 'data:image/jpeg;base64,__G4__';
+  const G5 = 'data:image/webp;base64,__G5__';
+  const G6 = 'data:image/webp;base64,__G6__';
+  const G7 = 'data:image/webp;base64,__G7__';
+  const G8 = 'data:image/webp;base64,__G8__';
+  const STEPSBG = 'data:image/webp;base64,__STEPSBG__';
+  const COMMBG = 'data:image/webp;base64,__COMMBG__';
+  const FOOTBG = 'data:image/webp;base64,__FOOTBG__';
+  const SOCIAL = __SOCIAL__;
+
+  /* ---------- иконки ---------- */
+  const ICONS = {
+    search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    pin: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+    heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
+    handheart: '<path d="M11 14h2a2 2 0 0 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16"/><path d="m7 20 1.6 1.4c.3.3.8.6 1.4.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 15 6 6"/><path d="M19.5 8.5c.7-.7 1.5-1.6 1.5-2.7A2.73 2.73 0 0 0 16 4a2.78 2.78 0 0 0-5 1.8c0 1.2.8 2 1.5 2.8L16 12Z"/>',
+    cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+    calcheck: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M9 15l2 2 4-4"/>',
+    check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    close: '<path d="M6 6l12 12M18 6 6 18"/>',
+    chevron: '<path d="m6 9 6 6 6-6"/>',
+    image: '<rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="1.7"/><path d="m4 18 5-5 4 4 3-3 4 4"/>',
+    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+    userplus: '<circle cx="10" cy="8" r="4"/><path d="M2 21c0-4 3.5-6 8-6 2.6 0 4.4.7 5.6 1.8"/><path d="M19 8v6M16 11h6"/>',
+    idcard: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.5-1.5 1.7-2 3-2s2.5.5 3 2M15 10h3M15 13h3"/>',
+    doc: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+    award: '<circle cx="12" cy="9" r="5.5"/><path d="m8.5 14-1.5 7 5-3 5 3-1.5-7"/>',
+    news: '<rect x="3" y="4" width="14" height="16" rx="2"/><path d="M17 8h3v10a2 2 0 0 1-2 2M7 8h6M7 12h6M7 16h4"/>',
+    users: '<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5M16 14.5c3 0 5.5 1.5 5.5 4.5"/>',
+    send: '<path d="m21 3-9 18-2.5-7.5L3 11z"/><path d="m21 3-11.5 10.5"/>',
+    play: '<path d="M8 5v14l11-7z" fill="currentColor"/>',
+    film: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/>',
+    bookmark: '<path d="M7 4h10v17l-5-4-5 4z"/>',
+    mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+    phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>'
+  };
+  Object.assign(ICONS, {
+    home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-5h4v5"/>',
+    star: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.01"/>',
+    help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.7.3-1.1.9-1.1 1.6M12 17v.01"/>',
+    shield: '<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/>',
+    building: '<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M10 21v-3h4v3"/>',
+    cog: '<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/>',
+    logout: '<path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="m15 8 4 4-4 4M19 12H9"/>',
+    chat: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',
+    bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+    rocket: '<path d="M14 5c3-1 5-1 6-1 0 1 0 3-1 6l-5 5-5-5z"/><circle cx="15" cy="9" r="1.3"/><path d="M8 14c-2 .5-3 2-3.5 5.5C8 19 9.5 18 10 16M7 11l-3 1 2 2"/>',
+    arrowup: '<path d="M7 17 17 7M8 7h9v9"/>',
+    camera: '<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.2"/>',
+    expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+    upload: '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v4h16v-4"/>',
+    crop: '<path d="M6 2v14a2 2 0 0 0 2 2h14M2 6h14a2 2 0 0 1 2 2v14"/>'
+  });
+  const Icon = ({ n, size = 16, className = '' }) => html`
+    <svg width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className=${className}
+      dangerouslySetInnerHTML=${{ __html: ICONS[n] }} />`;
+
+  const noJump = ev => ev.preventDefault();
+  const plural = (n, [a, b, c]) => {
+    const m = n % 100, d = n % 10;
+    if (m > 10 && m < 20) return c;
+    if (d === 1) return a;
+    if (d >= 2 && d <= 4) return b;
+    return c;
+  };
+
+  /* ---------- данные из админки ---------- */
+  const NEWS = [
+    { id: 'n1', title: 'Письма детей Деду Морозу', d: 6, m: 'июн', y: 2026, photo: 'news1' },
+    { id: 'n3', title: 'АКЦИЯ «ДЕНЬ ПАМЯТИ»', d: 5, m: 'июн', y: 2026, photo: 'news2' },
+    { id: 'n2', title: 'Вадим Красносельский встретился с приднестровскими волонтерами', d: 29, m: 'мая', y: 2026, photo: 'news3' }
+  ];
+  const EVENTS = [
+    { id: 'e1', title: 'Манки бизнес', cat: 'Событийное', icon: 'cal', where: 'Кишинёв', d: 7, m: 'окт', when: '7 октября, 23:34', n: 1, image: EV1 },
+    { id: 'e2', title: 'Фотосессия', cat: 'Медиаволонтёрство', icon: 'image', where: 'Тирасполь', d: 3, m: 'окт', when: '3 октября, 19:00', n: 0, image: EV2 },
+    { id: 'e3', title: 'Полив саженцев в парке Кирова', cat: 'Экологическое', icon: 'heart', where: 'Тирасполь', d: 6, m: 'окт', when: '6 октября, 00:25', n: 1, image: EV3 }
+  ];
+
+  const NAV = [
+    { id: 'home', label: 'Главная', active: true }, { id: 'about', label: 'О нас' }, { id: 'news', label: 'Новости' },
+    { id: 'events', label: 'Мероприятия' }, { id: 'contacts', label: 'Контакты' }
+  ];
+  const MORE = ['Организаторы', 'Волонтёры', 'FAQ'];
+
+  const Brand = ({ small = false }) => html`
+    <span className="flex min-w-0 items-center gap-3">
+      <img src=${LOGO} alt="" className=${small ? 'h-8 w-auto' : 'h-10 w-auto'} />
+      <span className=${`font-display truncate font-bold tracking-tight ${small ? 'text-[14.5px]' : 'text-[15px] max-[359px]:whitespace-normal max-[359px]:text-[13.5px] max-[359px]:leading-[1.15]'}`}>Волонтёры Приднестровья</span>
+    </span>`;
+
+  /* ---------- шапка ---------- */
+  const MENU = [
+    { title: 'Навигация', items: [['home', 'Главная', true], ['news', 'Новости'], ['cal', 'Мероприятия'], ['star', 'Организаторы'], ['users', 'Волонтёры']] },
+    { title: 'О портале', items: [['info', 'О нас'], ['help', 'FAQ'], ['doc', 'Правила сайта'], ['shield', 'Конфиденциальность'], ['building', 'Организации'], ['mail', 'Обратная связь']] },
+    { title: 'Аккаунт', items: [['user', 'Личный кабинет'], ['cog', 'Управление']] }
+  ];
+  function Drawer({ onClose }) {
+    const ref = useRef(null);
+    useDialog(ref, onClose);
+    return html`
+      <div ref=${ref} className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Меню">
+        <div className="fade absolute inset-0 bg-[rgba(15,27,51,.5)] backdrop-blur-[2px]" onClick=${onClose}></div>
+        <aside className="drawer absolute inset-y-0 right-0 flex w-[min(88vw,22rem)] flex-col bg-surface shadow-2xl">
+          <div className="band"></div>
+          <div className="flex items-center justify-between gap-3 px-5 py-4">
+            <span className="flex items-center gap-3"><img src=${LOGO} alt="" className="h-9 w-auto" /><span className="font-display text-[15px] font-extrabold tracking-tight">Меню</span></span>
+            <button type="button" onClick=${onClose} aria-label="Закрыть меню" className="tap relative grid h-9 w-9 place-items-center rounded-lg border-[1.5px] border-rule hover:border-accent"><${Icon} n="close" size=${16} /></button>
+          </div>
+          <div className="mx-5 flex items-center gap-3 rounded-xl border border-line bg-bg p-3">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-accent text-[13px] font-semibold text-accent-fg">AV</span>
+            <span className="min-w-0"><span className="font-display block truncate text-[14px] font-bold">Aen Virel</span><span className="block truncate text-[12.5px] text-faint">aenvirel@gmail.com</span></span>
+          </div>
+          <nav className="mt-2 flex-1 overflow-y-auto px-3 pb-4" aria-label="Мобильная навигация">
+            ${MENU.map((g, gi) => html`
+              <div key=${g.title} className=${gi ? 'mt-3 border-t-[1.5px] border-dashed border-rule pt-3' : 'pt-2'}>
+                <p className="label px-3 pb-1.5 text-faint">${g.title}</p>
+                ${g.items.map(([ic, t, act]) => html`
+                  <a key=${t} href=${'#' + t} onClick=${noJump} aria-current=${act ? 'page' : undefined}
+                    className=${`relative flex items-center gap-3 rounded-lg px-3 py-2 ${act ? 'bg-accent-soft' : 'hover:bg-bg'}`}>
+                    ${act && html`<span className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-green"></span>`}
+                    <span className=${`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${act ? 'bg-accent text-accent-fg' : 'bg-accent-soft text-accent'}`}><${Icon} n=${ic} size=${17} /></span>
+                    <span className=${`font-display flex-1 text-[15px] font-semibold ${act ? 'text-accent' : ''}`}>${t}</span>
+                    <${Icon} n="chevron" size=${15} className="-rotate-90 text-faint" />
+                  </a>`)}
+              </div>`)}
+          </nav>
+          <div className="border-t border-line p-4">
+            <button type="button" className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border-[1.5px] border-[rgba(217,45,32,.4)] text-[14px] font-semibold text-warn hover:bg-[rgba(217,45,32,.07)]"><${Icon} n="logout" size=${16} />Выйти</button>
+          </div>
+        </aside>
+      </div>`;
+  }
+  function Header() {
+    const [menu, setMenu] = useState(false);
+    const [more, setMore] = useState(false);
+    const [acc, setAcc] = useState(false);
+    const moreRef = useRef(null);
+    const accRef = useRef(null);
+    useEffect(() => {
+      const h = ev => {
+        if (moreRef.current && !moreRef.current.contains(ev.target)) setMore(false);
+        if (accRef.current && !accRef.current.contains(ev.target)) setAcc(false);
+      };
+      const k = ev => {
+        if (ev.key !== 'Escape') return;
+        [[moreRef, setMore], [accRef, setAcc]].forEach(([r, set]) => {
+          if (r.current && r.current.querySelector('[data-pop]')) { set(false); r.current.querySelector('button').focus(); }
+        });
+      };
+      document.addEventListener('click', h);
+      document.addEventListener('keydown', k);
+      return () => { document.removeEventListener('click', h); document.removeEventListener('keydown', k); };
+    }, []);
+    const leave = set => ev => { if (!ev.currentTarget.contains(ev.relatedTarget)) set(false); };
+    const link = it => html`
+      <a key=${it.id} href=${'#' + it.id} onClick=${noJump} aria-current=${it.active ? 'page' : undefined}
+        className=${`px-3 py-2 text-[14px] ${it.active ? 'font-semibold text-fg' : 'font-medium text-muted hover:text-fg'}`}>
+        <span className=${it.active ? 'mark' : ''}>${it.label}</span>
+      </a>`;
+    return html`
+      <${React.Fragment}>
+        <header className="glass sticky z-30 border-b border-line" style=${{ top: 'env(safe-area-inset-top, 0px)' }}>
+          <div className="mx-auto flex h-[4rem] max-w-[76rem] items-center gap-4 px-4 sm:px-6">
+            <a href="#home" onClick=${noJump} className="min-w-0"><${Brand} /></a>
+            <nav className="ml-6 hidden items-center lg:flex" aria-label="Основная навигация">
+              ${NAV.map(link)}
+              <div className="relative" ref=${moreRef} onBlur=${leave(setMore)}>
+                <button type="button" onClick=${() => setMore(v => !v)} aria-expanded=${more}
+                  className="inline-flex items-center gap-1 px-3 py-2 text-[14px] font-medium text-muted hover:text-fg">
+                  Ещё <${Icon} n="chevron" size=${14} />
+                </button>
+                ${more && html`
+                  <div data-pop className="absolute left-0 top-full mt-2 w-44 rounded-xl border border-line bg-surface p-1 shadow-lg">
+                    ${MORE.map(t => html`<a key=${t} href="#more" onClick=${noJump}
+                      className="block rounded-lg px-3 py-2 text-[13.5px] text-muted hover:bg-accent-soft hover:text-fg">${t}</a>`)}
+                  </div>`}
+              </div>
+              ${link({ id: 'admin', label: 'Управление' })}
+            </nav>
+            <div className="ml-auto flex items-center gap-2.5">
+              <div className="relative" ref=${accRef} onBlur=${leave(setAcc)}>
+                <button type="button" onClick=${() => setAcc(v => !v)} aria-expanded=${acc} aria-label="Профиль"
+                  className="tap relative grid h-9 w-9 place-items-center rounded-full bg-accent-soft text-[12px] font-semibold text-accent ring-[1.5px] ring-rule hover:ring-accent">AV</button>
+                ${acc && html`
+                  <div data-pop className="absolute right-0 top-full mt-2 w-60 rounded-xl border border-line bg-surface p-1.5 shadow-lg">
+                    <div className="px-3 py-2.5"><p className="font-display truncate text-[14px] font-bold">Aen Virel</p><p className="truncate text-[12.5px] text-faint">aenvirel@gmail.com</p></div>
+                    <a href="#cab" onClick=${noJump} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13.5px] text-muted hover:bg-accent-soft hover:text-fg"><${Icon} n="user" size=${16} />Личный кабинет</a>
+                    <button type="button" className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13.5px] text-warn hover:bg-[rgba(217,45,32,.07)]"><${Icon} n="logout" size=${16} />Выйти</button>
+                  </div>`}
+              </div>
+              <button type="button" onClick=${() => setMenu(true)} aria-label="Открыть меню" aria-expanded=${menu}
+                className="tap relative grid h-9 w-9 place-items-center rounded-lg border-[1.5px] border-rule hover:border-accent lg:hidden">
+                <${Icon} n="menu" size=${17} />
+              </button>
+            </div>
+          </div>
+        </header>
+        ${menu && html`<${Drawer} onClose=${() => setMenu(false)} />`}
+      <//>`;
+  }
+
+  /* ---------- общие куски ---------- */
+  /* ---------- кнопки: одна форма, один размер, один шрифт на всём сайте ----------
+     высота 44px, скругление 8px, 14px/600, отступы 20px (24px от планшета), иконка 16px.
+     kind: primary — синяя заливка; outline — белая со светлой рамкой; light — белая для тёмных секций */
+  const BTN_BASE = 'group inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg px-5 text-[14px] font-semibold sm:px-6';
+  const BTN_KIND = {
+    primary: 'bg-accent text-accent-fg hover:opacity-90',
+    outline: 'border-[1.5px] border-rule bg-surface text-fg hover:border-accent hover:text-accent',
+    light: 'bg-surface text-accent shadow-[0_10px_26px_rgba(2,12,32,.3)] hover:bg-accent-soft'
+  };
+  function Btn({ kind = 'primary', icon, iconLeft, children, href, onClick, full, tag, label, extra = '' }) {
+    const cls = `${BTN_BASE} ${BTN_KIND[kind]} ${full ? 'w-full' : ''} ${extra}`;
+    const inner = html`
+      ${iconLeft && html`<${Icon} n=${iconLeft} size=${16} className="shrink-0" />`}
+      <span className="truncate">${children}</span>
+      ${icon && html`<${Icon} n=${icon} size=${16} className="shrink-0 transition-transform group-hover:translate-x-0.5" />`}`;
+    return tag === 'button'
+      ? html`<button type="button" onClick=${onClick} aria-haspopup=${label} className=${cls}>${inner}</button>`
+      : html`<a href=${href || '#go'} onClick=${onClick || noJump} className=${cls}>${inner}</a>`;
+  }
+  const AllBtn = ({ children }) => html`<${Btn} kind="outline" icon="arrow" href="#all" extra="max-sm:w-full">${children}<//>`;
+  const SectionHead = ({ title, sub, link }) => html`
+    <div className="mb-10 flex flex-wrap items-end justify-between gap-x-8 gap-y-5 max-md:flex-col max-md:items-stretch">
+      <div className="min-w-0 max-md:text-center">
+        <h2 className="h2">${title}</h2>
+        ${sub && html`<p className="mt-3 text-[14.5px] text-muted">${sub}</p>`}
+      </div>
+      ${link && html`<div className="max-md:hidden"><${AllBtn}>${link}<//></div>`}
+    </div>`;
+
+  /* ---------- фото: выбор области, предпросмотр, просмотр оригинала ---------- */
+  /* Оригинал хранится целиком, вместе с ним хранится только область показа (x, y, w, h в долях 0..1).
+     Формат области зависит от назначения фото: на главной горизонтальное 3:2. */
+  const ASPECT = { hero: 545 / 420, news1: 16 / 10, news2: 16 / 10, news3: 16 / 10, event: 16 / 10 };
+  /* где у фото главный объект по вертикали: по этой точке область выбирается по умолчанию */
+  const FOCAL = { hero: .12, event: .4, news1: .41, news2: .37, news3: .5 };
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const fit = (p, aspect, fy = .5) => {
+    const hr = p.nw / (aspect * p.nh);
+    let w = 1, h = hr;
+    if (h > 1) { h = 1; w = 1 / hr; }
+    return { ...p, rect: { x: (1 - w) / 2, y: (1 - h) * fy, w, h } };
+  };
+
+  const CropImg = ({ p, aspect, fill = false, className = '', alt = '' }) => {
+    if (!p.nw) return html`<div className=${`relative overflow-hidden ${fill ? 'absolute inset-0' : className}`} style=${fill ? undefined : { aspectRatio: aspect }}><img src=${p.src} alt=${alt} className="absolute inset-0 h-full w-full object-cover" /></div>`;
+    const r = p.rect;
+    return html`
+      <div className=${`overflow-hidden ${fill ? 'absolute inset-0' : 'relative ' + className}`} style=${fill ? undefined : { aspectRatio: aspect }}>
+        <img src=${p.src} alt=${alt} draggable="false" className="absolute max-w-none select-none"
+          style=${{ width: (100 / r.w) + '%', left: -(r.x / r.w * 100) + '%', top: -(r.y / r.h * 100) + '%' }} />
+      </div>`;
+  };
+
+  function Lightbox({ src, onClose }) {
+    const ref = useRef(null);
+    useDialog(ref, onClose);
+    return html`
+      <div ref=${ref} className="on-dark fade fixed inset-0 z-50 grid place-items-center bg-[rgba(15,27,51,.9)] p-4 sm:p-8" onClick=${onClose} role="dialog" aria-modal="true" aria-label="Фото полностью">
+        <button type="button" onClick=${onClose} aria-label="Закрыть" className="tap-2 absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-lg bg-white/15 text-white hover:bg-white/25"><${Icon} n="close" size=${18} /></button>
+        <figure className="flex max-h-full max-w-full flex-col items-center gap-3" onClick=${ev => ev.stopPropagation()}>
+          <img src=${src} alt="Оригинал фотографии" className="max-h-[82vh] max-w-full rounded-lg object-contain" />
+          <figcaption className="text-[12.5px] text-white/70">Оригинал фотографии, без обрезки</figcaption>
+        </figure>
+      </div>`;
+  }
+
+  /* ---------- герой ---------- */
+  function Hero({ photo, onOpen }) {
+    return html`
+      <section className="relative">
+        <div className="relative z-10 mx-auto grid max-w-[76rem] items-center px-4 sm:px-6 lg:grid-cols-[.92fr_1.4fr] lg:gap-6 lg:pb-24 lg:pt-12">
+          <div className="relative z-10 order-2 min-w-0 max-lg:-mt-9 max-lg:mb-14 max-lg:text-center lg:order-1">
+            <h1 className="font-display text-[clamp(1.55rem,6.7vw,2.6rem)] font-extrabold leading-[1.1] tracking-tight sm:text-[clamp(2rem,5.6vw,3rem)] sm:leading-[1.08] lg:text-[clamp(2.2rem,3.4vw,3.2rem)]" style=${{ textWrap: 'balance' }}>
+              Присоединяйся к добрым делам <span className="text-accent">в Приднестровье</span>
+            </h1>
+            <p className="mt-4 max-w-[30rem] text-[13.5px] leading-relaxed text-muted max-lg:mx-auto sm:mt-5 sm:text-[14.5px] lg:mt-6 lg:max-w-[26rem]">
+              Находите мероприятия, становитесь волонтёром, помогайте и меняйте мир вокруг себя к лучшему вместе с нами.
+            </p>
+            <div className="mt-6 grid grid-cols-[1.5fr_1fr] gap-2.5 sm:mt-8 sm:flex sm:justify-center sm:gap-3 lg:mt-9 lg:justify-start">
+              <${Btn} kind="primary" icon="arrow" href="#go" extra="min-w-0 max-sm:px-3">
+                <span className="sm:hidden">К мероприятиям</span><span className="max-sm:hidden">Перейти к мероприятиям</span>
+              <//>
+              <${Btn} kind="outline" href="#cab" extra="min-w-0 max-sm:px-3">
+                <span className="sm:hidden">Кабинет</span><span className="max-sm:hidden">Личный кабинет</span>
+              <//>
+            </div>
+          </div>
+
+          <div className="relative order-1 mx-auto w-full max-w-[34rem] max-lg:mt-0 max-lg:mb-0 max-sm:-mx-4 max-sm:w-[calc(100%+2rem)] max-sm:max-w-none sm:max-w-[42rem] lg:order-2 lg:mx-0 lg:max-w-none lg:justify-self-end lg:-mr-6 xl:-mr-10 xl:w-[calc(100%+2.5rem)]">
+            <div className="relative">
+              <span className="dots absolute -left-4 bottom-[6%] hidden h-24 w-20 opacity-60 sm:block" aria-hidden="true"></span>
+              <button type="button" onClick=${onOpen} aria-label="Открыть фото полностью" className="group relative block w-full">
+                <img src=${HERO} alt="Волонтёры сажают дерево" className="block w-full select-none" draggable="false" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>`;
+  }
+
+  /* ---------- новости ---------- */
+  function News({ photos }) {
+    const [first, ...rest] = NEWS;
+    return html`
+      <section className="relative z-10 mx-auto max-w-[76rem] px-4 pb-32 sm:px-6">
+        <${SectionHead} title="Последние новости" link="Все новости" />
+        <div className="grid gap-5 lg:grid-cols-[1.1fr_1fr] lg:gap-x-16 lg:gap-y-5">
+          <article className="group lg:contents">
+            <a href="#news1" onClick=${noJump} tabIndex="-1" aria-hidden="true" className="block lg:col-start-1 lg:row-start-1">
+              <div className="overflow-hidden rounded-2xl border border-line">
+                <${CropImg} p=${photos[first.photo]} aspect=${ASPECT.news1} className="w-full" alt=${first.title} />
+              </div>
+            </a>
+            <a href="#news1" onClick=${noJump} className="block lg:col-start-1 lg:row-start-2">
+              <p className="label text-faint max-md:text-center">${first.d} ${first.m} ${first.y}</p>
+              <h3 className="font-display mt-2 text-[1.3rem] font-bold leading-snug group-hover:text-accent max-md:text-center">${first.title}</h3>
+            </a>
+          </article>
+          <div className="mt-7 grid gap-9 lg:col-start-2 lg:row-start-1 lg:mt-0 lg:grid-rows-2 lg:gap-5">
+            ${rest.map(n => html`
+              <a key=${n.id} href=${'#' + n.id} onClick=${noJump} className="group grid grid-cols-1 items-stretch gap-4 max-sm:text-center sm:grid-cols-[1.15fr_1fr] sm:gap-6">
+                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-line sm:aspect-auto sm:min-h-[11rem] lg:min-h-0">
+                  <img src=${photos[n.photo].src} alt=${n.title} draggable="false" className="absolute inset-0 h-full w-full object-cover" style=${{ objectPosition: '50% ' + (FOCAL[n.photo] * 100) + '%' }} />
+                </div>
+                <div className="flex flex-col justify-center gap-2.5">
+                  <p className="label text-faint">${n.d} ${n.m} ${n.y}</p>
+                  <h3 className="font-display text-[1.05rem] font-bold leading-snug group-hover:text-accent sm:text-[1.1rem]">${n.title}</h3>
+                </div>
+              </a>`)}
+          </div>
+        </div>
+        <div className="mt-10 md:hidden"><${AllBtn}>Все новости<//></div>
+      </section>`;
+  }
+
+  /* ---------- билеты мероприятий ---------- */
+  function EventTicket({ e, photo }) {
+    return html`
+      <div className="ticket-wrap">
+        <article className="ticket group relative flex h-full flex-col">
+          <div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl">
+            ${photo
+              ? html`<${CropImg} p=${photo} aspect=${ASPECT.event} fill=${true} alt=${e.title} />`
+              : html`<img src=${e.image} alt=${e.title} className="absolute inset-0 h-full w-full object-cover" />`}
+          </div>
+          <div className="flex flex-1 flex-col gap-3 p-5 pb-6 max-md:text-center">
+            <p className="label text-accent max-md:justify-center">${e.cat}</p>
+            <h3 className="font-display text-[16px] font-bold leading-snug">
+              <a href="#apply" onClick=${noJump} title="Хочу участвовать"
+                className="group-hover:text-accent focus-visible:outline-none after:absolute after:inset-0 after:z-10 after:rounded-2xl focus-visible:after:[outline:2px_solid_var(--accent)] focus-visible:after:[outline-offset:-4px]">${e.title}</a>
+            </h3>
+            <ul className="mt-auto flex flex-col gap-1.5 pt-1 text-[13px] text-muted">
+              <li className="flex items-center gap-2 max-md:justify-center"><${Icon} n="pin" size=${14} className="shrink-0 text-accent" />${e.where}</li>
+              <li className="flex items-center gap-2 max-md:justify-center"><${Icon} n="clock" size=${14} className="shrink-0 text-accent" /><span className="tabular-nums">${e.when}</span></li>
+            </ul>
+          </div>
+          <div className="flex h-[3.25rem] shrink-0 items-center justify-between border-t-[1.5px] border-dashed border-rule px-5 max-md:justify-center max-md:gap-5">
+            <p className="flex items-center gap-2 text-[13px] text-muted"><${Icon} n="users" size=${15} /><span><b className="font-display font-bold text-fg tabular-nums">${e.n}</b> ${plural(e.n, ['участник', 'участника', 'участников'])}</span></p>
+            <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-lg bg-accent text-accent-fg transition-transform group-hover:-translate-y-0.5"><${Icon} n="arrowup" size=${17} /></span>
+          </div>
+        </article>
+      </div>`;
+  }
+  function Events({ photo }) {
+    return html`
+      <section className="relative z-10 mx-auto max-w-[76rem] px-4 pb-32 sm:px-6">
+        <${SectionHead} title="Популярные мероприятия" link="Все мероприятия" />
+        <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+          ${EVENTS.map((e, k) => html`<${EventTicket} key=${e.id} e=${e} photo=${k === 0 ? photo : null} />`)}
+        </div>
+        <div className="mt-10 md:hidden"><${AllBtn}>Все мероприятия<//></div>
+      </section>`;
+  }
+
+  /* ---------- «Как это было»: коллаж с перелистыванием ----------
+     Материалы приходят из админки и делятся на страницы по четыре.
+     Раскладка коллажа повторяется на каждой странице: крупная плитка слева,
+     две средние в центре, высокая справа. Стрелки и точки листают страницы. */
+  const TILE = [
+    'col-span-2 aspect-[16/10] md:aspect-[2/1] lg:aspect-auto lg:col-span-1 lg:col-start-1 lg:row-span-2 lg:row-start-1',
+    'aspect-square md:aspect-[4/3] lg:aspect-auto lg:col-start-2 lg:row-start-1',
+    'aspect-square md:aspect-[4/3] lg:aspect-auto lg:col-start-2 lg:row-start-2',
+    'col-span-2 aspect-[16/9] md:aspect-[21/9] lg:aspect-auto lg:col-span-1 lg:col-start-3 lg:row-span-2 lg:row-start-1'
+  ];
+  const MOMENTS = [
+    { id: 'm1', src: G1, video: true,  title: 'Осенний фестиваль, 4 мин', pos: '50% 40%' },
+    { id: 'm2', src: G2, video: false, title: 'Поход в горы',             pos: '50% 50%' },
+    { id: 'm3', src: G3, video: true,  title: 'Эко-акция у озера',        pos: '50% 60%' },
+    { id: 'm4', src: G4, video: false, title: 'Лесной десант',            pos: '50% 45%' },
+    { id: 'm5', src: G5, video: false, title: 'Командные игры',           pos: '50% 35%' },
+    { id: 'm6', src: G6, video: true,  title: 'Тропа добра, 6 мин',       pos: '50% 55%' },
+    { id: 'm7', src: G7, video: false, title: 'Утро в заповеднике',       pos: '50% 50%' },
+    { id: 'm8', src: G8, video: true,  title: 'Высадка деревьев, 3 мин',  pos: '50% 45%' }
+  ];
+  const PER_PAGE = 4;
+  const PAGES = Math.ceil(MOMENTS.length / PER_PAGE);
+
+  function Gallery({ onOpen }) {
+    const [page, setPage] = useState(0);
+    const go = d => setPage(v => (v + d + PAGES) % PAGES);
+    const items = MOMENTS.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
+    return html`
+      <section className="relative z-10 mx-auto max-w-[76rem] px-4 pb-32 sm:px-6">
+        <${SectionHead} title="Как это было" sub="Фото и видео с прошедших событий" />
+        <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:h-[27rem] lg:grid-cols-[1.7fr_1fr_.8fr] lg:grid-rows-2"
+          aria-live="polite" aria-label=${`Материалы, страница ${page + 1} из ${PAGES}`}>
+          ${items.map((m, i) => html`
+            <li key=${m.id} className=${`min-h-0 ${TILE[i]}`}>
+              <button type="button" onClick=${() => onOpen(m.src)} aria-label=${(m.video ? 'Смотреть видео: ' : 'Открыть фото: ') + m.title}
+                className="on-dark group relative block h-full w-full overflow-hidden rounded-2xl border border-line text-left">
+                <img src=${m.src} alt="" draggable="false" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" style=${{ objectPosition: m.pos }} />
+                ${m.video && html`
+                  <span aria-hidden="true" className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-surface text-accent shadow-lg transition-transform group-hover:scale-110 sm:h-14 sm:w-14">
+                    <${Icon} n="play" size=${22} className="ml-0.5" />
+                  </span>`}
+              </button>
+            </li>`)}
+        </ul>
+
+        <div className="mt-8 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <button type="button" onClick=${() => go(-1)} aria-label="Предыдущие материалы"
+              className="tap relative grid h-11 w-11 place-items-center rounded-lg border-[1.5px] border-rule bg-surface hover:border-accent hover:text-accent">
+              <${Icon} n="chevron" size=${17} className="rotate-90" />
+            </button>
+            <button type="button" onClick=${() => go(1)} aria-label="Следующие материалы"
+              className="tap relative grid h-11 w-11 place-items-center rounded-lg border-[1.5px] border-rule bg-surface hover:border-accent hover:text-accent">
+              <${Icon} n="chevron" size=${17} className="-rotate-90" />
+            </button>
+            <div className="ml-1 flex items-center">
+              ${Array.from({ length: PAGES }, (_, i) => html`
+                <button key=${i} type="button" aria-label=${`Страница ${i + 1} из ${PAGES}`} aria-current=${i === page ? 'true' : undefined}
+                  onClick=${() => setPage(i)} className="grid h-11 place-items-center px-1.5">
+                  <span aria-hidden="true" className=${`block h-2.5 rounded-full transition-all ${i === page ? 'w-7 bg-accent' : 'w-2.5 bg-rule'}`}></span>
+                </button>`)}
+            </div>
+          </div>
+          <div className="max-sm:hidden"><${AllBtn}>Смотреть все<//></div>
+        </div>
+        <div className="mt-8 sm:hidden"><${AllBtn}>Смотреть все<//></div>
+      </section>`;
+  }
+
+  /* ---------- шаги ---------- */
+  const STEPS = [
+    { icon: 'userplus', t: 'Зарегистрируйтесь', d: 'Заполните простую форму за 5 минут' },
+    { icon: 'idcard', t: 'Заполните профиль', d: 'Расскажите о себе и своих интересах' },
+    { icon: 'search', t: 'Выберите мероприятие', d: 'Просмотрите календарь событий' },
+    { icon: 'heart', t: 'Примите участие', d: 'Приходите и делайте мир лучше!' }
+  ];
+  function Steps() {
+    return html`
+      <section className="on-dark relative z-10 isolate overflow-hidden py-32 text-white">
+        <div className="absolute inset-0 -z-10 bg-[#061427]" aria-hidden="true">
+          <img src=${STEPSBG} alt="" draggable="false" className="absolute inset-0 h-full w-full object-cover" style=${{ objectPosition: '50% 60%' }} />
+          <div className="absolute inset-0" style=${{ background: 'linear-gradient(115deg, rgba(6,20,42,.82) 0%, rgba(8,42,64,.7) 55%, rgba(5,52,50,.64) 100%)' }}></div>
+          <div className="absolute -left-32 -top-32 h-[30rem] w-[30rem] rounded-full" style=${{ background: 'radial-gradient(closest-side, rgba(182,239,214,.2), rgba(182,239,214,0))' }}></div>
+          <div className="absolute -bottom-40 -right-24 h-[34rem] w-[34rem] rounded-full" style=${{ background: 'radial-gradient(closest-side, rgba(56,120,255,.3), rgba(56,120,255,0))' }}></div>
+          <div className="absolute inset-x-0 top-0 h-px" style=${{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent)' }}></div>
+          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" fill="none">
+            <g stroke="#fff" strokeLinecap="round">
+              <path d="M-60 430C170 300 360 540 620 410S1010 300 1260 390" strokeOpacity=".16" strokeWidth="1" />
+              <path d="M-60 480C190 360 380 580 640 450S1020 350 1260 440" stroke="#b6efd6" strokeOpacity=".22" strokeWidth="1" />
+              <circle cx="1030" cy="130" r="170" strokeOpacity=".2" strokeWidth=".9" strokeDasharray="2 8" />
+              <circle cx="130" cy="520" r="150" strokeOpacity=".16" strokeWidth=".9" strokeDasharray="2 8" />
+            </g>
+          </svg>
+          <div className="grain absolute inset-0"></div>
+        </div>
+        <div className="mx-auto max-w-[76rem] px-4 sm:px-6">
+          <div className="mb-14 max-w-xl max-md:mx-auto max-md:text-center">
+            <h2 className="h2">Как начать путь волонтёра</h2>
+            <p className="mt-3 text-[15px] text-white/90">Всего четыре простых шага</p>
+          </div>
+          <ol className="grid gap-10 md:grid-cols-4 md:gap-8">
+            ${STEPS.map((s, k) => html`
+              <li key=${s.t} className="group relative pt-8 max-md:text-center md:pt-10">
+                <span className="absolute left-1/2 top-0 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-mint ring-[1.5px] ring-white md:left-0 md:translate-x-0" aria-hidden="true"></span>
+                <span className="absolute left-1/2 -bottom-[2.3rem] h-[1.9rem] w-px -translate-x-1/2 bg-white/35 group-last:hidden md:hidden" aria-hidden="true"></span>
+                <span className="absolute left-5 top-[4.5px] -right-8 hidden h-px bg-white/35 group-last:hidden md:block" aria-hidden="true"></span>
+                <div className="glass-dark relative h-full overflow-hidden rounded-2xl p-5 pt-4">
+                  <span className="font-display relative block text-[2.6rem] font-extrabold leading-none tabular-nums text-mint" aria-hidden="true">${k + 1}</span>
+                  <h3 className="font-display relative mt-3 text-[16px] font-bold">${s.t}</h3>
+                  <p className="relative mt-1.5 text-[13.5px] leading-relaxed text-white/90">${s.d}</p>
+                </div>
+              </li>`)}
+          </ol>
+          <div className="mt-14 flex justify-end max-md:justify-center max-sm:block">
+            <${Btn} kind="light" icon="arrow" href="#reg" extra="max-sm:w-full">Зарегистрироваться<//>
+          </div>
+        </div>
+      </section>`;
+  }
+
+  /* ---------- возможности ---------- */
+  const FEATS = [
+    { icon: 'news', tone: 'blue', t: 'Новости движения', d: 'Следите за событиями и анонсами' },
+    { icon: 'calcheck', tone: 'green', t: 'Участие в акциях', d: 'Находите события и регистрируйтесь онлайн' },
+    { icon: 'users', tone: 'blue', t: 'Сообщество', d: 'Общайтесь с единомышленниками' },
+    { icon: 'award', tone: 'green', t: 'Достижения', d: 'Отслеживайте вклад и получайте сертификаты' }
+  ];
+  function Features() {
+    return html`
+      <section className="relative z-10 mx-auto max-w-[76rem] px-4 py-32 sm:px-6">
+        <div className="mb-12 max-w-xl max-md:mx-auto max-md:text-center">
+          <h2 className="h2">Возможности портала</h2>
+          <p className="mt-3 text-[14.5px] text-muted">Удобная платформа для координации волонтёрской деятельности</p>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          ${FEATS.map(f => html`
+            <a key=${f.t} href="#feat" onClick=${noJump} className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-surface p-6 transition-shadow hover:border-accent hover:shadow-[0_16px_34px_rgba(15,27,51,.08)] max-md:items-center max-md:text-center">
+              <span className=${`absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 ${f.tone === 'green' ? 'bg-green' : 'bg-accent'}`} aria-hidden="true"></span>
+              <h3 className="font-display text-[1.05rem] font-bold leading-snug text-head">${f.t}</h3>
+              <p className="mt-2.5 flex-1 text-[13.5px] leading-relaxed text-muted">${f.d}</p>
+              <p className="mt-7 flex w-full items-center justify-end gap-2 text-[13.5px] font-semibold text-accent max-md:justify-center">Подробнее<${Icon} n="arrow" size=${16} className="transition-transform group-hover:translate-x-1" /></p>
+            </a>`)}
+        </div>
+      </section>`;
+  }
+
+  /* ---------- сообщество ---------- */
+  const PERKS = [
+    { icon: 'chat', t: 'Общение', d: 'С единомышленниками из разных городов' },
+    { icon: 'bulb', t: 'Обмен опытом', d: 'Делимся знаниями и идеями' },
+    { icon: 'rocket', t: 'Совместные проекты', d: 'Запускаем инициативы вместе' },
+    { icon: 'heart', t: 'Поддержка', d: 'Мотивируем друг друга' }
+  ];
+  function Community() {
+    return html`
+      <section className="relative z-10 mx-auto max-w-[76rem] px-4 pb-32 sm:px-6">
+        <div className="on-dark relative isolate overflow-hidden rounded-3xl text-white shadow-[0_30px_60px_rgba(8,26,56,.28)]">
+          <div className="absolute inset-0 -z-10 bg-[#061427]" aria-hidden="true">
+            <img src=${COMMBG} alt="" draggable="false" className="absolute inset-0 h-full w-full object-cover" style=${{ objectPosition: '55% 50%' }} />
+            <div className="absolute inset-0" style=${{ background: 'linear-gradient(245deg, rgba(6,20,42,.86) 0%, rgba(8,42,64,.76) 50%, rgba(5,52,50,.68) 100%)' }}></div>
+            <div className="absolute -right-28 -top-28 h-[28rem] w-[28rem] rounded-full" style=${{ background: 'radial-gradient(closest-side, rgba(182,239,214,.18), rgba(182,239,214,0))' }}></div>
+            <div className="absolute -bottom-40 -left-20 h-[30rem] w-[30rem] rounded-full" style=${{ background: 'radial-gradient(closest-side, rgba(56,120,255,.3), rgba(56,120,255,0))' }}></div>
+            <div className="absolute inset-x-0 top-0 h-px" style=${{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent)' }}></div>
+            <svg className="absolute -right-24 -top-24 h-[28rem] w-[28rem] opacity-40 max-md:hidden" viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="46" stroke="#fff" strokeWidth=".25" strokeDasharray=".6 2.2" strokeLinecap="round" /><circle cx="50" cy="50" r="34" stroke="#fff" strokeWidth=".25" /><circle cx="50" cy="50" r="22" stroke="#b6efd6" strokeWidth=".3" />
+            </svg>
+            <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1200 560" preserveAspectRatio="xMidYMid slice" fill="none">
+              <g stroke="#fff" strokeLinecap="round">
+                <path d="M-60 470C180 360 380 560 640 450S1020 360 1260 440" strokeOpacity=".16" strokeWidth="1" />
+                <path d="M-60 520C200 410 400 600 660 490S1030 410 1260 490" stroke="#b6efd6" strokeOpacity=".22" strokeWidth="1" />
+              </g>
+            </svg>
+            <div className="grain absolute inset-0"></div>
+          </div>
+          <div className="relative grid items-center gap-10 p-7 sm:p-12 lg:grid-cols-[1.1fr_.9fr] lg:gap-14 lg:p-14">
+            <div className="min-w-0 max-md:text-center">
+              <h2 className="h2">Наше сообщество</h2>
+              <p className="mt-4 max-w-[32rem] text-[15px] leading-relaxed text-white/80 max-md:mx-auto">Волонтёры Приднестровья — это большая команда неравнодушных людей, которые меняют Приднестровье к лучшему каждый день.</p>
+              <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+                ${PERKS.map(p => html`
+                  <li key=${p.t} className="glass-dark rounded-xl p-4 max-md:text-center">
+                    <span className="font-display block text-[14.5px] font-bold">${p.t}</span>
+                    <span className="mt-1 block text-[12.5px] leading-snug text-white/90">${p.d}</span>
+                  </li>`)}
+              </ul>
+              <div className="mt-9 flex justify-end max-md:justify-center max-sm:block">
+                <${Btn} kind="light" icon="arrow" href="#profile" extra="max-sm:w-full">Мой профиль<//>
+              </div>
+            </div>
+            <div className="min-w-0">
+              <div className="mx-auto w-full max-w-[30rem] overflow-hidden rounded-2xl border border-white/20">
+                <img src=${PEOPLE} alt="Волонтёры на выездном мероприятии" draggable="false" className="block aspect-square w-full object-cover" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>`;
+  }
+
+  /* ---------- обратная связь ---------- */
+  const FB = [
+    { id: 'name', label: 'Имя', err: v => v.trim() ? '' : 'Введите имя' },
+    { id: 'mail', label: 'Электронная почта', type: 'email', err: v => !v.trim() ? 'Введите электронную почту' : (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Проверьте адрес: например, name@mail.ru') },
+    { id: 'text', label: 'Сообщение', area: true, err: v => v.trim() ? '' : 'Напишите сообщение' }
+  ];
+  function FeedbackDialog({ onClose }) {
+    const ref = useRef(null);
+    const doneRef = useRef(null);
+    const [sent, setSent] = useState(false);
+    const [errs, setErrs] = useState({});
+    useDialog(ref, onClose, '#fb-name');
+    useEffect(() => { if (sent && doneRef.current) doneRef.current.focus(); }, [sent]);
+    const submit = ev => {
+      ev.preventDefault();
+      const f = ev.currentTarget, e = {};
+      FB.forEach(x => { const m = x.err(f.elements['fb-' + x.id].value); if (m) e[x.id] = m; });
+      setErrs(e);
+      const bad = FB.find(x => e[x.id]);
+      if (bad) f.elements['fb-' + bad.id].focus(); else setSent(true);
+    };
+    const field = 'mt-1.5 w-full rounded-lg border-[1.5px] bg-surface px-3.5 text-[14px] text-fg outline-none focus:border-accent';
+    /* окно выносится в body, чтобы его не перекрывали соседние секции и подвал */
+    return ReactDOM.createPortal(html`
+      <div ref=${ref} className="fixed inset-0 z-40 grid place-items-center bg-[rgba(15,27,51,.4)] p-4" onClick=${onClose} role="dialog" aria-modal="true" aria-labelledby="fb-title">
+        <div className="max-h-full w-full max-w-md overflow-y-auto rounded-2xl bg-surface p-6 shadow-xl sm:p-7" onClick=${ev => ev.stopPropagation()}>
+          <div className="flex items-start justify-between gap-4">
+            <h3 id="fb-title" className="font-display text-[1.15rem] font-extrabold">Написать нам</h3>
+            <button type="button" onClick=${onClose} aria-label="Закрыть" className="tap-6 relative grid h-8 w-8 shrink-0 place-items-center rounded-lg border-[1.5px] border-rule hover:border-accent"><${Icon} n="close" size=${15} /></button>
+          </div>
+          ${sent
+            ? html`<p ref=${doneRef} tabIndex="-1" role="status" className="mt-6 rounded-xl bg-green-soft p-4 text-[14px] text-fg outline-none">Спасибо! В рабочей версии сообщение уходит администраторам через форму обратной связи.</p>`
+            : html`<form className="mt-2 flex flex-col gap-4" noValidate onSubmit=${submit}>
+                <p className="text-[12.5px] text-muted">Все поля обязательны для заполнения</p>
+                ${FB.map(x => {
+                  const er = errs[x.id], id = 'fb-' + x.id;
+                  const props = { id, name: id, required: true, 'aria-required': 'true', 'aria-invalid': er ? 'true' : undefined, 'aria-describedby': er ? id + '-err' : undefined,
+                    onInput: () => er && setErrs(s => ({ ...s, [x.id]: '' })),
+                    className: field + (er ? ' border-warn' : ' border-quiet') + (x.area ? ' py-2.5' : ' h-11') };
+                  return html`
+                    <div key=${x.id}>
+                      <label className="text-[13px] font-medium" htmlFor=${id}>${x.label}</label>
+                      ${x.area ? html`<textarea rows="4" ...${props}></textarea>` : html`<input type=${x.type || 'text'} autoComplete=${x.type === 'email' ? 'email' : 'name'} ...${props} />`}
+                      ${er && html`<p id=${id + '-err'} className="mt-1.5 flex items-center gap-1.5 text-[12.5px] font-medium text-warn"><${Icon} n="info" size=${14} className="shrink-0" />${er}</p>`}
+                    </div>`;
+                })}
+                <button type="submit" className=${`${BTN_BASE} ${BTN_KIND.primary} w-full`}>Отправить</button>
+              </form>`}
+        </div>
+      </div>`, document.body);
+  }
+  function Feedback() {
+    const [open, setOpen] = useState(false);
+    return html`
+      <section className="relative z-10 mx-auto max-w-[76rem] px-4 pb-32 sm:px-6">
+        <div className="flex flex-col items-center justify-between gap-8 rounded-2xl border border-line bg-surface p-8 text-center shadow-[0_12px_32px_rgba(15,27,51,.06)] sm:p-12 md:flex-row md:items-center md:text-left">
+          <div className="flex min-w-0 flex-col items-center gap-5 md:flex-row md:items-start">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent-soft text-accent"><${Icon} n="mail" size=${22} /></span>
+            <div className="min-w-0">
+              <h2 className="h2">Обратная связь</h2>
+              <p className="mt-1.5 text-[14px] text-muted">Есть вопросы или предложения? Мы всегда рады ответить.</p>
+            </div>
+          </div>
+          <${Btn} kind="primary" iconLeft="send" tag="button" label="dialog" onClick=${() => setOpen(true)} extra="max-sm:w-full">Написать нам<//>
+        </div>
+        ${open && html`<${FeedbackDialog} onClose=${() => setOpen(false)} />`}
+      </section>`;
+  }
+
+  /* ---------- подвал ---------- */
+  const CONTACTS = [
+    ['mail', 'ump@minpros.gospmr.org'], ['phone', '0 (533) 2-22-29'],
+    ['pin', 'г. Тирасполь, ул. Мира, 27'], ['clock', 'Пн–Пт: 8:00–17:00']
+  ];
+  const FOOT = [
+    { title: 'Разделы', items: ['Новости', 'Мероприятия', 'Организаторы', 'Волонтёры', 'О нас'] },
+    { title: 'Помощь', items: ['Стать волонтёром', 'FAQ', 'Правила сайта', 'Конфиденциальность'] }
+  ];
+  function Footer() {
+    return html`
+      <footer className="on-dark relative isolate z-10 mt-4 overflow-hidden text-white">
+        <div className="band band-soft relative z-10"></div>
+        <div className="absolute inset-0 -z-10 bg-[#04121f]" aria-hidden="true">
+          <img src=${FOOTBG} alt="" draggable="false" className="absolute inset-0 h-full w-full object-cover" style=${{ objectPosition: '50% 55%' }} />
+          <div className="absolute inset-0" style=${{ background: 'linear-gradient(180deg, rgba(4,16,32,.78) 0%, rgba(6,28,46,.7) 50%, rgba(5,40,42,.74) 100%)' }}></div>
+          <div className="absolute -left-24 top-0 h-[26rem] w-[26rem] rounded-full" style=${{ background: 'radial-gradient(closest-side, rgba(182,239,214,.16), rgba(182,239,214,0))' }}></div>
+          <div className="absolute -bottom-32 right-0 h-[30rem] w-[30rem] rounded-full" style=${{ background: 'radial-gradient(closest-side, rgba(56,120,255,.28), rgba(56,120,255,0))' }}></div>
+          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 520" preserveAspectRatio="xMidYMid slice" fill="none">
+            <g stroke="#fff" strokeLinecap="round">
+              <path d="M-60 400C240 300 460 470 780 370S1340 300 1660 380" strokeOpacity=".14" strokeWidth="1" />
+              <path d="M-60 450C260 350 480 530 800 410S1360 350 1660 430" stroke="#b6efd6" strokeOpacity=".18" strokeWidth="1" />
+            </g>
+          </svg>
+          <div className="grain absolute inset-0"></div>
+        </div>
+        <div className="mx-auto max-w-[76rem] px-4 py-14 sm:px-6">
+          <div className="glass-dark rounded-3xl p-7 sm:p-9">
+            <div className="grid gap-10 md:grid-cols-2 md:gap-x-10 md:gap-y-10 lg:grid-cols-[1.15fr_1fr_1.25fr] lg:gap-14">
+              <div className="flex max-w-xs flex-col gap-4 max-md:mx-auto max-md:items-center max-md:text-center md:col-span-2 md:max-w-none md:flex-row md:flex-wrap md:items-center md:gap-x-8 lg:col-span-1 lg:max-w-xs lg:flex-col lg:items-stretch">
+                <${Brand} small=${true} />
+                <p className="text-[13px] leading-relaxed text-white/80">Официальный портал волонтёрского движения Приднестровья. Делаем мир лучше вместе с 2020 года.</p>
+                <div className="flex gap-2.5 max-md:justify-center">
+                  ${[['tg', 'Telegram'], ['ig', 'Instagram']].map(([k, name]) => html`
+                    <a key=${k} href="#social" onClick=${noJump} aria-label=${name} title=${name}
+                      className="tap-2 relative grid h-10 w-10 place-items-center rounded-lg border border-white/25 bg-white/10 text-white backdrop-blur-md hover:border-mint hover:text-mint">
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d=${SOCIAL[k]} /></svg>
+                    </a>`)}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-6 max-md:text-center">
+                ${FOOT.map(col => html`
+                  <div key=${col.title}>
+                    <h2 className="label mb-2 text-mint">${col.title}</h2>
+                    <ul className="flex flex-col text-[13px]">
+                      ${col.items.map(t => html`<li key=${t}><a href="#foot" onClick=${noJump} className="inline-block py-1 text-white/85 hover:text-white">${t}</a></li>`)}
+                    </ul>
+                  </div>`)}
+              </div>
+              <div className="max-md:text-center">
+                <h2 className="label mb-3 text-mint">Контакты</h2>
+                <ul className="flex flex-col gap-2.5 text-[13px] max-md:items-center">
+                  ${CONTACTS.map(([ic, v]) => html`
+                    <li key=${v} className="flex items-start gap-2.5 max-md:justify-center"><span className="mt-0.5 shrink-0 text-mint"><${Icon} n=${ic} size=${15} /></span><span className="min-w-0 select-text break-words font-medium text-white/90">${v}</span></li>`)}
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="mt-7 flex flex-col gap-1 text-center text-[12.5px] text-white/75 md:flex-row md:items-center md:justify-between md:text-left">
+            <p>© 2020–2026 Волонтёры Приднестровья. Все права защищены.</p>
+            <div className="flex flex-wrap justify-center gap-x-4">
+              ${['Политика конфиденциальности', 'Правила сайта', 'FAQ'].map(t => html`<a key=${t} href="#legal" onClick=${noJump} className="inline-block py-1 hover:text-mint">${t}</a>`)}
+            </div>
+          </div>
+        </div>
+      </footer>`;
+  }
+
+  /* ---------- страница ---------- */
+  /* нижняя панель навигации: только на телефонах, как в мобильных приложениях */
+  const TABS = [['home', 'Главная', '#home', true], ['cal', 'События', '#events'], ['news', 'Новости', '#news'], ['user', 'Профиль', '#cab']];
+  function TabBar() {
+    return html`
+      <nav aria-label="Быстрая навигация" className="fixed inset-x-0 bottom-0 z-30 px-3 md:hidden" style=${{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)' }}>
+        <ul className="mx-auto grid max-w-md grid-cols-4 rounded-2xl border border-line bg-[rgba(255,255,255,.96)] p-1.5 shadow-[0_10px_30px_rgba(15,27,51,.14)] backdrop-blur-md">
+          ${TABS.map(([ic, t, href, act]) => html`
+            <li key=${t}>
+              <a href=${href} onClick=${noJump} aria-current=${act ? 'page' : undefined}
+                className=${`flex min-h-[3.1rem] flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-semibold ${act ? 'text-accent' : 'text-muted hover:text-fg'}`}>
+                <span className=${`grid h-7 w-12 place-items-center rounded-full ${act ? 'bg-accent-soft' : ''}`}><${Icon} n=${ic} size=${19} /></span>
+                ${t}
+              </a>
+            </li>`)}
+        </ul>
+      </nav>`;
+  }
+  const skipToMain = ev => { ev.preventDefault(); const m = document.getElementById('main'); m.focus({ preventScroll: true }); m.scrollIntoView(); };
+  const blank = src => ({ src, nw: 0, nh: 0, rect: { x: 0, y: 0, w: 1, h: 1 } });
+  function App() {
+    const [photos, setPhotos] = useState({ hero: blank(HERO), event: blank(EV1), news1: blank(N1), news2: blank(N2), news3: blank(N3) });
+    const [view, setView] = useState(null);
+    useEffect(() => {
+      Object.keys(photos).forEach(k => {
+        const im = new Image();
+        im.onload = () => setPhotos(s => ({ ...s, [k]: fit({ ...s[k], nw: im.naturalWidth, nh: im.naturalHeight }, ASPECT[k], FOCAL[k]) }));
+        im.src = photos[k].src;
+      });
+    }, []);
+    return html`
+      <div className="relative flex min-h-screen flex-col overflow-x-clip max-md:pb-[calc(5.25rem+env(safe-area-inset-bottom,0px))]">
+        <div className="side-art side-art-l" aria-hidden="true"></div>
+        <div className="side-art side-art-r" aria-hidden="true"></div>
+        <a href="#main" onClick=${skipToMain} className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[60] focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2.5 focus:text-[14px] focus:font-semibold focus:text-accent focus:shadow-lg">Перейти к содержимому</a>
+        <${Header} />
+        <main id="main" tabIndex="-1" className="relative z-10 flex-1 focus:outline-none">
+          <${Hero} photo=${photos.hero} onOpen=${() => setView(photos.hero.src)} />
+          <${News} photos=${photos} />
+          <${Gallery} onOpen=${setView} />
+          <${Steps} />
+          <${Features} />
+          <${Community} />
+          <${Feedback} />
+        </main>
+        <${Footer} />
+        <${TabBar} />
+        ${view && html`<${Lightbox} src=${view} onClose=${() => setView(null)} />`}
+      </div>`;
+  }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+})();
+</script>

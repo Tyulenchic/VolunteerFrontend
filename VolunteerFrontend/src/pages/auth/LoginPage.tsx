@@ -1,14 +1,18 @@
+import logo from '../../assets/logo.webp';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { safeRedirect } from '../../utils/redirect';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { useApiError } from '../../hooks/useApiError';
 import { Spinner } from '../../components/Spinner';
+import { ResendHint } from '../../components/ResendHint';
 
 export function LoginPage() {
   const { login } = useAuth();
   const { notify } = useNotification();
   const navigate = useNavigate();
+  const { state } = useLocation();
   const { error, capture } = useApiError();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,9 +22,9 @@ export function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await login({ email, password });
+      await login({ email: email.trim(), password });
       notify('Добро пожаловать! 🎉');
-      navigate('/profile');
+      navigate(safeRedirect((state as { from?: unknown } | null)?.from) ?? '/profile', { replace: true });
     } catch (err) { capture(err); }
     finally { setLoading(false); }
   };
@@ -29,13 +33,12 @@ export function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4">
-            <i className="fas fa-hand-holding-heart text-3xl text-primary" />
-          </div>
+          <img src={logo} alt="Волонтёры ПМР" className="mx-auto mb-4 h-28 w-auto" />
           <h1 className="text-2xl font-bold text-gray-900">Вход в систему</h1>
           <p className="text-gray-600 mt-1">Добро пожаловать обратно!</p>
         </div>
-        {error && <div className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm">{error}</div>}
+        {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm">{error}</div>}
+        {error && <ResendHint email={email} />}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -58,7 +61,7 @@ export function LoginPage() {
           </button>
         </form>
         <p className="text-center text-sm text-gray-600 mt-6">
-          Нет аккаунта? <Link to="/register" className="text-primary font-semibold hover:underline">Зарегистрироваться</Link>
+          Нет аккаунта? <Link to="/register" state={state} className="text-primary font-semibold hover:underline">Зарегистрироваться</Link>
         </p>
       </div>
     </div>

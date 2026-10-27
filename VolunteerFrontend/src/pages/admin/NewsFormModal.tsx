@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Modal } from '../../components/Modal';
 import { Spinner } from '../../components/Spinner';
-import { ImageUploadField } from '../../components/ImageUploadField';
+import { PhotoField, stagePhoto, type PhotoSelection } from '../../components/PhotoField';
 import { adminApi } from '../../api/admin';
 import { newsApi } from '../../api/news';
 import { useNotification } from '../../context/NotificationContext';
+import { adminErrorMessage } from '../../utils/adminErrors';
 import type { AdminNewsListDto } from '../../types/admin';
 
 interface NewsFormModalProps {
@@ -28,9 +29,11 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
   });
 
   const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
-  const [imageChanged, setImageChanged] = useState(false);
+  const [currentImageCrop, setCurrentImageCrop] = useState<import('../../types/organization').ImageCropDto | null>(null);
+  const [photo, setPhoto] = useState<PhotoSelection | null>(null);
 
   useEffect(() => {
+    let alive = true; // ignore the details response if the modal was closed / switched to another item meanwhile
     if (news && isOpen) {
       // сразу показываем то, что уже есть в списке...
       setFormData({
@@ -40,25 +43,29 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
         category: '',
       });
       setCurrentImageUrl(news.coverImageUrl || null);
-      setImageChanged(false);
+      setCurrentImageCrop(null);
+      setPhoto(null);
       setLoadingDetails(true);
 
       // ...и догружаем полную новость (текст, описание, категорию, обложку)
       newsApi.getById(news.id)
           .then((full) => {
+            if (!alive) return;
             setFormData({
               title: full.title,
               content: full.content,
-              excerpt: full.excerpt || '',
+              excerpt: full.summary || full.excerpt || '',
               category: full.category || '',
             });
             setCurrentImageUrl(full.imageUrl || null);
+            setCurrentImageCrop(full.imageCrop ?? null);
           })
           .catch((err) => {
+            if (!alive) return;
             console.error('Error loading news details:', err);
             setError('Не удалось загрузить полные данные новости. Проверьте поля перед сохранением.');
           })
-          .finally(() => setLoadingDetails(false));
+          .finally(() => { if (alive) setLoadingDetails(false); });
     } else if (isOpen) {
       setFormData({
         title: '',
@@ -67,9 +74,11 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
         category: '',
       });
       setCurrentImageUrl(null);
-      setImageChanged(false);
+      setCurrentImageCrop(null);
+      setPhoto(null);
     }
     setError(null);
+    return () => { alive = false; };
   }, [isOpen, news]);
 
   const handleChange = (
@@ -82,13 +91,7 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
     }));
   };
 
-  const handleClose = () => {
-    // если обложку меняли, но "Сохранить" не нажимали — всё равно обновим список
-    if (imageChanged) {
-      onSuccess();
-    }
-    onClose();
-  };
+  const handleClose = () => onClose();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,17 +113,26 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
       const payload = {
         title: formData.title,
         content: formData.content,
-        ...(formData.excerpt && { excerpt: formData.excerpt }),
+        // на сервере поле называется summary
+        ...(formData.excerpt && { summary: formData.excerpt }),
         ...(formData.category && { category: formData.category }),
       };
 
-      console.log('Sending payload:', JSON.stringify(payload));
-
       if (news) {
         await adminApi.updateNews(news.id, payload);
+        // Обложка: новый файл, только кадр или удаление.
+        if (photo?.file) {
+          await adminApi.uploadNewsImage(news.id, photo.file, photo.crop);
+        } else if (photo?.removed) {
+          await adminApi.deleteNewsImage(news.id);
+        } else if (photo?.crop && currentImageUrl) {
+          await adminApi.setNewsImageCrop(news.id, photo.crop);
+        }
         notify('Новость обновлена');
       } else {
-        await adminApi.createNews(payload);
+        // Новая новость: обложка загружается заранее и привязывается при создании — идентификатор для этого не нужен.
+        const staged = await stagePhoto(photo);
+        await adminApi.createNews({ ...payload, ...(staged && { imageId: staged.imageId, imageCrop: staged.crop }) });
         notify('Новость создана');
       }
 
@@ -130,12 +142,7 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
       console.error('Error:', err);
       console.error('Response status:', err.response?.status);
       console.error('Response data:', err.response?.data);
-      setError(
-          err.response?.data?.message ||
-          err.response?.data?.title ||
-          JSON.stringify(err.response?.data) ||
-          'Ошибка при сохранении новости'
-      );
+      setError(adminErrorMessage(err, 'Не удалось сохранить новость. Проверьте данные и попробуйте ещё раз.'));
     } finally {
       setLoading(false);
     }
@@ -150,14 +157,14 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-              <div className="p-3 bg-red-900/40 text-red-400 border border-red-800 rounded-lg text-sm">
+              <div className="p-3 bg-danger-50 text-danger-700 border border-danger-200 rounded-lg text-sm">
                 {error}
               </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Заголовок <span className="text-red-400">*</span>
+            <label className="block text-[13px] font-medium text-ink-700 mb-1.5">
+              Заголовок <span className="text-danger-700">*</span>
             </label>
             <input
                 type="text"
@@ -165,26 +172,24 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="Заголовок новости"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary"
+                className="w-full px-3 py-2 text-sm"
                 required
             />
           </div>
 
-          <ImageUploadField
+          <PhotoField
+              purpose="news"
               label="Обложка новости"
-              currentImageUrl={currentImageUrl}
-              disabled={!news || loadingDetails}
-              disabledHint="Сначала сохраните новость, затем откройте её снова, чтобы добавить обложку"
-              onUpload={async (file) => {
-                const updated = await adminApi.uploadNewsImage(news!.id, file);
-                setCurrentImageUrl(updated.imageUrl || null);
-                setImageChanged(true);
-                notify('Обложка новости обновлена');
-              }}
+              selection={photo}
+              onChange={setPhoto}
+              existingUrl={currentImageUrl}
+              existingCrop={currentImageCrop}
+              disabled={loadingDetails}
+              hint="Обложку можно выбрать сразу — сохранять новость для этого не нужно"
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-[13px] font-medium text-ink-700 mb-1.5">
               Краткое описание
             </label>
             <input
@@ -194,14 +199,14 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
                 onChange={handleChange}
                 placeholder="Краткое резюме (для списков)"
                 maxLength={160}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary"
+                className="w-full px-3 py-2 text-sm"
             />
-            <p className="text-xs text-gray-500 mt-1">{formData.excerpt.length}/160</p>
+            <p className="text-xs text-ink-400 mt-1">{formData.excerpt.length}/160</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Содержание <span className="text-red-400">*</span>
+            <label className="block text-[13px] font-medium text-ink-700 mb-1.5">
+              Содержание <span className="text-danger-700">*</span>
             </label>
             <textarea
                 name="content"
@@ -209,13 +214,13 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
                 onChange={handleChange}
                 placeholder="Полное содержание новости"
                 rows={6}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary resize-none"
+                className="w-full bg-surface-2 border border-line-strong rounded-lg px-3 py-2 text-ink-900 placeholder-ink-400 focus:outline-none focus:border-brand-500 resize-none"
                 required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-[13px] font-medium text-ink-700 mb-1.5">
               Категория
             </label>
             <input
@@ -224,7 +229,7 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
                 value={formData.category}
                 onChange={handleChange}
                 placeholder="Например: Полезные советы, Обновления и т.д."
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary"
+                className="w-full px-3 py-2 text-sm"
             />
           </div>
 
@@ -232,7 +237,7 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
             <button
                 type="submit"
                 disabled={loading || loadingDetails}
-                className="flex-1 px-4 py-2 bg-primary hover:bg-primary-dark disabled:bg-gray-700 text-white font-medium rounded-lg transition flex items-center justify-center gap-2"
+                className="btn btn-primary flex-1"
             >
               {loading && <Spinner />}
               {news ? 'Сохранить изменения' : 'Создать новость'}
@@ -240,7 +245,7 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
             <button
                 type="button"
                 onClick={handleClose}
-                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition"
+                className="btn btn-secondary flex-1"
             >
               Отмена
             </button>

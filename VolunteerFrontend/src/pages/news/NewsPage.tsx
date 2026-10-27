@@ -1,29 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { newsApi, type NewsResponseDto } from '../../api/news';
 import { Spinner } from '../../components/Spinner';
-import PhoneNewsImage from '../../assets/PhoneNews.png';
+import PhoneNewsImage from '../../assets/PhoneNews.webp';
 import { IMAGE_POSITIONS } from '../../constants/imagePositions';
+import { SecureImage } from '../../components/SecureImage';
 
 const fmtDate = (s: string) => new Date(s).toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
 
-const CAT_COLORS: Record<string, string> = {
-  events: 'bg-blue-100 text-blue-700',
-  social: 'bg-purple-100 text-purple-700',
-  eco: 'bg-teal-100 text-teal-700',
-  education: 'bg-amber-100 text-amber-700',
-};
-const CAT_LABELS: Record<string, string> = {
-  events: 'Мероприятия', social: 'Соц. помощь', eco: 'Экология', education: 'Обучение',
-};
-
-const CATS = [
-  { key: 'all', label: 'Все' },
-  { key: 'events', label: 'Мероприятия' },
-  { key: 'social', label: 'Соц. помощь' },
-  { key: 'eco', label: 'Экология' },
-  { key: 'education', label: 'Обучение' },
-];
+// Категория новости — свободный текст, который вводит администратор, поэтому список фильтров
+// строится из загруженных новостей, а цвет метки берётся по хешу названия.
+const CAT_PALETTE = ['bg-blue-100 text-blue-700', 'bg-purple-100 text-purple-700', 'bg-teal-100 text-teal-700', 'bg-amber-100 text-amber-700', 'bg-rose-100 text-rose-700'];
+const catColor = (name: string) => CAT_PALETTE[[...name].reduce((h, ch) => h + ch.charCodeAt(0), 0) % CAT_PALETTE.length];
 
 const PER_PAGE = 9;
 
@@ -35,7 +23,7 @@ export function NewsPage() {
   const [search, setSearch] = useState('');
   const [searchRaw, setSearchRaw] = useState('');
   const [page, setPage] = useState(1);
-  const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     setLoading(true);
@@ -45,11 +33,19 @@ export function NewsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => () => clearTimeout(timer.current), []);
+
   const onSearch = (v: string) => {
     setSearchRaw(v);
-    if (timer) clearTimeout(timer);
-    setTimer(setTimeout(() => { setSearch(v); setPage(1); }, 300));
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => { setSearch(v.trim()); setPage(1); }, 300);
   };
+
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const n of items) { const c = n.category?.trim(); if (c) counts.set(c, (counts.get(c) ?? 0) + 1); }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'ru'));
+  }, [items]);
 
   const filtered = items
     .filter(n => cat === 'all' || n.category === cat)
@@ -83,22 +79,15 @@ export function NewsPage() {
              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-gray-900 mb-6 leading-tight">
                Новости нашего <span className="text-primary">движения</span>
              </h1>
-             <p className="text-lg text-gray-600 mb-8">
+             <p className="text-lg text-gray-600">
                Будьте в курсе последних событий, акций и историй успеха волонтёров Приднестровья.
              </p>
-             <div className="flex flex-wrap justify-center gap-4">
-               {['Ежедневные обновления', 'Только проверенная информация'].map(b => (
-                 <div key={b} className="flex items-center gap-2 text-gray-600 bg-white px-4 py-2 rounded-xl shadow-sm">
-                   <i className="fas fa-check-circle text-primary" /><span>{b}</span>
-                 </div>
-               ))}
-             </div>
            </div>
          </div>
        </section>
 
       {/* FILTERS */}
-      <section className="py-5 bg-white border-b border-gray-200 sticky top-16 z-30 shadow-sm">
+      <section className="py-5 bg-white border-b border-gray-200 sticky top-[3.75rem] z-20 shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
             <div className="relative w-full md:w-96">
@@ -109,15 +98,23 @@ export function NewsPage() {
                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
               />
               <i className="fas fa-search absolute left-3.5 top-3 text-gray-400" />
-            </div>
-            <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-1 no-scrollbar">
-              {CATS.map(c => (
-                <button key={c.key} onClick={() => { setCat(c.key); setPage(1); }}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${cat === c.key ? 'bg-primary text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'}`}>
-                  {c.label}
+              {searchRaw && (
+                <button type="button" aria-label="Очистить поиск" onClick={() => { onSearch(''); setSearch(''); }}
+                  className="absolute right-3 top-2.5 grid h-6 w-6 place-items-center rounded-full text-gray-400 hover:text-gray-700">
+                  <i className="fas fa-times" />
                 </button>
-              ))}
+              )}
             </div>
+            {categories.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto md:flex-wrap md:justify-end w-full md:w-auto pb-1 no-scrollbar">
+                {[['all', 'Все', items.length] as const, ...categories.map(([c, n]) => [c, c, n] as const)].map(([key, label, count]) => (
+                  <button key={key} onClick={() => { setCat(key); setPage(1); }} aria-pressed={cat === key}
+                    className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${cat === key ? 'bg-primary text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'}`}>
+                    {label} <span className="opacity-70">{count}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -142,11 +139,11 @@ export function NewsPage() {
                   <Link to={`/news/${n.id}`} className="block no-underline">
                     {n.imageUrl && (
                       <div className="relative overflow-hidden">
-                        <img src={n.imageUrl} alt={n.title} className="w-full h-48 object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
+                        <SecureImage src={n.imageUrl} alt={n.title} className="w-full h-48 object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
                         {n.category && (
                           <div className="absolute top-4 left-4">
-                            <span className={`px-3 py-1 ${CAT_COLORS[n.category] ?? 'bg-gray-100 text-gray-700'} rounded-full text-xs font-semibold`}>
-                              {CAT_LABELS[n.category] ?? n.category}
+                            <span className={`px-3 py-1 ${catColor(n.category)} rounded-full text-xs font-semibold`}>
+                              {n.category}
                             </span>
                           </div>
                         )}

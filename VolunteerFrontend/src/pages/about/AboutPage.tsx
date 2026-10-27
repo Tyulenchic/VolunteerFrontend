@@ -1,22 +1,27 @@
 import { Link } from 'react-router-dom';
-import OnasImage from '../../assets/Onas.png';
+import OnasImage from '../../assets/Onas.webp';
 import { IMAGE_POSITIONS } from '../../constants/imagePositions';
-
-const TEAM = [
-  { name: 'Александр Ковалёв', role: 'Основатель & Директор', avatar: 'https://i.pravatar.cc/150?img=52', desc: 'Более 10 лет в сфере социального предпринимательства. Основал движение в 2020 году.' },
-  { name: 'Анна Петрова', role: 'Руководитель направлений', avatar: 'https://i.pravatar.cc/150?img=47', desc: 'Координирует все основные направления волонтёрской деятельности.' },
-  { name: 'Иван Сидоров', role: 'Руководитель социального блока', avatar: 'https://i.pravatar.cc/150?img=12', desc: 'Отвечает за программы помощи ветеранам и пожилым людям.' },
-  { name: 'Мария Козлова', role: 'Куратор обучения', avatar: 'https://i.pravatar.cc/150?img=23', desc: 'Разрабатывает образовательные программы и тренинги для волонтёров.' },
-];
-
-const VALUES = [
-  { icon: 'fa-heart', title: 'Доброта', desc: 'Каждое действие продиктовано искренним желанием помочь, без ожидания награды.', color: 'text-red-500 bg-red-50' },
-  { icon: 'fa-users', title: 'Единство', desc: 'Вместе мы сильнее. Мы верим в силу сообщества и коллективного действия.', color: 'text-blue-500 bg-blue-50' },
-  { icon: 'fa-leaf', title: 'Ответственность', desc: 'Мы заботимся о природе, обществе и будущих поколениях Приднестровья.', color: 'text-teal-500 bg-teal-50' },
-  { icon: 'fa-graduation-cap', title: 'Развитие', desc: 'Мы учимся и растём, делясь знаниями и опытом друг с другом.', color: 'text-purple-500 bg-purple-50' },
-];
+import { useSiteJson, useSiteText } from '../../context/SiteContentContext';
+import { ABOUT_TEAM_DEFAULT, ABOUT_TEXT_DEFAULT as T, ABOUT_VALUES_DEFAULT, type TeamMember } from '../../content/defaults';
 
 export function AboutPage() {
+  const TEAM = useSiteJson<TeamMember[]>('about.team', ABOUT_TEAM_DEFAULT);
+  const teamTitle = useSiteText('about.team.title', T.teamTitle);
+  const teamSubtitle = useSiteText('about.team.subtitle', T.teamSubtitle);
+  const VALUES = useSiteJson('about.values', ABOUT_VALUES_DEFAULT);
+  const heroLead = useSiteText('about.hero.lead', T.heroLead);
+  const heroMission = useSiteText('about.hero.mission', T.heroMission);
+  const platform1 = useSiteText('about.platform.p1', T.platform1);
+  const platform2 = useSiteText('about.platform.p2', T.platform2);
+  const platform3 = useSiteText('about.platform.p3', T.platform3);
+  const effortsTitle = useSiteText('about.efforts.title', T.effortsTitle);
+  const efforts = useSiteJson('about.efforts', T.efforts);
+  const tagline = useSiteText('about.tagline', T.tagline);
+  const email = useSiteText('about.contacts.email', T.email);
+  const phone = useSiteText('about.contacts.phone', T.phone);
+  const hours = useSiteText('about.contacts.hours', T.hours);
+  const city = useSiteText('about.contacts.city', T.city);
+  const office = useSiteText('about.contacts.office', T.office);
   return (
     <>
       {/* HERO */}
@@ -40,20 +45,8 @@ export function AboutPage() {
               <h1 className="text-4xl sm:text-5xl font-heading font-extrabold text-gray-900 leading-tight mb-6">
                 Мы — <span className="text-primary">ВолонтёрыПМР</span>
               </h1>
-              <p className="text-xl text-gray-600 leading-relaxed mb-6">
-                Официальный портал волонтёрского движения Приднестровья.
-                <br />
-                С 2020 года мы объединяем людей с добрыми сердцами
-                <br />
-                и направляем их энергию на позитивные изменения.
-              </p>
-              <p className="text-xl text-gray-600 leading-relaxed mb-6">
-                Наша миссия
-                <br/> — создать устойчивое сообщество неравнодушных граждан,
-                <br />
-                способных эффективно решать социальные,
-                <br/> и культурные проблемы региона.
-              </p>
+              <p className="text-xl text-gray-600 leading-relaxed mb-6 whitespace-pre-line">{heroLead}</p>
+              <p className="text-xl text-gray-600 leading-relaxed mb-6 whitespace-pre-line">{heroMission}</p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/register" className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg no-underline">
                   <i className="fas fa-user-plus mr-2" />Присоединиться
@@ -75,33 +68,21 @@ export function AboutPage() {
               <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">О нас</h2>
             </div>
             <div className="space-y-6">
-              <p className="text-lg text-gray-700 leading-relaxed">
-                Это платформа для волонтёров, организаторов и организаций, которая содержит в себе самые актуальные новости из жизни добровольческого сообщества Приднестровья.
-              </p>
-              <p className="text-gray-700 leading-relaxed">
-                ЕИС "Волонтёры Приднестровья" объединяет различные запросы и предложения со стороны добровольцев и организаций в рамках одного ресурса, что позволяет всем гражданам, независимо от возраста, места жительства и интересов, находить возможности для оказания волонтерской помощи и самореализации через добровольчество.
-              </p>
-              <p className="text-gray-700 leading-relaxed">
-                Сайт разработан Министерством цифрового развития, связи и массовых коммуникаций Приднестровской Молдавской Республики совместно с Министерством просвещения Приднестровской Молдавской Республики в рамках реализации Плана работы Координационного совета по развитию добровольческого (волонтерского) движения в Приднестровской Молдавской Республике.
-              </p>
+              <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-line">{platform1}</p>
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line">{platform2}</p>
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line">{platform3}</p>
               <div className="mt-10 pt-8 border-t border-gray-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">НАШИ УСИЛИЯ НАПРАВЛЕНЫ НА:</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-6">{effortsTitle}</h3>
                 <ul className="space-y-4 mb-8">
-                  <li className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-3" />
-                    <p className="text-gray-700">РАЗВИТИЕ КУЛЬТУРЫ ДОБРЫХ ДЕЛ В ПРИДНЕСТРОВЬЕ;</p>
-                  </li>
-                  <li className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-3" />
-                    <p className="text-gray-700">КОНСОЛИДАЦИЮ ПОТЕНЦИАЛА ВОЛОНТЁРОВ;</p>
-                  </li>
-                  <li className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-3" />
-                    <p className="text-gray-700">ПОДДЕРЖКУ ПАРТНЕРОВ ЧЕРЕЗ КОМПЛЕКС УСЛУГ И РЕСУРСОВ.</p>
-                  </li>
+                  {efforts.map((line, i) => (
+                    <li key={i} className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-3" />
+                      <p className="text-gray-700">{line}</p>
+                    </li>
+                  ))}
                 </ul>
                 <p className="text-lg font-medium text-primary">
-                  Мы получаем уникальный опыт и жизненно важные навыки вместе с вами!
+                  {tagline}
                 </p>
               </div>
             </div>
@@ -110,7 +91,7 @@ export function AboutPage() {
       </section>
 
       {/* MISSION & VALUES */}
-      <section className="py-4 sm:py-0 bg-white">
+      <section className="py-16 sm:py-20 bg-gray-50 border-y border-gray-100">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">Наши ценности</h2>
@@ -118,7 +99,7 @@ export function AboutPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {VALUES.map(v => (
-              <div key={v.title} className="bg-gray-50 rounded-2xl p-6 text-center hover:shadow-lg transition">
+              <div key={v.title} className="bg-white border border-gray-100 shadow-sm rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-0.5 transition h-full">
                 <div className={`w-16 h-16 ${v.color} rounded-2xl flex items-center justify-center mx-auto mb-5`}>
                   <i className={`fas ${v.icon} text-2xl`} />
                 </div>
@@ -130,25 +111,35 @@ export function AboutPage() {
         </div>
       </section>
 
-      {/* TEAM */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">Команда руководства</h2>
-            <p className="text-gray-600 text-lg">Люди, которые направляют движение вперёд</p>
+      {/* FOUNDERS: hidden while the administrator has not added anyone */}
+      {TEAM.length > 0 && (
+        <section className="py-16 sm:py-20 bg-white">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto mb-14">
+              <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">{teamTitle}</h2>
+              <p className="text-gray-600 text-lg">{teamSubtitle}</p>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {TEAM.map((m, i) => {
+                const card = (
+                  <>
+                    {m.avatar
+                      ? <img src={m.avatar} alt={m.name} className="w-20 h-20 rounded-full object-cover mx-auto mb-4 shadow-md ring-4 ring-primary/10 group-hover:ring-primary/30 transition" />
+                      : <span aria-hidden className="w-20 h-20 rounded-full mx-auto mb-4 grid place-items-center bg-primary/10 text-primary text-xl font-bold">{(m.name || '?').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()}</span>}
+                    <h3 className="font-bold text-gray-900 break-words">{m.name}</h3>
+                    {m.role && <p className="text-sm text-primary font-medium mb-3 break-words">{m.role}</p>}
+                    {m.desc && <p className="text-gray-600 text-xs leading-relaxed">{m.desc}</p>}
+                  </>
+                );
+                const cls = 'block bg-gray-50 rounded-2xl p-6 text-center hover:shadow-lg transition group no-underline';
+                return m.profileId
+                  ? <Link key={m.profileId + i} to={`/users/${m.profileId}`} className={cls}>{card}</Link>
+                  : <div key={m.name + i} className={cls}>{card}</div>;
+              })}
+            </div>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {TEAM.map(m => (
-              <div key={m.name} className="bg-gray-50 rounded-2xl p-6 text-center hover:shadow-lg transition group">
-                <img src={m.avatar} alt={m.name} className="w-20 h-20 rounded-full object-cover mx-auto mb-4 shadow-md ring-4 ring-primary/10 group-hover:ring-primary/30 transition" />
-                <h3 className="font-bold text-gray-900">{m.name}</h3>
-                <p className="text-sm text-primary font-medium mb-3">{m.role}</p>
-                <p className="text-gray-600 text-xs leading-relaxed">{m.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* CONTACTS */}
       <section id="contacts" className="py-20 bg-gradient-to-br from-primary to-blue-900">
@@ -179,10 +170,10 @@ export function AboutPage() {
                     <p className="text-sm text-gray-500 mb-1">Email</p>
 
                     <a
-                        href="mailto:ump@minpros.gospmr.org"
+                        href={`mailto:${email}`}
                         className="font-semibold text-gray-900 hover:text-primary no-underline"
                     >
-                      ump@minpros.gospmr.org
+                      {email}
                     </a>
                   </div>
                 </div>
@@ -196,14 +187,14 @@ export function AboutPage() {
                     <p className="text-sm text-gray-500 mb-1">Телефон</p>
 
                     <a
-                        href="tel:0 (533) 2-22-29"
+                        href={`tel:${phone}`}
                         className="font-semibold text-gray-900 hover:text-primary no-underline block"
                     >
-                      0 (533) 2-22-29
+                      {phone}
                     </a>
 
                     <span className="text-sm text-gray-500">
-                                Пн–Пт, 8:00-17:00, перерыв 12:00-13:00
+                                {hours}
                             </span>
                   </div>
                 </div>
@@ -216,12 +207,10 @@ export function AboutPage() {
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Адрес</p>
 
-                    <p className="font-semibold text-gray-900">
-                      г. Тирасполь
-                    </p>
+                    <p className="font-semibold text-gray-900">{city}</p>
 
                     <span className="text-sm text-gray-500">
-                                Управление молодежной политики
+                                {office}
                             </span>
                   </div>
                 </div>
@@ -272,7 +261,8 @@ export function AboutPage() {
                   </a>
 
                   <a
-                      href="#"
+                      href="https://vk.com"
+                      target="_blank" rel="noopener noreferrer"
                       className="text-gray-500 hover:text-blue-700 transition"
                       aria-label="VK"
                   >
@@ -293,7 +283,7 @@ export function AboutPage() {
                 </h3>
               </div>
 
-              <div className="h-[500px]">
+              <div className="h-[31.25rem]">
                 <iframe
                     title="Карта"
                     className="w-full h-full border-0"

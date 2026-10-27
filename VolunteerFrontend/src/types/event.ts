@@ -1,5 +1,5 @@
 // Matches backend enums and DTOs exactly
-export type EventStatus = 'Draft' | 'Published' | 'Cancelled' | 'Completed';
+export type EventStatus = 'Draft' | 'Published' | 'Cancelled' | 'Completed' | 'Archived';
 
 // Full category list from EventCategory enum
 export type EventCategory =
@@ -62,8 +62,10 @@ export const getCategoryLabel = (cat?: EventCategory | null): string => {
   return CATEGORY_LABELS[cat] ?? cat;
 };
 
-// Matches ParticipationStatus enum (AttendanceConfirmed = 3)
-export type ParticipationStatus = 'Pending' | 'Approved' | 'Rejected' | 'AttendanceConfirmed';
+// Matches ParticipationStatus enum (AttendanceConfirmed = 3, Withdrawn = 4 — волонтёр отозвал заявку)
+export type ParticipationStatus = 'Pending' | 'Approved' | 'Rejected' | 'AttendanceConfirmed' | 'Withdrawn';
+
+import type { ImageCropDto, OrganizationSummary } from './organization';
 
 export interface EventResponseDto {
   id: string;
@@ -75,11 +77,17 @@ export interface EventResponseDto {
   maxParticipants: number | null;
   imageUrl: string | null;
   category: EventCategory | null;
+  /** Теги мероприятия; участвуют в поиске. */
+  tags?: string[];
   approvedCount: number;
   status: EventStatus;
   createdByUserId: string;
   createdAt: string;
   updatedAt: string | null;
+  imageThumbnailUrl?: string | null;
+  imageCrop?: ImageCropDto | null;
+  /** Организация-организатор; null — мероприятие от платформы. */
+  organization?: OrganizationSummary | null;
 }
 
 export interface EventListResponseDto {
@@ -100,6 +108,11 @@ export interface CreateEventDto {
   maxParticipants?: number | null;
   category?: EventCategory | null;
   tags?: string[];
+  /** Организация, от имени которой проводится мероприятие (организатору обязательна, если у него их несколько). */
+  organizationId?: string | null;
+  /** Фото, загруженное заранее (POST /api/images) — идентификатор мероприятия для этого не нужен. */
+  imageId?: string | null;
+  imageCrop?: ImageCropDto | null;
 }
 
 export interface UpdateEventDto {
@@ -123,6 +136,8 @@ export interface ParticipationResponseDto {
   userFullName: string | null;
   status: ParticipationStatus;
   adminComment: string | null;
+  /** Комментарий волонтёра при отзыве заявки (статус Withdrawn). */
+  withdrawalReason?: string | null;
   createdAt: string;
   updatedAt: string | null;
 }

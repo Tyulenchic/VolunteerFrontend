@@ -3,4 +3,5 @@ export interface RegisterDto { email: string; password: string; firstName?: stri
 export interface AuthResponseDto { accessToken: string; refreshToken: string; }
 export interface ForgotPasswordDto { email: string; }
 export interface ResetPasswordDto { token: string; newPassword: string; }
-export interface ConfirmEmailDto { userId: string; token: string; }
+export interface ConfirmEmailDto { token: string; }
+export interface ResendConfirmationDto { email: string; }

@@ -1,245 +1,272 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { publicEventsApi } from '../../api/publicEvents';
-import type { EventResponseDto, EventCategory } from '../../types/event';
-import { Modal } from '../../components/Modal';
-import { Spinner } from '../../components/Spinner';
+import { eventsApi } from '../../api/events';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import { eventsApi } from '../../api/events';
-import PhoneMeropriyatiyaImage from '../../assets/PhoneMeropriyatiya.png';
-import { IMAGE_POSITIONS } from '../../constants/imagePositions';
+import type { EventResponseDto, ParticipationResponseDto } from '../../types/event';
+import { loginState } from '../../utils/redirect';
+import { mapApiError } from '../../utils/apiError';
+import { CAT, CATEGORIES, MONTH_SHORT, WD_ABBR, WEEKDAYS, dayKey, parseDay, plural, seatsLeft } from '../../utils/afisha';
+import { MiniCalendar } from '../../components/afisha/MiniCalendar';
+import { Ticket } from '../../components/afisha/Ticket';
+import { CancelParticipationDialog } from '../../components/CancelParticipationDialog';
+import { VolIcon, type IconName } from '../../components/afisha/VolIcon';
 
-const CAT_OPTIONS: Array<{ key: EventCategory | 'all'; label: string; icon: string }> = [
-  { key: 'all', label: 'Все', icon: 'fa-th' },
-  { key: 'Ecological', label: 'Экологическое', icon: 'fa-leaf' },
-  { key: 'Social', label: 'Социальное', icon: 'fa-hands-helping' },
-  { key: 'Donation', label: 'Донорство', icon: 'fa-heartbeat' },
-  { key: 'Education', label: 'Образование', icon: 'fa-graduation-cap' },
-  { key: 'HealthyLife', label: 'ЗОЖ', icon: 'fa-running' },
-  { key: 'Animals', label: 'Животные', icon: 'fa-paw' },
-  { key: 'Veterans', label: 'Ветераны', icon: 'fa-medal' },
-  { key: 'Medical', label: 'Мед', icon: 'fa-stethoscope' },
-  { key: 'Culture', label: 'Культура', icon: 'fa-palette' },
-  { key: 'Media', label: 'Медиаволонтёрство', icon: 'fa-camera' },
-  { key: 'Events', label: 'Событийное', icon: 'fa-calendar' },
-  { key: 'Patriotic', label: 'Патриотическое', icon: 'fa-flag' },
-  { key: 'Urban', label: 'Урбанистика', icon: 'fa-city' },
-];
-
-const fmtDate = (s: string) => {
-  const d = new Date(s);
-  return {
-    day: d.getDate().toString().padStart(2, '0'),
-    month: d.toLocaleDateString('ru-RU', { month: 'short' }).toUpperCase(),
-    full: d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }),
-  };
-};
-
-function ApplyModal({ event, onClose }: { event: EventResponseDto; onClose: () => void }) {
-  const { user } = useAuth();
-  const { notify } = useNotification();
-  const navigate = useNavigate();
-  const [confirm, setConfirm] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const dt = fmtDate(event.startsAt);
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) { notify('Сначала войдите в систему', 'error'); onClose(); navigate('/login'); return; }
-    setLoading(true);
-    try {
-      await eventsApi.apply(event.id);
-      notify('Заявка подана! Ожидайте подтверждения 🎫');
-      onClose();
-    } catch {
-      notify('Не удалось подать заявку. Возможно, вы уже зарегистрированы.', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+/** Illustration for the empty state: thin blue line on a pale fill, same style as the page backdrop. */
+function PeopleArt() {
+  const LINE = '#7ea2e8';
+  const FILL = '#dce8ff';
   return (
-    <form onSubmit={submit} className="space-y-4">
-      <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-        <div className="flex gap-4 items-start">
-          <div className="flex-shrink-0 w-14 h-14 bg-primary/10 rounded-xl flex flex-col items-center justify-center text-primary">
-            <span className="text-xl font-bold leading-none">{dt.day}</span>
-            <span className="text-xs font-medium uppercase">{dt.month}</span>
-          </div>
-          <div>
-            <h4 className="font-bold text-gray-900">{event.title}</h4>
-            <p className="text-sm text-gray-600 mt-1"><i className="fas fa-map-marker-alt mr-1 text-primary" />{event.location}</p>
-            <p className="text-sm text-gray-600 mt-0.5"><i className="far fa-clock mr-1 text-primary" />{dt.full}</p>
-          </div>
-        </div>
-      </div>
-      <label className="flex items-start gap-2 cursor-pointer">
-        <input type="checkbox" checked={confirm} onChange={e => setConfirm(e.target.checked)} required className="w-4 h-4 mt-0.5 accent-primary" />
-        <span className="text-sm text-gray-600">Я подтверждаю участие и обязуюсь прийти вовремя</span>
-      </label>
-      <button type="submit" disabled={loading}
-        className="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-60 flex items-center justify-center gap-2">
-        {loading ? <><Spinner /> Отправка...</> : <><i className="fas fa-paper-plane mr-2" />Подать заявку</>}
-      </button>
-    </form>
+    <svg viewBox="0 0 120 76" fill="none" stroke={LINE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="h-auto w-full">
+      <circle cx="60" cy="22" r="11" fill={FILL} />
+      <path d="M38 64c0-12 10-21 22-21s22 9 22 21z" fill={FILL} />
+      <circle cx="26" cy="31" r="8" fill={FILL} />
+      <path d="M10 64c0-9 7-16 16-16 3 0 5 .6 7 1.8" />
+      <circle cx="94" cy="31" r="8" fill={FILL} />
+      <path d="M110 64c0-9-7-16-16-16-3 0-5 .6-7 1.8" />
+      <path d="M4 68h112" strokeOpacity="0.5" />
+    </svg>
   );
 }
 
 export function EventsPage() {
-  const [items, setItems] = useState<EventResponseDto[]>([]);
+  const { user } = useAuth();
+  const { notify } = useNotification();
+  const navigate = useNavigate();
+
+  const [events, setEvents] = useState<EventResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cat, setCat] = useState<EventCategory | 'all'>('all');
-  const [search, setSearch] = useState('');
-  const [searchRaw, setSearchRaw] = useState('');
-  const [selected, setSelected] = useState<EventResponseDto | null>(null);
-  const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [mine, setMine] = useState<Map<string, ParticipationResponseDto>>(new Map());
+  const [busy, setBusy] = useState<Set<string>>(new Set());
+  const [cancelTarget, setCancelTarget] = useState<{ ev: EventResponseDto; participation: ParticipationResponseDto } | null>(null);
 
-  useEffect(() => {
+  const [cat, setCat] = useState<string>('all');
+  const [query, setQuery] = useState('');
+  const [freeOnly, setFreeOnly] = useState(false);
+
+  const load = useCallback(async () => {
     setLoading(true);
-    publicEventsApi.getActual(0, 100)
-      .then(res => setItems(res.items))
-      .finally(() => setLoading(false));
+    setFailed(false);
+    try {
+      const res = await publicEventsApi.getActual(0, 100);
+      setEvents([...res.items].sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()));
+    } catch (e) {
+      console.error('Error loading events:', e);
+      setFailed(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+  useEffect(() => { load(); }, [load]);
 
-  const onSearch = (v: string) => {
-    setSearchRaw(v);
-    if (timer) clearTimeout(timer);
-    setTimer(setTimeout(() => setSearch(v), 300));
+  // The user's own applications (for the "Заявка подана" state). Guests have none.
+  useEffect(() => {
+    if (!user) { setMine(new Map()); return; }
+    let alive = true;
+    eventsApi.getMyParticipations()
+      .then(list => {
+        if (!alive) return;
+        const m = new Map<string, ParticipationResponseDto>();
+        // newest application per event
+        // Отозванная заявка — это «заявки нет»: кнопка снова предлагает подать её.
+        [...list].filter(p => p.status !== 'Withdrawn').sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).forEach(p => m.set(p.eventId, p));
+        setMine(m);
+      })
+      .catch(() => { /* without it the buttons simply show "Подать заявку" */ });
+    return () => { alive = false; };
+  }, [user]);
+
+  const setBusyFor = (id: string, on: boolean) =>
+    setBusy(s => { const n = new Set(s); if (on) n.add(id); else n.delete(id); return n; });
+
+  const toggleApplication = async (ev: EventResponseDto) => {
+    if (!user) { notify('Сначала войдите в систему', 'error'); navigate('/login', { state: loginState('/events') }); return; }
+    const existing = mine.get(ev.id);
+    // Заявка на рассмотрении или принятая: сначала диалог с необязательной причиной.
+    if (existing && (existing.status === 'Approved' || existing.status === 'Pending')) { setCancelTarget({ ev, participation: existing }); return; }
+    setBusyFor(ev.id, true);
+    try {
+      if (existing && existing.status === 'Pending') {
+        await eventsApi.withdraw(existing.id);
+        setMine(m => { const n = new Map(m); n.delete(ev.id); return n; });
+        notify('Заявка отозвана', 'info');
+      } else if (!existing) {
+        const created = await eventsApi.apply(ev.id);
+        setMine(m => new Map(m).set(ev.id, created));
+        notify('Заявка подана');
+      }
+    } catch (err) {
+      notify(mapApiError(err), 'error');
+    } finally {
+      setBusyFor(ev.id, false);
+    }
   };
 
-const filtered = items.filter(ev => {
-  // Фильтр по категории ✅
-  if (cat !== 'all' && ev.category !== cat) {
-    return false;
-  }
+  const confirmCancel = async (reason: string) => {
+    if (!cancelTarget) return;
+    const { ev, participation } = cancelTarget;
+    setBusyFor(ev.id, true);
+    try {
+      await eventsApi.cancelParticipation(participation.id, reason);
+      setMine(m => { const n = new Map(m); n.delete(ev.id); return n; });
+      if (participation.status === 'Approved') setEvents(list => list.map(e => (e.id === ev.id ? { ...e, approvedCount: Math.max(0, e.approvedCount - 1) } : e)));
+      notify('Вы отказались от участия. Организатор получит уведомление.', 'info');
+      setCancelTarget(null);
+    } catch (err) {
+      notify(mapApiError(err), 'error');
+    } finally {
+      setBusyFor(ev.id, false);
+    }
+  };
 
-  // Фильтр по поиску
-  if (!search) return true;
-  const q = search.toLowerCase();
-  return ev.title.toLowerCase().includes(q) || ev.location.toLowerCase().includes(q);
-});
+  const counts = useMemo(() => {
+    const c: Record<string, number> = {};
+    events.forEach(e => { if (e.category) c[e.category] = (c[e.category] || 0) + 1; });
+    return c;
+  }, [events]);
+  const cats = CATEGORIES.filter(c => counts[c.id]); // a category without events is not shown
+  const eventDays = useMemo(() => new Set(events.map(e => dayKey(e.startsAt))), [events]);
+
+  const list = useMemo(() => {
+    // «#добро» находит тег «добро», как и поиск на сервере.
+    const q = query.trim().replace(/^#/, '').toLowerCase();
+    return events.filter(e =>
+      (cat === 'all' || e.category === cat) &&
+      (!freeOnly || seatsLeft(e) !== 0) &&
+      (!q || (e.title + ' ' + e.location + ' ' + (e.category ? CAT[e.category].label : '') + ' ' + (e.tags ?? []).join(' ')).toLowerCase().includes(q)));
+  }, [events, cat, query, freeOnly]);
+
+  const groups = useMemo(() => {
+    const m = new Map<string, EventResponseDto[]>();
+    list.forEach(e => { const k = dayKey(e.startsAt); if (!m.has(k)) m.set(k, []); m.get(k)!.push(e); });
+    return Array.from(m.entries());
+  }, [list]);
+
+  const reset = () => { setCat('all'); setQuery(''); setFreeOnly(false); };
+  const filtered = cat !== 'all' || query.trim() !== '' || freeOnly;
+
+  const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (scrollTimer.current) clearTimeout(scrollTimer.current); }, []);
+  const pickDay = (key: string) => {
+    const visible = groups.some(([k]) => k === key);
+    if (!visible) reset();
+    if (scrollTimer.current) clearTimeout(scrollTimer.current);
+    // when filters were reset the day section only exists after the next render
+    scrollTimer.current = setTimeout(() => {
+      document.getElementById('day-' + key)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, visible ? 0 : 80);
+  };
+
+  const rect = (id: string, label: string, icon: IconName, count: number) => {
+    const on = cat === id;
+    return (
+      <button key={id} type="button" onClick={() => setCat(id)} aria-pressed={on}
+        className={`inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border-[1.5px] px-3.5 text-[13.5px] font-medium ${on ? 'border-vol-accent bg-vol-accent text-vol-accent-fg' : 'border-vol-rule bg-vol-surface text-vol-fg hover:border-vol-accent hover:text-vol-accent'}`}>
+        <VolIcon n={icon} size={15} />{label}<span className="text-[12px] tabular-nums opacity-70">{count}</span>
+      </button>
+    );
+  };
+
   return (
     <>
-      {/* HERO */}
-      <section className="py-16 sm:py-24 relative overflow-hidden">
-        {/* Background image */}
-        <div className="absolute inset-0">
-          <img
-            src={PhoneMeropriyatiyaImage}
-            alt="Background"
-            className="w-full h-full object-cover"
-            style={{ objectPosition: IMAGE_POSITIONS.events }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-50/30 to-blue-50/30"></div>
-        </div>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center max-w-3xl">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-gray-900 mb-6 leading-tight">
-            Волонтёрские <span className="text-primary">мероприятия</span>
-          </h1>
-          <p className="text-lg text-gray-600 mb-8">
-            Находите события, регистрируйтесь и участвуйте в жизни Приднестровья
-          </p>
+      <section className="relative">
+        <div className="relative z-10 mx-auto grid max-w-[76rem] items-end gap-8 px-4 pb-12 pt-14 sm:px-6 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pb-16 md:pt-20">
+          <div className="min-w-0">
+            <h1 className="font-display text-[clamp(1.85rem,4.4vw,3rem)] font-extrabold leading-[1.1] tracking-tight" style={{ textWrap: 'balance' }}>
+              Волонтёрские <span className="text-vol-accent">мероприятия</span>
+            </h1>
+          </div>
+          <div className="min-w-0">
+            <p className="text-[14.5px] leading-relaxed text-vol-muted">Находите события, регистрируйтесь и участвуйте в жизни Приднестровья.</p>
+            <form className="mt-6 flex items-center gap-2 border-b-2 border-vol-fg pb-2" onSubmit={ev => ev.preventDefault()} role="search">
+              <label htmlFor="event-search" className="sr-only">Поиск мероприятий</label>
+              <span className="text-vol-fg"><VolIcon n="search" size={18} /></span>
+              <input id="event-search" type="search" value={query} onChange={ev => setQuery(ev.target.value)}
+                placeholder="Название, место, категория"
+                className="h-9 min-w-0 flex-1 bg-transparent text-[15px] text-vol-fg outline-none placeholder:text-vol-faint" />
+              <button type="submit" className="h-9 shrink-0 rounded-lg bg-vol-accent px-5 text-[13.5px] font-semibold text-vol-accent-fg hover:opacity-90">Найти</button>
+            </form>
+          </div>
         </div>
       </section>
 
-      {/* FILTERS */}
-      <div className="sticky top-16 z-30 bg-white border-b border-gray-200 shadow-sm py-4">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full md:w-96">
-              <input
-                value={searchRaw}
-                onChange={e => onSearch(e.target.value)}
-                placeholder="Поиск мероприятий..."
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary outline-none transition"
-              />
-              <i className="fas fa-search absolute left-3.5 top-3 text-gray-400" />
-            </div>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 w-full md:w-auto">
-              {CAT_OPTIONS.map(c => (
-                <button
-                  key={c.key}
-                  onClick={() => setCat(c.key as EventCategory | 'all')}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
-                    cat === c.key ? 'bg-primary text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
-                  }`}
-                >
-                  <i className={`fas ${c.icon} text-xs`} />{c.label}
-                </button>
-              ))}
-            </div>
-          </div>
+      <section className="mx-auto max-w-[76rem] px-4 sm:px-6" aria-label="Категории">
+        <div className="no-scrollbar -mx-4 flex gap-2.5 overflow-x-auto border-y border-vol-line px-4 py-6 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group">
+          {rect('all', 'Все', 'grid', events.length)}
+          {cats.map(c => rect(c.id, c.label, c.icon, counts[c.id]))}
         </div>
-      </div>
+      </section>
 
-      {/* LIST */}
-      <section className="py-12 sm:py-16 bg-gray-50 min-h-[60vh]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {loading ? (
-            <div className="flex justify-center py-24"><Spinner /></div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-24">
-              <i className="fas fa-calendar-times text-5xl text-gray-300 mb-4 block" />
-              <h3 className="text-xl font-bold text-gray-700 mb-2">Мероприятий не найдено</h3>
-              <p className="text-gray-500">Попробуйте изменить фильтры или поисковый запрос</p>
+      <section className="mx-auto max-w-[76rem] px-4 pb-24 pt-12 sm:px-6">
+        <div className="grid gap-14 lg:grid-cols-[1fr_16rem]">
+          <div className="min-w-0">
+            <div className="mb-9 flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
+              <div className="flex items-center gap-3">
+                <h2 className="text-[14px] font-semibold tabular-nums" aria-live="polite">{list.length} {plural(list.length, ['мероприятие', 'мероприятия', 'мероприятий'])}</h2>
+                {filtered && <button type="button" onClick={reset} className="text-[13px] font-medium text-vol-accent hover:underline">Сбросить фильтры</button>}
+              </div>
+              <button type="button" role="switch" aria-checked={freeOnly} onClick={() => setFreeOnly(v => !v)}
+                className="inline-flex items-center gap-2.5 text-[13px] font-medium text-vol-muted hover:text-vol-fg">
+                <span className={`relative h-5 w-9 rounded-full ${freeOnly ? 'bg-vol-accent' : 'bg-vol-rule'}`}>
+                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all ${freeOnly ? 'left-[1.1rem]' : 'left-0.5'}`} />
+                </span>
+                Только со свободными местами
+              </button>
             </div>
-          ) : (
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filtered.map(ev => {
-                const dt = fmtDate(ev.startsAt);
-                const spotsLeft = ev.maxParticipants != null ? ev.maxParticipants - ev.approvedCount : null;
-                return (
-                  <article key={ev.id} className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl hover:border-primary/30 transition-all duration-300 group flex flex-col">
-                    {/* Date + title */}
-                    <div className="p-5 flex gap-4 items-start flex-1">
-                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-primary/10 to-blue-100 rounded-xl flex flex-col items-center justify-center text-primary shadow-sm">
-                        <span className="text-xl font-bold leading-none">{dt.day}</span>
-                        <span className="text-[10px] font-bold uppercase tracking-wide">{dt.month}</span>
+
+            {loading ? (
+              <div className="flex flex-col gap-6" role="status" aria-label="Загрузка мероприятий">
+                {[0, 1, 2].map(i => <div key={i} className="h-44 animate-pulse rounded-2xl border border-vol-line bg-vol-surface" />)}
+              </div>
+            ) : failed ? (
+              <div className="rounded-2xl border-[1.5px] border-dashed border-vol-rule px-6 py-14 text-center" role="alert">
+                <p className="font-display text-[15px] font-bold">Не удалось загрузить мероприятия</p>
+                <p className="mt-1.5 text-[13px] text-vol-muted">Проверьте соединение и попробуйте ещё раз.</p>
+                <button type="button" onClick={load} className="mt-4 h-9 rounded-lg bg-vol-accent px-5 text-[13.5px] font-semibold text-vol-accent-fg hover:opacity-90">Повторить</button>
+              </div>
+            ) : groups.length ? (
+              <div className="flex flex-col gap-14">
+                {groups.map(([key, items]) => {
+                  const d = parseDay(key);
+                  return (
+                    <section key={key} id={'day-' + key} aria-label={`${d.d} ${MONTH_SHORT[d.m - 1]}`}
+                      className="relative grid scroll-mt-24 gap-4 md:grid-cols-[6.25rem_1fr] md:gap-x-8 md:before:absolute md:before:-bottom-14 md:before:left-[calc(6.25rem+1rem-0.5px)] md:before:top-3 md:before:w-px md:before:bg-vol-rule md:last:before:bottom-0">
+                      <div className="flex items-baseline gap-2.5 md:flex-col md:items-end md:gap-0 md:text-right xl:-ml-24 xl:w-[calc(100%+6rem)]">
+                        <p className="font-display text-[1.7rem] font-extrabold leading-none tabular-nums md:text-[2.5rem]">{d.d}</p>
+                        <p className="vol-label whitespace-nowrap text-vol-muted md:mt-2.5">{MONTH_SHORT[d.m - 1]} · <span className="md:hidden xl:inline">{WEEKDAYS[d.date.getDay()]}</span><span className="hidden md:inline xl:hidden">{WD_ABBR[d.date.getDay()]}</span></p>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-gray-900 text-base leading-tight mb-2 group-hover:text-primary transition line-clamp-2">
-                          {ev.title}
-                        </h3>
-                        <p className="text-gray-500 text-sm line-clamp-2 mb-3">{ev.description}</p>
-                        <div className="space-y-1 text-xs text-gray-500">
-                          <p className="flex items-center gap-1.5"><i className="far fa-clock text-primary" />{dt.full}</p>
-                          <p className="flex items-center gap-1.5"><i className="fas fa-map-marker-alt text-primary" />{ev.location}</p>
-                          {spotsLeft !== null && (
-                            <p className={`flex items-center gap-1.5 font-medium ${spotsLeft <= 5 ? 'text-orange-500' : 'text-gray-500'}`}>
-                              <i className="fas fa-users text-primary" />
-                              {spotsLeft > 0 ? `Осталось ${spotsLeft} мест` : 'Мест нет'}
-                            </p>
-                          )}
-                        </div>
+                      <span className="absolute left-[calc(6.25rem+1rem-4px)] top-[1.05rem] hidden h-2 w-2 rounded-full bg-vol-green ring-[1.5px] ring-vol-fg md:block" aria-hidden="true" />
+                      <div className="flex min-w-0 flex-col gap-6">
+                        {items.map(e => <Ticket key={e.id} e={e} mine={mine.get(e.id)} busy={busy.has(e.id)} onToggle={toggleApplication} onTag={t => setQuery('#' + t)} />)}
                       </div>
-                    </div>
-                    {/* Actions */}
-                    <div className="px-5 pb-5 flex gap-2 border-t border-gray-50 pt-3">
-                      <button
-                        onClick={() => setSelected(ev)}
-                        className="flex-1 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition flex items-center justify-center gap-1.5"
-                      >
-                        <i className="fas fa-paper-plane text-xs" />Подать заявку
-                      </button>
-                      <Link
-                        to={`/events/${ev.id}`}
-                        className="px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-200 transition no-underline flex items-center gap-1"
-                      >
-                        <i className="fas fa-info-circle text-xs" />Подробнее
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
+                    </section>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-2xl border-[1.5px] border-dashed border-vol-rule px-6 py-14 text-center">
+                <div className="mx-auto mb-4 w-28"><PeopleArt /></div>
+                <p className="font-display text-[15px] font-bold">{events.length === 0 ? 'Пока нет предстоящих мероприятий' : 'Ничего не найдено'}</p>
+                <p className="mt-1.5 text-[13px] text-vol-muted">{events.length === 0 ? 'Загляните позже: новые события появятся здесь.' : 'Измените запрос или выберите другую категорию.'}</p>
+                {events.length > 0 && <button type="button" onClick={reset} className="mt-4 h-9 rounded-lg bg-vol-accent px-5 text-[13.5px] font-semibold text-vol-accent-fg hover:opacity-90">Сбросить фильтры</button>}
+              </div>
+            )}
+          </div>
+
+          {events.length > 0 && (
+            <aside className="hidden lg:block" aria-label="Календарь">
+              <div className="sticky top-24">
+                <MiniCalendar days={eventDays} onPick={pickDay} next={events[0]} />
+              </div>
+            </aside>
           )}
         </div>
       </section>
 
-      <Modal isOpen={selected !== null} onClose={() => setSelected(null)} title="Регистрация на мероприятие">
-        {selected && <ApplyModal event={selected} onClose={() => setSelected(null)} />}
-      </Modal>
+      <CancelParticipationDialog isOpen={cancelTarget !== null} eventTitle={cancelTarget?.ev.title ?? ''} approved={cancelTarget?.participation.status === 'Approved'}
+        busy={cancelTarget ? busy.has(cancelTarget.ev.id) : false} onConfirm={confirmCancel} onClose={() => setCancelTarget(null)} />
     </>
   );
 }

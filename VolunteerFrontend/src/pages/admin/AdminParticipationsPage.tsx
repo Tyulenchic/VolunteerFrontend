@@ -1,8 +1,21 @@
+import axios from 'axios';
 import { useCallback, useEffect, useState, type ReactElement } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminApi } from '../../api/admin';
 import { useNotification } from '../../context/NotificationContext';
+import { adminErrorMessage } from '../../utils/adminErrors';
 import { Modal } from '../../components/Modal';
-import { Spinner } from '../../components/Spinner';
+import { Avatar } from '../../components/ui/Avatar';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { EmptyState, ErrorState } from '../../components/ui/PageStates';
+import { useDebounced, useLatestRequest, usePaging } from '../../hooks/useListHelpers';
+import { Pagination } from '../../components/ui/Pagination';
+import { Segmented } from '../../components/ui/Segmented';
+import { ListSkeleton } from '../../components/ui/Skeleton';
+import { STATUS_TONE, StatusBadge } from '../../components/ui/StatusBadge';
+import { PageHeader } from '../../components/ui/PageHeader';
+import { SearchInput } from '../../components/ui/Input';
 import type { AdminParticipationDto } from '../../types/admin';
 
 const TAKE = 20;
@@ -11,15 +24,10 @@ const STATUS_LABEL: Record<string, string> = {
   Pending: 'Ожидает',
   Approved: 'Одобрена',
   Rejected: 'Отклонена',
-  AttendanceConfirmed: 'Подтверждено',
+  AttendanceConfirmed: 'Присутствовал',
+  Withdrawn: 'Отозвана',
 };
 
-const STATUS_COLOR: Record<string, string> = {
-  Pending: 'bg-yellow-900/60 text-yellow-400',
-  Approved: 'bg-green-900/60 text-green-400',
-  Rejected: 'bg-red-900/60 text-red-400',
-  AttendanceConfirmed: 'bg-blue-900/60 text-blue-400',
-};
 
 type ParticipationAction =
     | 'approve'
@@ -90,60 +98,60 @@ const ACTION_CONFIG: Record<ParticipationAction, ActionConfig> = {
   approve: {
     label: 'Одобрить',
     Icon: CheckIcon,
-    iconColorClass: 'text-green-400 hover:text-green-300 hover:bg-green-900/40',
+    iconColorClass: 'text-success-700 hover:text-success-700 hover:bg-success-100',
     modalTitle: 'Одобрить заявку',
     confirmLabel: 'Одобрить',
-    confirmColorClass: 'bg-green-600 hover:bg-green-700',
+    confirmColorClass: 'bg-success-600 hover:bg-success-700',
     successMessage: 'Заявка одобрена',
     call: (id, comment) => adminApi.approveParticipation(id, comment),
   },
   reject: {
     label: 'Отклонить',
     Icon: XIcon,
-    iconColorClass: 'text-red-400 hover:text-red-300 hover:bg-red-900/40',
+    iconColorClass: 'text-danger-700 hover:text-danger-700 hover:bg-danger-100',
     modalTitle: 'Отклонить заявку',
     confirmLabel: 'Отклонить',
-    confirmColorClass: 'bg-red-600 hover:bg-red-700',
+    confirmColorClass: 'bg-danger-600 hover:bg-danger-700',
     successMessage: 'Заявка отклонена',
     call: (id, comment) => adminApi.rejectParticipation(id, comment),
   },
   'confirm-attendance': {
     label: 'Подтвердить присутствие',
     Icon: UserCheckIcon,
-    iconColorClass: 'text-blue-400 hover:text-blue-300 hover:bg-blue-900/40',
+    iconColorClass: 'text-info-700 hover:text-info-700 hover:bg-info-100',
     modalTitle: 'Подтвердить присутствие',
     confirmLabel: 'Подтвердить',
-    confirmColorClass: 'bg-blue-600 hover:bg-blue-700',
+    confirmColorClass: 'bg-info-600 hover:bg-info-700',
     successMessage: 'Присутствие подтверждено',
     call: (id, comment) => adminApi.confirmAttendance(id, comment),
   },
   'reject-approved': {
     label: 'Отклонить',
     Icon: XIcon,
-    iconColorClass: 'text-red-400 hover:text-red-300 hover:bg-red-900/40',
+    iconColorClass: 'text-danger-700 hover:text-danger-700 hover:bg-danger-100',
     modalTitle: 'Отклонить заявку',
     confirmLabel: 'Отклонить',
-    confirmColorClass: 'bg-red-600 hover:bg-red-700',
+    confirmColorClass: 'bg-danger-600 hover:bg-danger-700',
     successMessage: 'Заявка отклонена',
     call: (id, comment) => adminApi.rejectApproved(id, comment),
   },
   'return-to-pending': {
     label: 'Вернуть на рассмотрение',
     Icon: UndoIcon,
-    iconColorClass: 'text-yellow-400 hover:text-yellow-300 hover:bg-yellow-900/40',
+    iconColorClass: 'text-warning-700 hover:text-warning-700 hover:bg-warning-100',
     modalTitle: 'Вернуть заявку на рассмотрение',
     confirmLabel: 'Вернуть',
-    confirmColorClass: 'bg-yellow-600 hover:bg-yellow-700',
+    confirmColorClass: 'bg-warning-600 hover:bg-warning-700',
     successMessage: 'Заявка возвращена на рассмотрение',
     call: (id, comment) => adminApi.returnToPending(id, comment),
   },
   'revoke-attendance': {
     label: 'Отменить подтверждение присутствия',
     Icon: UndoIcon,
-    iconColorClass: 'text-yellow-400 hover:text-yellow-300 hover:bg-yellow-900/40',
+    iconColorClass: 'text-warning-700 hover:text-warning-700 hover:bg-warning-100',
     modalTitle: 'Отменить подтверждение присутствия',
     confirmLabel: 'Отменить',
-    confirmColorClass: 'bg-yellow-600 hover:bg-yellow-700',
+    confirmColorClass: 'bg-warning-600 hover:bg-warning-700',
     successMessage: 'Подтверждение присутствия отменено',
     call: (id, comment) => adminApi.revokeAttendance(id, comment),
   },
@@ -179,7 +187,9 @@ function ActionModal({ participation, action, onClose, onSuccess }: ActionModalP
       onClose();
     } catch (e) {
       console.error('Error performing action:', e);
-      notify('Ошибка при выполнении действия', 'error');
+      notify(adminErrorMessage(e, 'Не удалось выполнить действие'), 'error');
+      // The application changed meanwhile (withdrawn by the volunteer, decided by another organizer): the list on screen is stale.
+      if (axios.isAxiosError(e) && [400, 404, 409].includes(e.response?.status ?? 0)) { onSuccess(); onClose(); }
     } finally {
       setLoading(false);
     }
@@ -188,23 +198,23 @@ function ActionModal({ participation, action, onClose, onSuccess }: ActionModalP
   return (
       <div className="space-y-4">
         <div>
-          <p className="text-gray-400 text-sm mb-2">Пользователь</p>
-          <p className="text-white font-medium">{participation.userName}</p>
-          <p className="text-gray-500 text-xs">{participation.userEmail}</p>
+          <p className="text-ink-500 text-sm mb-2">Пользователь</p>
+          <p className="text-ink-900 font-medium">{participation.userName}</p>
+          <p className="text-ink-400 text-xs">{participation.userEmail}</p>
         </div>
 
         <div>
-          <p className="text-gray-400 text-sm mb-2">Мероприятие</p>
-          <p className="text-white font-medium">{participation.eventTitle}</p>
+          <p className="text-ink-500 text-sm mb-2">Мероприятие</p>
+          <p className="text-ink-900 font-medium">{participation.eventTitle}</p>
         </div>
 
         <div>
-          <label className="text-gray-400 text-sm mb-2 block">Комментарий (опционально)</label>
+          <label className="block text-[13px] font-medium text-ink-700 mb-1.5">Комментарий (опционально)</label>
           <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Добавьте комментарий..."
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary resize-none"
+              className="w-full bg-surface-2 border border-line-strong rounded-lg px-3 py-2 text-ink-900 placeholder-ink-400 focus:outline-none focus:border-brand-500 resize-none"
               rows={4}
           />
         </div>
@@ -213,13 +223,13 @@ function ActionModal({ participation, action, onClose, onSuccess }: ActionModalP
           <button
               onClick={handleAction}
               disabled={loading}
-              className={`flex-1 px-4 py-2 ${config.confirmColorClass} disabled:bg-gray-700 text-white font-medium rounded-lg transition`}
+              className={`flex-1 px-4 py-2 ${config.confirmColorClass} disabled:bg-ink-300 text-ink-900 font-medium rounded-lg transition`}
           >
             {loading ? 'Загрузка...' : config.confirmLabel}
           </button>
           <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition"
+              className="btn btn-secondary"
           >
             Отмена
           </button>
@@ -263,7 +273,7 @@ function CommentModal({ participation, onClose, onSuccess }: CommentModalProps) 
       onClose();
     } catch (e) {
       console.error('Error saving comment:', e);
-      notify('Ошибка при сохранении комментария', 'error');
+      notify(adminErrorMessage(e, 'Не удалось сохранить комментарий'), 'error');
     } finally {
       setLoading(false);
     }
@@ -272,23 +282,23 @@ function CommentModal({ participation, onClose, onSuccess }: CommentModalProps) 
   return (
       <div className="space-y-4">
         <div>
-          <p className="text-gray-400 text-sm mb-2">Пользователь</p>
-          <p className="text-white font-medium">{participation.userName}</p>
-          <p className="text-gray-500 text-xs">{participation.userEmail}</p>
+          <p className="text-ink-500 text-sm mb-2">Пользователь</p>
+          <p className="text-ink-900 font-medium">{participation.userName}</p>
+          <p className="text-ink-400 text-xs">{participation.userEmail}</p>
         </div>
 
         <div>
-          <p className="text-gray-400 text-sm mb-2">Мероприятие</p>
-          <p className="text-white font-medium">{participation.eventTitle}</p>
+          <p className="text-ink-500 text-sm mb-2">Мероприятие</p>
+          <p className="text-ink-900 font-medium">{participation.eventTitle}</p>
         </div>
 
         <div>
-          <label className="text-gray-400 text-sm mb-2 block">Комментарий администратора</label>
+          <label className="block text-[13px] font-medium text-ink-700 mb-1.5">Комментарий администратора</label>
           <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Комментарий..."
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary resize-none"
+              className="w-full bg-surface-2 border border-line-strong rounded-lg px-3 py-2 text-ink-900 placeholder-ink-400 focus:outline-none focus:border-brand-500 resize-none"
               rows={4}
           />
         </div>
@@ -297,13 +307,13 @@ function CommentModal({ participation, onClose, onSuccess }: CommentModalProps) 
           <button
               onClick={handleSave}
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 disabled:bg-gray-700 text-white font-medium rounded-lg transition"
+              className="btn btn-primary flex-1"
           >
             {loading ? 'Загрузка...' : 'Сохранить'}
           </button>
           <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition"
+              className="btn btn-secondary"
           >
             Отмена
           </button>
@@ -315,33 +325,43 @@ function CommentModal({ participation, onClose, onSuccess }: CommentModalProps) 
 export function AdminParticipationsPage() {
   const [participations, setParticipations] = useState<AdminParticipationDto[]>([]);
   const [total, setTotal] = useState(0);
-  const [skip, setSkip] = useState(0);
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<string>('');
-  const [loading, setLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounced(searchInput);
+  const [params, setParams] = useSearchParams();
+  // Same default as before (all statuses); the dashboard links here with ?status=Pending.
+  const status = params.get('status') ?? '';
+  const setStatus = (v: string) => setParams({ status: v }, { replace: true });
+  const [skip, setSkip] = usePaging(`${search}|${status}`);
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const beginRequest = useLatestRequest();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [actionModal, setActionModal] = useState<{ participation: AdminParticipationDto; action: ParticipationAction } | null>(null);
   const [commentModal, setCommentModal] = useState<AdminParticipationDto | null>(null);
   const { notify } = useNotification();
 
   const load = useCallback(async () => {
+    const isCurrent = beginRequest();
     setLoading(true);
+    setFailed(false);
     try {
       const res = await adminApi.getParticipations(skip, TAKE, search || undefined, status || undefined);
-      // ✅ Исправление: защита от undefined
+      if (!isCurrent()) return;
       setParticipations(res.Items || []);
       setTotal(res.Total || 0);
     } catch (e) {
+      if (!isCurrent()) return;
       console.error('Error loading participations:', e);
-      setParticipations([]); // ✅ установить пустой массив при ошибке
+      setParticipations([]);
       setTotal(0);
+      setFailed(true);
     } finally {
-      setLoading(false);
+      if (isCurrent()) setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip, search, status]);
 
   useEffect(() => {
-    setSkip(0);
     setSelectedIds(new Set());
   }, [search, status]);
 
@@ -386,7 +406,7 @@ export function AdminParticipationsPage() {
       load();
     } catch (e) {
       console.error('Error bulk approving:', e);
-      notify('Ошибка при одобрении заявок', 'error');
+      notify(adminErrorMessage(e, 'Не удалось одобрить заявки'), 'error');
     }
   };
 
@@ -403,7 +423,7 @@ export function AdminParticipationsPage() {
       load();
     } catch (e) {
       console.error('Error bulk rejecting:', e);
-      notify('Ошибка при отклонении заявок', 'error');
+      notify(adminErrorMessage(e, 'Не удалось отклонить заявки'), 'error');
     }
   };
 
@@ -427,195 +447,116 @@ export function AdminParticipationsPage() {
     setSelectedIds(newIds);
   };
 
-  const pages = Math.ceil(total / TAKE) || 1;
-  const currentPage = Math.floor(skip / TAKE) + 1;
 
   return (
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-white">Заявки</h1>
-          <p className="text-gray-500 text-sm mt-1">Управление заявками на участие</p>
+        <PageHeader title="Заявки" description="Заявки волонтёров на участие. Ожидающие решения выделены цветом." />
+
+        <div className="flex flex-wrap items-center gap-3">
+          <Segmented label="Статус заявки" value={status} onChange={setStatus}
+            options={[
+              { value: '', label: 'Все' },
+              { value: 'Pending', label: 'Ожидают' },
+              { value: 'Approved', label: 'Одобрены' },
+              { value: 'AttendanceConfirmed', label: 'Присутствовали' },
+              { value: 'Rejected', label: 'Отклонены' },
+              { value: 'Withdrawn', label: 'Отозваны' },
+            ]} />
+          <SearchInput label="Поиск по заявкам" placeholder="Волонтёр или мероприятие…" value={searchInput} onChange={setSearchInput} />
         </div>
 
-        {/* Filters */}
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5 space-y-4">
-          <div>
-            <label className="text-gray-400 text-sm mb-2 block">Поиск</label>
-            <input
-                type="text"
-                placeholder="Пользователь или мероприятие..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary"
-            />
-          </div>
-
-          <div>
-            <label className="text-gray-400 text-sm mb-2 block">Статус</label>
-            <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary"
-            >
-              <option value="">Все статусы</option>
-              <option value="Pending">Ожидают</option>
-              <option value="Approved">Одобрены</option>
-              <option value="Rejected">Отклонены</option>
-              <option value="AttendanceConfirmed">Подтверждено</option>
-            </select>
-          </div>
-
-          {/* Bulk Actions */}
+        <Card className="overflow-hidden">
           {selectedIds.size > 0 && (
-              <div className="flex gap-2 pt-2 border-t border-gray-700">
-                <button
-                    onClick={handleBulkApprove}
-                    className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition"
-                >
-                  Одобрить ({selectedIds.size})
-                </button>
-                <button
-                    onClick={handleBulkReject}
-                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition"
-                >
-                  Отклонить ({selectedIds.size})
-                </button>
+            <div className="glass sticky top-0 z-10 flex flex-wrap items-center gap-3 px-4 py-2.5 border-b border-line-strong">
+              <span className="text-[13px] text-ink-900 font-medium">Выбрано: {selectedIds.size}</span>
+              <div className="flex gap-2 ml-auto">
+                <Button size="sm" variant="success" onClick={handleBulkApprove}><i className="fas fa-check" />Одобрить</Button>
+                <Button size="sm" variant="secondary" onClick={handleBulkReject}>Отклонить</Button>
+                <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>Снять выбор</Button>
               </div>
-          )}
-        </div>
-
-        {/* Loading */}
-        {loading && (
-            <div className="flex items-center justify-center py-12">
-              <Spinner />
             </div>
-        )}
-
-        {/* Participations Table */}
-        {!loading && (
-            <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-800/50 border-b border-gray-700">
+          )}
+          {loading && participations.length === 0 ? (
+            <ListSkeleton rows={8} />
+          ) : failed ? (
+            <ErrorState message="Не удалось загрузить заявки" onRetry={load} />
+          ) : participations.length === 0 ? (
+            <EmptyState icon="fa-clipboard-check"
+              title={status === 'Pending' && !searchInput ? 'Нет заявок, ожидающих решения' : 'Заявки не найдены'}
+              hint={status === 'Pending' && !searchInput ? 'Когда волонтёры подадут новые заявки, они появятся здесь.' : 'Измените поиск или выберите другой статус.'}
+              action={(status || searchInput) ? <Button variant="secondary" size="sm" onClick={() => { setSearchInput(''); setStatus(''); }}>Показать все заявки</Button> : undefined} />
+          ) : (
+            <div className={`relative overflow-x-auto scroll-soft transition-opacity ${loading ? 'opacity-60' : ''}`}>
+              <table className="rtable w-full text-sm">
+                <thead>
                   <tr>
-                    <th className="px-4 py-3 text-left w-10">
+                    <th className="pl-4 pr-1 w-10 text-left">
                       {pendingParticipations.length > 0 && (
-                          <input
-                              type="checkbox"
-                              checked={allPendingSelected}
-                              onChange={toggleSelectAll}
-                              title="Выбрать все заявки в ожидании"
-                              className="w-4 h-4 rounded border-gray-600 cursor-pointer"
-                          />
+                        <input type="checkbox" checked={allPendingSelected} onChange={toggleSelectAll} aria-label="Выбрать все ожидающие заявки" title="Выбрать все заявки в ожидании" className="w-4 h-4 rounded cursor-pointer" />
                       )}
                     </th>
-                    <th className="px-4 py-3 text-left text-gray-300">Пользователь</th>
-                    <th className="px-4 py-3 text-left text-gray-300">Мероприятие</th>
-                    <th className="px-4 py-3 text-center text-gray-300">Статус</th>
-                    <th className="px-4 py-3 text-center text-gray-300">Дата</th>
-                    <th className="px-4 py-3 text-center text-gray-300">Действия</th>
+                    <th className="px-4 text-left">Волонтёр</th>
+                    <th className="px-4 text-left">Мероприятие</th>
+                    <th className="px-4 text-left hidden md:table-cell">Подана</th>
+                    <th className="px-4 text-left">Статус</th>
+                    <th className="px-4 text-right">Действия</th>
                   </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-800">
-                  {participations.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-                          Заявки не найдены
+                </thead>
+                <tbody className="divide-y divide-line">
+                  {participations.map((p) => {
+                    const actions = STATUS_ACTIONS[p.status] || [];
+                    const isPending = p.status === 'Pending';
+                    return (
+                      <tr key={p.id} className={isPending ? 'bg-warning-50/40 shadow-[inset_3px_0_0_0_#d9962a]' : ''}>
+                        <td className="pl-4 pr-1 py-3">
+                          {isPending && (
+                            <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => toggleSelect(p.id)} aria-label={`Выбрать заявку: ${p.userName}`} className="w-4 h-4 rounded cursor-pointer" />
+                          )}
+                        </td>
+                        <td className="px-4 py-3 rt-grow">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <Avatar name={p.userName} />
+                            <div className="min-w-0">
+                              <p className="font-medium text-ink-900 truncate max-w-[14rem]">{p.userName}</p>
+                              <p className="meta truncate max-w-[14rem]">{p.userEmail}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-ink-700 rt-full">
+                          <p className="line-clamp-2 max-w-[20rem]">{p.eventTitle}</p>
+                          {p.adminComment && <p className="meta mt-0.5 line-clamp-1 max-w-[20rem]"><i className="far fa-comment mr-1" />{p.adminComment}</p>}
+                          {p.withdrawalReason && <p className="meta mt-0.5 line-clamp-2 max-w-[20rem]" title={p.withdrawalReason}><i className="far fa-comment-dots mr-1" />Волонтёр: {p.withdrawalReason}</p>}
+                        </td>
+                        <td className="px-4 py-3 hidden md:table-cell text-ink-500 whitespace-nowrap">{new Date(p.createdAt).toLocaleDateString('ru-RU')}</td>
+                        <td className="px-4 py-3"><StatusBadge tone={STATUS_TONE[p.status] ?? 'neutral'}>{STATUS_LABEL[p.status] ?? p.status}</StatusBadge></td>
+                        <td className="px-4 py-3 rt-end">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {isPending ? (
+                              <>
+                                <Button size="sm" variant="success" onClick={() => setActionModal({ participation: p, action: 'approve' })}><i className="fas fa-check" />Одобрить</Button>
+                                <Button size="sm" variant="secondary" onClick={() => setActionModal({ participation: p, action: 'reject' })}>Отклонить</Button>
+                              </>
+                            ) : actions.map((action) => {
+                              const config = ACTION_CONFIG[action];
+                              const Icon = config.Icon;
+                              return (
+                                <button key={action} onClick={() => setActionModal({ participation: p, action })} title={config.label} aria-label={config.label} className={`p-1.5 rounded-lg transition ${config.iconColorClass}`}>
+                                  <Icon className="w-4 h-4" />
+                                </button>
+                              );
+                            })}
+                            <button onClick={() => setCommentModal(p)} title="Комментарий" aria-label="Комментарий" className="icon-btn"><CommentIcon className="w-4 h-4" /></button>
+                          </div>
                         </td>
                       </tr>
-                  ) : (
-                      participations.map((p) => {
-                        const actions = STATUS_ACTIONS[p.status] || [];
-                        return (
-                            <tr key={p.id} className="hover:bg-gray-800/50 transition">
-                              <td className="px-4 py-3">
-                                {p.status === 'Pending' && (
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedIds.has(p.id)}
-                                        onChange={() => toggleSelect(p.id)}
-                                        className="w-4 h-4 rounded border-gray-600 cursor-pointer"
-                                    />
-                                )}
-                              </td>
-                              <td className="px-4 py-3">
-                                <div className="text-white font-medium">{p.userName}</div>
-                                <div className="text-gray-500 text-xs">{p.userEmail}</div>
-                              </td>
-                              <td className="px-4 py-3 text-gray-300">{p.eventTitle}</td>
-                              <td className="px-4 py-3 text-center">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLOR[p.status]}`}>
-                            {STATUS_LABEL[p.status]}
-                          </span>
-                              </td>
-                              <td className="px-4 py-3 text-center text-gray-400">
-                                {new Date(p.createdAt).toLocaleDateString('ru-RU')}
-                              </td>
-                              <td className="px-4 py-3">
-                                <div className="flex items-center justify-center gap-1.5">
-                                  {actions.map((action) => {
-                                    const config = ACTION_CONFIG[action];
-                                    const Icon = config.Icon;
-                                    return (
-                                        <button
-                                            key={action}
-                                            onClick={() => setActionModal({ participation: p, action })}
-                                            title={config.label}
-                                            aria-label={config.label}
-                                            className={`p-1.5 rounded-lg transition ${config.iconColorClass}`}
-                                        >
-                                          <Icon className="w-4 h-4" />
-                                        </button>
-                                    );
-                                  })}
-                                  <button
-                                      onClick={() => setCommentModal(p)}
-                                      title="Комментарий"
-                                      aria-label="Комментарий"
-                                      className="p-1.5 rounded-lg transition text-gray-400 hover:text-gray-200 hover:bg-gray-700/60"
-                                  >
-                                    <CommentIcon className="w-4 h-4" />
-                                  </button>
-                                </div>
-                                {p.adminComment && (
-                                    <div className="text-gray-500 text-xs mt-1 text-center">
-                                      Комментарий: {p.adminComment}
-                                    </div>
-                                )}
-                              </td>
-                            </tr>
-                        );
-                      })
-                  )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              <div className="px-4 py-4 border-t border-gray-800 flex items-center justify-between">
-                <div className="text-sm text-gray-400">
-                  Страница {currentPage} из {pages || 1} • Всего: {total}
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                      onClick={() => setSkip(Math.max(0, skip - TAKE))}
-                      disabled={skip === 0}
-                      className="px-3 py-1 bg-gray-800 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-600 text-white rounded text-sm transition"
-                  >
-                    ← Назад
-                  </button>
-                  <button
-                      onClick={() => setSkip(skip + TAKE)}
-                      disabled={currentPage >= pages}
-                      className="px-3 py-1 bg-gray-800 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-600 text-white rounded text-sm transition"
-                  >
-                    Далее →
-                  </button>
-                </div>
-              </div>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-        )}
+          )}
+          <Pagination skip={skip} take={TAKE} total={total} onChange={setSkip} />
+        </Card>
 
         {/* Action Modal */}
         {actionModal && (

@@ -1,0 +1,2420 @@
+[
+  {
+    "legacyId": "rmtl",
+    "name": "ГОУ «Республиканский молдавский теоретический лицей-комплекс»",
+    "shortName": "Республиканский молдавский ТЛК",
+    "description": "Волонтёрское движение «Приетиние» объединяет экологическое, патриотическое, культурное и социальное направления добровольчества.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Eco",
+      "Social",
+      "Cultural",
+      "Patriotic"
+    ],
+    "contactPhone": "779 56497 / 778 31707",
+    "contactEmail": "rmtl@list.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Приетиние («Дружба»)",
+        "directions": [
+          "Ecological",
+          "Patriotic",
+          "Cultural",
+          "Social"
+        ],
+        "leaderName": "Греча Светлана Леонидовна / Мицул Елена Михайловна",
+        "phone": "779 56497 / 778 31707",
+        "email": "rmtl@list.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school3-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа № 3 им. А.П. Чехова»",
+    "shortName": "Школа № 3 им. А.П. Чехова",
+    "description": "Четыре волонтёрских движения охватывают культурное, спортивное, патриотическое, социальное и экологическое направления.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Patriotic",
+      "Eco",
+      "Sport",
+      "Cultural"
+    ],
+    "contactPhone": "778 29886",
+    "contactEmail": null,
+    "website": null,
+    "movements": [
+      {
+        "name": "Лидер-доброволец",
+        "directions": [
+          "Cultural",
+          "Sport"
+        ],
+        "leaderName": "Кичкина Валерия Владиславовна",
+        "phone": "778 29886",
+        "email": null
+      },
+      {
+        "name": "Звезда",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Банцгаф Павел Юрьевич",
+        "phone": "779 40395",
+        "email": null
+      },
+      {
+        "name": "Автостоп",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Кичкина Валерия Владиславовна",
+        "phone": "778 29886",
+        "email": null
+      },
+      {
+        "name": "Шрек 3",
+        "directions": [
+          "Ecological"
+        ],
+        "leaderName": "Метелева Наталья Юрьевна",
+        "phone": "777 90480",
+        "email": null
+      }
+    ]
+  },
+  {
+    "legacyId": "school5-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа №5»",
+    "shortName": "Школа № 5",
+    "description": "Широкий спектр: от зооволонтерства и экологии до патриотического воспитания и безопасности дорожного движения.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Patriotic",
+      "Eco",
+      "Cultural",
+      "Sport",
+      "Zoo"
+    ],
+    "contactPhone": "778 54895",
+    "contactEmail": "katyusha0988@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "Social",
+          "CivicPatriotic",
+          "Cultural",
+          "Ecological",
+          "Zoo",
+          "Sport"
+        ],
+        "leaderName": "Литвякова Екатерина Александровна",
+        "phone": "778 54895",
+        "email": "katyusha0988@mail.ru"
+      },
+      {
+        "name": "Юный эколог Приднестровья",
+        "directions": [
+          "Ecological",
+          "Zoo"
+        ],
+        "leaderName": "Крамаренко Елена Павловна",
+        "phone": "777 97530",
+        "email": "llesya1983@mail.ru"
+      },
+      {
+        "name": "Юный инспектор дорожного движения",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Усова Ольга Григорьевна",
+        "phone": "777 73473",
+        "email": "vsova-ojga1971@mail.ru"
+      },
+      {
+        "name": "Юный патриот Приднестровья",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Пурчел Виктор Иванович",
+        "phone": "777 82713",
+        "email": null
+      }
+    ]
+  },
+  {
+    "legacyId": "school7-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа №7»",
+    "shortName": "Школа № 7",
+    "description": "Четыре активных отряда: социальный, экологический, патриотический и по безопасности дорожного движения.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Eco",
+      "Patriotic"
+    ],
+    "contactPhone": "778 43701",
+    "contactEmail": "77843701@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Ковальчук Вера Михайловна",
+        "phone": "778 43701",
+        "email": "77843701@mail.ru"
+      },
+      {
+        "name": "ЭКО отряд",
+        "directions": [
+          "Ecological"
+        ],
+        "leaderName": "Боярчук Д.Е.",
+        "phone": "778 25053",
+        "email": "kudelinad@mail.ru"
+      },
+      {
+        "name": "ЮПП",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Станишевская В.И.",
+        "phone": "0778 14700",
+        "email": "stanishevskaja62@mail.ru"
+      },
+      {
+        "name": "ЮИД",
+        "directions": [],
+        "leaderName": "Ковальчук Вера Михайловна",
+        "phone": "778 43701",
+        "email": "77843701@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school8-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа-комплекс №8»",
+    "shortName": "Школа-комплекс № 8",
+    "description": "Разнообразная волонтёрская деятельность: от спорта и культуры до экопатруля и гражданского воспитания.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Patriotic",
+      "Eco",
+      "Cultural",
+      "Sport"
+    ],
+    "contactPhone": "777 51241",
+    "contactEmail": "i.k.kuruch@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Мы рядом!",
+        "directions": [
+          "Social",
+          "Cultural",
+          "Sport"
+        ],
+        "leaderName": "Куруч Ирина Константиновна",
+        "phone": "777 51241",
+        "email": "i.k.kuruch@gmail.com"
+      },
+      {
+        "name": "Родина",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Мошин Сергей Николаевич",
+        "phone": "779 40478",
+        "email": "mosinsergej36@gmail.com"
+      },
+      {
+        "name": "Экопатруль / Экология и жизнь",
+        "directions": [
+          "Ecological"
+        ],
+        "leaderName": "Дукрин Ирина Викторовна",
+        "phone": "777 98998",
+        "email": "rina-1985@mail.ru"
+      },
+      {
+        "name": "ЮИД",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Латий Анастасия Юрьевна",
+        "phone": "779 86761",
+        "email": "angel_1404@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school9-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа № 9 им. С.А. Крупко»",
+    "shortName": "Школа № 9 им. С.А. Крупко",
+    "description": "Движение «ШАНС» — пять направлений в одном: социальное, экология, спорт, патриотика и помощь животным.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Eco",
+      "Sport",
+      "Patriotic",
+      "Zoo"
+    ],
+    "contactPhone": "777 17494",
+    "contactEmail": "oyungova@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "ШАНС",
+        "directions": [
+          "Social",
+          "Ecological",
+          "Sport",
+          "Patriotic",
+          "Zoo"
+        ],
+        "leaderName": "Юнгова Ольга Васильевна",
+        "phone": "777 17494",
+        "email": "oyungova@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school10-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа №10»",
+    "shortName": "Школа № 10",
+    "description": "Волонтёрское движение «Добрый след» направлено на социальную поддержку нуждающихся.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social"
+    ],
+    "contactPhone": "777 08199",
+    "contactEmail": "i.a.yankovskaya@yandex.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Добрый след",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Янковская Ирина Александровна",
+        "phone": "777 08199",
+        "email": "i.a.yankovskaya@yandex.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school11-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа №11»",
+    "shortName": "Школа № 11",
+    "description": "«Наследники Победы» ведут социальную и патриотическую работу с молодёжью.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Patriotic"
+    ],
+    "contactPhone": "778 60757",
+    "contactEmail": "alena_vlasova_88@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Наследники Победы",
+        "directions": [
+          "Social",
+          "CivicPatriotic"
+        ],
+        "leaderName": "Власова А.О.",
+        "phone": "778 60757",
+        "email": "alena_vlasova_88@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school12-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа-комплекс №12»",
+    "shortName": "Школа-комплекс № 12",
+    "description": "Отряд «Юные волонтеры» объединяет школьников в социальных и патриотических инициативах.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Patriotic"
+    ],
+    "contactPhone": "777 72288",
+    "contactEmail": null,
+    "website": null,
+    "movements": [
+      {
+        "name": "Юные волонтеры",
+        "directions": [
+          "Social",
+          "CivicPatriotic"
+        ],
+        "leaderName": "Чабанюк Елена Петровна",
+        "phone": "777 72288",
+        "email": null
+      }
+    ]
+  },
+  {
+    "legacyId": "school14-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа №14»",
+    "shortName": "Школа № 14",
+    "description": "Три отряда: безопасность на дорогах, патриотика и зооволонтерство с природоохранными акциями.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Patriotic",
+      "Eco",
+      "Zoo"
+    ],
+    "contactPhone": "777 44430",
+    "contactEmail": null,
+    "website": null,
+    "movements": [
+      {
+        "name": "ЮИД",
+        "directions": [],
+        "leaderName": "Терещенко А.Г.",
+        "phone": "777 44430",
+        "email": null
+      },
+      {
+        "name": "ЮПП",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Руденко А.А.",
+        "phone": "778 49249",
+        "email": null
+      },
+      {
+        "name": "ЮЭП",
+        "directions": [
+          "Zoo"
+        ],
+        "leaderName": "Дога И.Н.",
+        "phone": "777 26073",
+        "email": null
+      }
+    ]
+  },
+  {
+    "legacyId": "school15-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа №15»",
+    "shortName": "Школа № 15",
+    "description": "Бренд «DOбро» объединяет три отряда по социальному, экологическому и патриотическому направлениям.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Eco",
+      "Patriotic"
+    ],
+    "contactPhone": "777 18644",
+    "contactEmail": "stavr1999@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "DOбро (социальное)",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Флока Елена Леонидовна",
+        "phone": "777 18644",
+        "email": "stavr1999@mail.ru"
+      },
+      {
+        "name": "DOбро (экологическое)",
+        "directions": [
+          "Ecological"
+        ],
+        "leaderName": "Кириленко Елена Федоровна",
+        "phone": "778 76509",
+        "email": null
+      },
+      {
+        "name": "DOбро (патриотическое)",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Фрига Ирина Анатольевна",
+        "phone": "779 91649",
+        "email": "irafriga5@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "school16-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа №16»",
+    "shortName": "Школа № 16",
+    "description": "Движение «Пегас» реализует гражданско-патриотическое воспитание среди школьников.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "778 90547",
+    "contactEmail": null,
+    "website": null,
+    "movements": [
+      {
+        "name": "Пегас",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Дудка Марианна Алексеевна",
+        "phone": "778 90547",
+        "email": null
+      }
+    ]
+  },
+  {
+    "legacyId": "school18-tiraspol",
+    "name": "МОУ «Тираспольская средняя школа с гимназическими классами №18»",
+    "shortName": "Школа № 18 (с гимн. классами)",
+    "description": "Патриотическое движение «Волонтёры Победы» сохраняет историческую память.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "777 65945",
+    "contactEmail": "yordan00@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Йордан Надежда Анатольевна",
+        "phone": "777 65945",
+        "email": "yordan00@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "gymn-tiraspol",
+    "name": "МОУ «Тираспольская гуманитарно-математическая гимназия»",
+    "shortName": "Гуманитарно-математическая гимназия",
+    "description": "Гимназия реализует три движения: социальное «Поколение добра», патриотическое «Забота рядом» и экологическое «ЭкоРитм».",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Patriotic",
+      "Eco"
+    ],
+    "contactPhone": "775 98344",
+    "contactEmail": "gymnasia-vr-61@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Поколение добра",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Телегина Анастасия Игоревна",
+        "phone": "775 98344",
+        "email": "gymnasia-vr-61@mail.ru"
+      },
+      {
+        "name": "Забота рядом",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Китикарь Зинаида Дмитриевна",
+        "phone": "777 50322",
+        "email": "gymnasia-vr-61@mail.ru"
+      },
+      {
+        "name": "ЭкоРитм",
+        "directions": [
+          "Ecological"
+        ],
+        "leaderName": "Савинкина Галина Александровна",
+        "phone": "778 30230",
+        "email": "gymnasia-vr-61@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "lyceum-tiraspol",
+    "name": "МОУ «Тираспольский общеобразовательный теоретический лицей»",
+    "shortName": "Тираспольский ОТ Лицей",
+    "description": "Движение «Твори добро» охватывает социальное, культурное и экологическое волонтерство.",
+    "city": "Тирасполь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Cultural",
+      "Eco"
+    ],
+    "contactPhone": "777 74966",
+    "contactEmail": "marinchik0728@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Твори добро",
+        "directions": [
+          "Social",
+          "Cultural",
+          "Ecological"
+        ],
+        "leaderName": "Калачёва Марина Владимировна / Барбулат Ольга Вячеславовна",
+        "phone": "777 74966",
+        "email": "marinchik0728@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "lyceum-benders",
+    "name": "МОУ «Бендерский теоретический лицей им. Л.С. Берга»",
+    "shortName": "ТЛ им. Л.С. Берга",
+    "description": "Движение «Волонтёры Победы» занимается гражданско-патриотическим воспитанием молодёжи.",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "777 03765",
+    "contactEmail": "benderytl@yandex.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Цуркан И.А.",
+        "phone": "777 03765",
+        "email": "benderytl@yandex.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "gymn3-benders",
+    "name": "МОУ «Бендерская гимназия №3 им. И.П. Котляревского»",
+    "shortName": "Гимназия № 3 им. Котляревского",
+    "description": "Отряд «Следопыт» совмещает экологические инициативы с патриотическим воспитанием.",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Eco",
+      "Patriotic"
+    ],
+    "contactPhone": "778 50016",
+    "contactEmail": "sveta.borishchuk@jmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Отряд «Следопыт»",
+        "directions": [
+          "Ecological",
+          "CivicPatriotic"
+        ],
+        "leaderName": "Борищук С.В.",
+        "phone": "778 50016",
+        "email": "sveta.borishchuk@jmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "school2-benders",
+    "name": "МОУ «Бендерская средняя общеобразовательная школа №2»",
+    "shortName": "Школа № 2 (Бендеры)",
+    "description": "Патриотическое «Доброе сердце» и экологический «Зелёный патруль» — два активных движения школы.",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Eco"
+    ],
+    "contactPhone": "777 34224",
+    "contactEmail": "jeniagrigorenko.74z@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Доброе сердце",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Григоренко Е.С.",
+        "phone": "777 34224",
+        "email": "jeniagrigorenko.74z@gmail.com"
+      },
+      {
+        "name": "Зеленый патруль",
+        "directions": [
+          "Ecological"
+        ],
+        "leaderName": "Грудко Е.И.",
+        "phone": "775 65759",
+        "email": "ekaterinagrudko38@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "school5-benders",
+    "name": "МОУ «Бендерская средняя общеобразовательная школа №5»",
+    "shortName": "Школа № 5 (Бендеры)",
+    "description": "Движение «Открытые сердца» объединяет экологическое, социальное и культурно-массовое направления.",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Eco",
+      "Social",
+      "Cultural"
+    ],
+    "contactPhone": "778 48228",
+    "contactEmail": "grinkosvetlana388@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Открытые сердца",
+        "directions": [
+          "Ecological",
+          "Social",
+          "Cultural"
+        ],
+        "leaderName": "Гринько С.И.",
+        "phone": "778 48228",
+        "email": "grinkosvetlana388@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "school11-benders",
+    "name": "МОУ «Бендерская средняя общеобразовательная школа № 11 им. Ю.А. Гагарина»",
+    "shortName": "Школа № 11 им. Гагарина",
+    "description": "Движение «Волонтёры Победы» им. Гагарина ведёт гражданско-патриотическую работу.",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "778 77463",
+    "contactEmail": "burukina.1965@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Бурыкина В.Т.",
+        "phone": "778 77463",
+        "email": "burukina.1965@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "school13-benders",
+    "name": "МОУ «Бендерская средняя общеобразовательная школа №13»",
+    "shortName": "Школа № 13 (Бендеры)",
+    "description": "Объединённое движение «Волонтёры Победы» и «3D» — патриотика, история и творчество.",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Cultural"
+    ],
+    "contactPhone": "777 54396",
+    "contactEmail": "tanechka.kazakova.81@inbox.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы / 3D. Делаем добрые дела",
+        "directions": [
+          "CivicPatriotic",
+          "Patriotic"
+        ],
+        "leaderName": "Казакова Т.А.",
+        "phone": "777 54396",
+        "email": "tanechka.kazakova.81@inbox.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school14-benders",
+    "name": "МОУ «Бендерская средняя общеобразовательная школа №14»",
+    "shortName": "Школа № 14 (Бендеры)",
+    "description": "Движение «Волонтёры Победы» ведёт гражданско-патриотическую деятельность.",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "775 15519",
+    "contactEmail": "vlezhu1973@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Влежу Л.Г.",
+        "phone": "775 15519",
+        "email": "vlezhu1973@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school15-benders",
+    "name": "МОУ «Бендерская средняя общеобразовательная школа №15»",
+    "shortName": "Школа № 15 (Бендеры)",
+    "description": "Гражданско-патриотическое движение «Волонтёры Победы».",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "777 12274",
+    "contactEmail": "zaiceva1983@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Зайцева М.П.",
+        "phone": "777 12274",
+        "email": "zaiceva1983@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school16-benders",
+    "name": "МОУ «Бендерская средняя общеобразовательная школа №16»",
+    "shortName": "Школа № 16 (Бендеры)",
+    "description": "«Добрые сердца» — социальное и патриотическое добровольчество.",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Patriotic"
+    ],
+    "contactPhone": "779 07804",
+    "contactEmail": "anjelik-katy@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "ДОБРЫЕ СЕРДЦА",
+        "directions": [
+          "Social",
+          "CivicPatriotic"
+        ],
+        "leaderName": "Клёван А.Д.",
+        "phone": "779 07804",
+        "email": "anjelik-katy@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school17-benders",
+    "name": "МОУ «Бендерская средняя общеобразовательная школа №17»",
+    "shortName": "Школа № 17 (Бендеры)",
+    "description": "Движение «Волонтёры Победы» охватывает социальное, экологическое и патриотическое направления.",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Eco",
+      "Patriotic"
+    ],
+    "contactPhone": "777 01691",
+    "contactEmail": "marina.kovtun.66@list.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "Social",
+          "Ecological",
+          "Patriotic"
+        ],
+        "leaderName": "Ковтун М.С.",
+        "phone": "777 01691",
+        "email": "marina.kovtun.66@list.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school18-benders",
+    "name": "МОУ «Бендерская средняя общеобразовательная школа №18»",
+    "shortName": "Школа № 18 (Бендеры)",
+    "description": "Три направления в одном: патриотика, социальная помощь и экология.",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Social",
+      "Eco"
+    ],
+    "contactPhone": "775 6623",
+    "contactEmail": "nastia.m95@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "CivicPatriotic",
+          "Social",
+          "Ecological"
+        ],
+        "leaderName": "Виеру А.О.",
+        "phone": "775 6623",
+        "email": "nastia.m95@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school20-benders",
+    "name": "МОУ «Бендерская средняя общеобразовательная школа №20»",
+    "shortName": "Школа № 20 (Бендеры)",
+    "description": "«Юный волонтёр» — комплексное движение: патриотика, социальная поддержка и экология.",
+    "city": "Бендеры",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Social",
+      "Eco"
+    ],
+    "contactPhone": "779 40280",
+    "contactEmail": "popovavalentinka8891@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Юный волонтер",
+        "directions": [
+          "CivicPatriotic",
+          "Social",
+          "Ecological"
+        ],
+        "leaderName": "Попова В.В.",
+        "phone": "779 40280",
+        "email": "popovavalentinka8891@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "nezavertaylovka",
+    "name": "МОУ «Незавертайловская ОШ-Д/С № 2»",
+    "shortName": "Незавертайловская ОШ",
+    "description": "Штаб «Лидер-доброволец»: социальное, экологическое, событийное и спортивное направления.",
+    "city": "Слободзея",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Eco",
+      "Sport"
+    ],
+    "contactPhone": "778 06562",
+    "contactEmail": "Lunanad-m@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Штаб «Лидер-доброволец»",
+        "directions": [
+          "Social",
+          "Ecological",
+          "Events",
+          "Sport"
+        ],
+        "leaderName": "Шакирова Надежда Михайловна",
+        "phone": "778 06562",
+        "email": "Lunanad-m@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "chobruchi",
+    "name": "МОУ «Чобручская МСОШ №2»",
+    "shortName": "Чобручская МСОШ №2",
+    "description": "Движение «Лидер-доброволец» реализует четыре направления деятельности.",
+    "city": "Слободзея",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Eco",
+      "Sport"
+    ],
+    "contactPhone": "778 19007",
+    "contactEmail": "oksana.talpa.80@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Штаб «Лидер-доброволец»",
+        "directions": [
+          "Social",
+          "Ecological",
+          "Events",
+          "Sport"
+        ],
+        "leaderName": "Талпа Оксана Михайловна",
+        "phone": "778 19007",
+        "email": "oksana.talpa.80@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "korotnoye",
+    "name": "МОУ «Коротнянская РМСОШ»",
+    "shortName": "Коротнянская РМСОШ",
+    "description": "Социальное, экологическое и спортивное добровольчество в рамках движения «Лидер-доброволец».",
+    "city": "Слободзея",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Eco",
+      "Sport"
+    ],
+    "contactPhone": "775 05148",
+    "contactEmail": "emelyanovaolya82@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Штаб «Лидер-доброволец»",
+        "directions": [
+          "Social",
+          "Ecological",
+          "Sport"
+        ],
+        "leaderName": "Емельянова Ольга Яковлевна",
+        "phone": "775 05148",
+        "email": "emelyanovaolya82@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "slobodzeya-osh4",
+    "name": "МОУ «Слободзейская ООШ №4»",
+    "shortName": "Слободзейская ООШ №4",
+    "description": "Духовно-нравственное, экологическое и патриотическое направления добровольчества.",
+    "city": "Слободзея",
+    "level": "School",
+    "categories": [
+      "Eco",
+      "Patriotic"
+    ],
+    "contactPhone": "779 52209",
+    "contactEmail": "marianlena511@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтёрское движение",
+        "directions": [
+          "Spiritual",
+          "Ecological",
+          "Patriotic"
+        ],
+        "leaderName": "Марьян Елена Павловна",
+        "phone": "779 52209",
+        "email": "marianlena511@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "krasnaya-slobodzeya",
+    "name": "МОУ «Краснянская СОШ»",
+    "shortName": "Краснянская СОШ",
+    "description": "Социальное волонтёрское движение «Шагай за мной».",
+    "city": "Слободзея",
+    "level": "School",
+    "categories": [
+      "Social"
+    ],
+    "contactPhone": "778 25340",
+    "contactEmail": "tonico_1977@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Шагай за мной",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Тоницой Татьяна Ивановна",
+        "phone": "778 25340",
+        "email": "tonico_1977@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "slobodzeya-sosh1",
+    "name": "МОУ «Слободзейская СОШ №1»",
+    "shortName": "Слободзейская СОШ №1",
+    "description": "Движение «Доброе сердце» развивает лидерские компетенции и активную гражданскую позицию.",
+    "city": "Слободзея",
+    "level": "School",
+    "categories": [
+      "Social"
+    ],
+    "contactPhone": "777 06085",
+    "contactEmail": "school_lenina80@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Доброе сердце",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Табак Анна Федоровна",
+        "phone": "777 06085",
+        "email": "school_lenina80@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "glinoe",
+    "name": "МОУ «Глинойская СОШ»",
+    "shortName": "Глинойская СОШ",
+    "description": "«Я-Доброволец» — движение, формирующее активную гражданскую позицию молодёжи.",
+    "city": "Слободзея",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Patriotic"
+    ],
+    "contactPhone": "775 37310",
+    "contactEmail": "glinoyesoh@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Я-Доброволец",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Гордиенко Татьяна Николаевна",
+        "phone": "775 37310",
+        "email": "glinoyesoh@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "frunze-slobodzeya",
+    "name": "МОУ «Фрунзенская СОШ»",
+    "shortName": "Фрунзенская СОШ",
+    "description": "Движение «Тимуровцы» — духовно-нравственное, экологическое и патриотическое воспитание.",
+    "city": "Слободзея",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Eco"
+    ],
+    "contactPhone": "779 65607",
+    "contactEmail": null,
+    "website": null,
+    "movements": [
+      {
+        "name": "Тимуровцы",
+        "directions": [
+          "Spiritual",
+          "Ecological",
+          "Patriotic"
+        ],
+        "leaderName": "Албук Татьяна Александровна",
+        "phone": "779 65607",
+        "email": null
+      }
+    ]
+  },
+  {
+    "legacyId": "kitskany1",
+    "name": "МОУ «Кицканская СОШ №1»",
+    "shortName": "Кицканская СОШ №1",
+    "description": "«Бумеранг добра» — пять направлений: от зооволонтерства до образовательной деятельности.",
+    "city": "Слободзея",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Eco",
+      "Patriotic",
+      "Zoo"
+    ],
+    "contactPhone": "777 46726",
+    "contactEmail": "yelena.russu.00@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Бумеранг добра",
+        "directions": [
+          "Social",
+          "Ecological",
+          "Patriotic",
+          "Educational",
+          "Zoo"
+        ],
+        "leaderName": "Руссу Елена Вячеславовна",
+        "phone": "777 46726",
+        "email": "yelena.russu.00@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "kitskany2",
+    "name": "МОУ «Кицканская СОШ №2»",
+    "shortName": "Кицканская СОШ №2",
+    "description": "«Лидер Доброволец» — духовно-нравственное, экологическое и патриотическое направления.",
+    "city": "Слободзея",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Eco"
+    ],
+    "contactPhone": "778 20499",
+    "contactEmail": "kitskansky2@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Лидер Доброволец",
+        "directions": [
+          "Spiritual",
+          "Ecological",
+          "Patriotic"
+        ],
+        "leaderName": "Соловьева Татьяна Алексеевна",
+        "phone": "778 20499",
+        "email": "kitskansky2@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "blizhny-hutor",
+    "name": "МОУ «Ближнехуторская СОШ»",
+    "shortName": "Ближнехуторская СОШ",
+    "description": "«Добрые сердца» объединяют духовно-нравственное, экологическое и патриотическое воспитание.",
+    "city": "Слободзея",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Eco"
+    ],
+    "contactPhone": "779 12319",
+    "contactEmail": "b.hutor1897@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Добрые сердца",
+        "directions": [
+          "Spiritual",
+          "Ecological",
+          "Patriotic"
+        ],
+        "leaderName": "Подкаура Марина Анатольевна",
+        "phone": "779 12319",
+        "email": "b.hutor1897@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "school2-dubossary",
+    "name": "МОУ «Дубоссарская русская средняя общеобразовательная школа №2»",
+    "shortName": "Дубоссарская РСОШ №2",
+    "description": "Движение «Соколята» — социальное и патриотическое добровольчество в Дубоссарах.",
+    "city": "Дубоссары",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Patriotic"
+    ],
+    "contactPhone": "778 09061",
+    "contactEmail": "sklifosea@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Соколята",
+        "directions": [
+          "Social",
+          "Patriotic"
+        ],
+        "leaderName": "Склифос Екатерина Анатольевна",
+        "phone": "778 09061",
+        "email": "sklifosea@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "tashlyk",
+    "name": "МОУ «Ташлыкская ОСШ Григориопольского района им. А. Антонова»",
+    "shortName": "Ташлыкская ОСШ им. Антонова",
+    "description": "«Кораблик» — социальное направление: помощь пожилым и нуждающимся людям.",
+    "city": "Григориополь",
+    "level": "School",
+    "categories": [
+      "Social"
+    ],
+    "contactPhone": "778 85091",
+    "contactEmail": "marianna.braga@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Совет старшеклассников «Кораблик»",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Брага Марианна Федоровна",
+        "phone": "778 85091",
+        "email": "marianna.braga@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "krasnaya-gorka",
+    "name": "МОУ «Русско-молдавская ОСШ с. Красная Горка»",
+    "shortName": "ОСШ с. Красная Горка",
+    "description": "«Добрые сердца» — социальное и культурное добровольчество.",
+    "city": "Григориополь",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Cultural"
+    ],
+    "contactPhone": "779 81183",
+    "contactEmail": "galina.safonova68@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Совет старшеклассников «Добрые сердца»",
+        "directions": [
+          "Social",
+          "Cultural"
+        ],
+        "leaderName": "Сафонова Галина Викторовна",
+        "phone": "779 81183",
+        "email": "galina.safonova68@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "vinogradnoye",
+    "name": "МОУ «Винограднянская ООШ-ДС им. А.В. Танасейчука»",
+    "shortName": "Винограднянская ООШ",
+    "description": "Движение «Волонтёры Победы» — патриотическое воспитание молодёжи.",
+    "city": "Григориополь",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "775 15101",
+    "contactEmail": "sveta.sveta88.pavlova@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Павлова Светлана Юрьевна",
+        "phone": "775 15101",
+        "email": "sveta.sveta88.pavlova@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "teyskaya",
+    "name": "МОУ «Тейская ОСШ Григориопольского района»",
+    "shortName": "Тейская ОСШ",
+    "description": "Движение «Я доброволец» — гражданско-патриотическая деятельность.",
+    "city": "Григориополь",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "779 68249",
+    "contactEmail": "olesealupolov@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Я доброволец",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Луполова Олеся Васильевна",
+        "phone": "779 68249",
+        "email": "olesealupolov@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "speya",
+    "name": "МОУ «Спейская ОСШ Григориопольского района»",
+    "shortName": "Спейская ОСШ",
+    "description": "Три направления: патриотика, экология и социальная поддержка.",
+    "city": "Григориополь",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Eco",
+      "Social"
+    ],
+    "contactPhone": "775 80522",
+    "contactEmail": "asalkucan@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "Patriotic",
+          "Ecological",
+          "Social"
+        ],
+        "leaderName": "Салкуцан Алла Валерьевна",
+        "phone": "775 80522",
+        "email": "asalkucan@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "malaeshty",
+    "name": "МОУ «Малаештская ОСШ Григориопольского района»",
+    "shortName": "Малаештская ОСШ",
+    "description": "«Истина молодых» — патриотика, экология и здоровый образ жизни.",
+    "city": "Григориополь",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Eco",
+      "Sport"
+    ],
+    "contactPhone": "779 10139",
+    "contactEmail": "adevarul.tinerilor@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "МОО «Истина молодых» / Местный совет детей и молодежи",
+        "directions": [
+          "CivicPatriotic",
+          "Ecological"
+        ],
+        "leaderName": "Чайковская Ольга Алексеевна",
+        "phone": "779 10139",
+        "email": "adevarul.tinerilor@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "grigoriopol2",
+    "name": "МОУ «Григориопольская ОСШ №2 им. А. Стоева с лицейскими классами»",
+    "shortName": "ОСШ № 2 им. Стоева",
+    "description": "Два движения: социально-экологическое «Все вместе» и патриотическое самоуправление «Республика ГРиГИ».",
+    "city": "Григориополь",
+    "level": "School",
+    "categories": [
+      "Eco",
+      "Social",
+      "Patriotic"
+    ],
+    "contactPhone": "775 28746",
+    "contactEmail": null,
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы («Все вместе»)",
+        "directions": [
+          "Ecological"
+        ],
+        "leaderName": "Шевцова Елена Анатольевна",
+        "phone": "775 28746",
+        "email": null
+      },
+      {
+        "name": "Совет старшеклассников «Республика ГРиГИ»",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Васильева Альонушка Викторовна",
+        "phone": "777 59500",
+        "email": "schoolstoev2@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "mayak-grig",
+    "name": "МОУ «Маякская ОСШ им. С.К. Колесниченко Григориопольского района»",
+    "shortName": "Маякская ОСШ",
+    "description": "Движение «Волонтёры Победы» — гражданско-патриотическая деятельность.",
+    "city": "Григориополь",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "779 12521",
+    "contactEmail": "lika.pmr7070@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Макаревич Анжелика Алексеевна",
+        "phone": "779 12521",
+        "email": "lika.pmr7070@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "butor",
+    "name": "МОУ «Буторская ОСШ Григориопольского района»",
+    "shortName": "Буторская ОСШ",
+    "description": "«Волонтёры Победы» ведут патриотическое воспитание.",
+    "city": "Григориополь",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "779 81162",
+    "contactEmail": "aurelliya1993@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Демиденко Аурелия Андреевна",
+        "phone": "779 81162",
+        "email": "aurelliya1993@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "glinyanskaya-grig",
+    "name": "МОУ «Глинянская ООШ Григориопольского района»",
+    "shortName": "Глинянская ООШ",
+    "description": "«Росток» — гражданско-патриотическое самоуправление старшеклассников.",
+    "city": "Григориополь",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "775 17761",
+    "contactEmail": "7891_11_71@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Совет старшеклассников «Росток»",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Дмитренко Виктория Викторовна",
+        "phone": "775 17761",
+        "email": "7891_11_71@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "grigoriopol1",
+    "name": "МОУ «Григориопольская ОСШ №1 им. А. Нирши с лицейскими классами»",
+    "shortName": "ОСШ № 1 им. Нирши",
+    "description": "Совет старшеклассников «Юность» — гражданско-патриотическое направление.",
+    "city": "Григориополь",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "779 12884",
+    "contactEmail": "haritonovanatali91@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Совет старшеклассников «Юность»",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Харитонова Наталья Андреевна",
+        "phone": "779 12884",
+        "email": "haritonovanatali91@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "rybnitsa-ukr1",
+    "name": "МОУ «Рыбницкая украинская СОШ №1 с гимназическими классами»",
+    "shortName": "Рыбницкая укр. СОШ №1",
+    "description": "«Содружество» охватывает экологическое, патриотическое и социальное добровольчество.",
+    "city": "Рыбница",
+    "level": "School",
+    "categories": [
+      "Eco",
+      "Patriotic",
+      "Social"
+    ],
+    "contactPhone": "778 42164",
+    "contactEmail": "melniknatala186@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Содружество",
+        "directions": [
+          "Ecological",
+          "CivicPatriotic",
+          "Social"
+        ],
+        "leaderName": "Мельник Наталья Анатольевна",
+        "phone": "778 42164",
+        "email": "melniknatala186@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "rybnitsa-tl",
+    "name": "МОУ «Рыбницкий теоретический лицей-комплекс»",
+    "shortName": "Рыбницкий ТЛК",
+    "description": "«Волонтёры Победы» — патриотика, социальная поддержка и помощь животным.",
+    "city": "Рыбница",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Social",
+      "Zoo"
+    ],
+    "contactPhone": "775 98560",
+    "contactEmail": "taniabogda90@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "CivicPatriotic",
+          "Social",
+          "Zoo"
+        ],
+        "leaderName": "Богданская Татьяна Александровна",
+        "phone": "775 98560",
+        "email": "taniabogda90@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "rybnitsa-rus3",
+    "name": "МОУ «Рыбницкая русская СОШ №3»",
+    "shortName": "Рыбницкая РС ОШ №3",
+    "description": "Движение «Мираж» — благоустройство, патриотика и зооволонтерство.",
+    "city": "Рыбница",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Zoo"
+    ],
+    "contactPhone": "777 89236",
+    "contactEmail": "turkiv2000@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Мираж",
+        "directions": [
+          "Improvement",
+          "CivicPatriotic",
+          "Zoo"
+        ],
+        "leaderName": "Туркив Ирина Васильевна",
+        "phone": "777 89236",
+        "email": "turkiv2000@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "rybnitsa-rus6",
+    "name": "МОУ «Рыбницкая русская СОШ №6 с лицейскими классами»",
+    "shortName": "Рыбницкая РС ОШ №6",
+    "description": "«Бумеранг» — одно из самых разносторонних движений, охватывающее 8 направлений.",
+    "city": "Рыбница",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Cultural",
+      "Eco",
+      "Patriotic",
+      "Health",
+      "Zoo"
+    ],
+    "contactPhone": "778 89026",
+    "contactEmail": "ponomarcuknatali@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Бумеранг",
+        "directions": [
+          "Social",
+          "Cultural",
+          "Ecological",
+          "Patriotic",
+          "HealthyLife",
+          "Zoo",
+          "Enlightenment"
+        ],
+        "leaderName": "Пономарчук Наталья Александровна",
+        "phone": "778 89026",
+        "email": "ponomarcuknatali@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "rybnitsa-gymn1",
+    "name": "МОУ «Рыбницкая русская гимназия №1»",
+    "shortName": "Рыбницкая гимназия №1",
+    "description": "«Мир в ладонях» — четыре направления: экология, патриотика, социальное и зооволонтерство.",
+    "city": "Рыбница",
+    "level": "School",
+    "categories": [
+      "Eco",
+      "Patriotic",
+      "Social",
+      "Zoo"
+    ],
+    "contactPhone": "778 00577",
+    "contactEmail": "ryb.gimnazia1@yandex.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Мир в ладонях",
+        "directions": [
+          "Ecological",
+          "CivicPatriotic",
+          "Social",
+          "Zoo"
+        ],
+        "leaderName": "Чарная Юлия Вячеславовна",
+        "phone": "778 00577",
+        "email": "ryb.gimnazia1@yandex.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "rybnitsa-rus8",
+    "name": "МОУ «Рыбницкая русская средняя школа №8»",
+    "shortName": "Рыбницкая РСШ №8",
+    "description": "«Волонтёры Победы» — от благоустройства школьной территории до патриотических акций.",
+    "city": "Рыбница",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Social",
+      "Eco"
+    ],
+    "contactPhone": "778 47914",
+    "contactEmail": "gandrabura83@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "Improvement",
+          "CivicPatriotic",
+          "Social",
+          "Ecological"
+        ],
+        "leaderName": "Маличук Виктория Михайловна",
+        "phone": "778 47914",
+        "email": "gandrabura83@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "rybnitsa-rm9",
+    "name": "МОУ «Рыбницкая русско-молдавская СОШ №9»",
+    "shortName": "Рыбницкая РМ СОШ №9",
+    "description": "PROдобро — социальное, благотворительное, экологическое и гуманитарное направления.",
+    "city": "Рыбница",
+    "level": "School",
+    "categories": [
+      "Social",
+      "Eco",
+      "Zoo"
+    ],
+    "contactPhone": "775 37673",
+    "contactEmail": "sholl9-1980@yandex.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "PROдобро",
+        "directions": [
+          "Social",
+          "Charity",
+          "Ecological",
+          "Zoo",
+          "Humanitarian"
+        ],
+        "leaderName": "Иовица Оксана Петровна",
+        "phone": "775 37673",
+        "email": "sholl9-1980@yandex.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "rybnitsa-rus10",
+    "name": "МОУ «Рыбницкая русская средняя школа №10 с гимназическими классами»",
+    "shortName": "Рыбницкая РСШ №10",
+    "description": "«Твори добро» — пять активных направлений в Рыбницкой школе №10.",
+    "city": "Рыбница",
+    "level": "School",
+    "categories": [
+      "Eco",
+      "Social",
+      "Patriotic",
+      "Zoo"
+    ],
+    "contactPhone": "775 94093",
+    "contactEmail": "ksuni06121997@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Твори добро",
+        "directions": [
+          "Improvement",
+          "Ecological",
+          "Social",
+          "CivicPatriotic",
+          "Zoo"
+        ],
+        "leaderName": "Парфентьева Ксения Викторовна",
+        "phone": "775 94093",
+        "email": "ksuni06121997@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "rybnitsa-rus11",
+    "name": "МОУ «Рыбницкая русская СОШ №11»",
+    "shortName": "Рыбницкая РС ОШ №11",
+    "description": "Пять направлений: патриотика, экология, социальное, зооволонтерство и культурно-просветительское.",
+    "city": "Рыбница",
+    "level": "School",
+    "categories": [
+      "Patriotic",
+      "Eco",
+      "Social",
+      "Zoo",
+      "Cultural"
+    ],
+    "contactPhone": "778 89236",
+    "contactEmail": "liliya.kushnir62@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтёры Победы",
+        "directions": [
+          "CivicPatriotic",
+          "Ecological",
+          "Social",
+          "Zoo",
+          "Cultural"
+        ],
+        "leaderName": "Кушнир Лилия Васильевна",
+        "phone": "778 89236",
+        "email": "liliya.kushnir62@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "rybnitsa-internat",
+    "name": "МОУ «Рыбницкая средняя ОШ-интернат»",
+    "shortName": "Рыбницкая ОШ-интернат",
+    "description": "«Незабудка» — шесть направлений, включая зооволонтерство и спортивно-оздоровительную работу.",
+    "city": "Рыбница",
+    "level": "School",
+    "categories": [
+      "Eco",
+      "Patriotic",
+      "Social",
+      "Sport",
+      "Zoo"
+    ],
+    "contactPhone": "779 19103",
+    "contactEmail": "jenvexus1396@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Незабудка",
+        "directions": [
+          "Improvement",
+          "Ecological",
+          "CivicPatriotic",
+          "Social",
+          "SportHealth",
+          "Zoo"
+        ],
+        "leaderName": "Мазуренко Яна Витальевна",
+        "phone": "779 19103",
+        "email": "jenvexus1396@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "kamenka1",
+    "name": "МОУ «Каменская ОСШ №1»",
+    "shortName": "Каменская ОСШ №1",
+    "description": "Ученическое самоуправление с патриотическим направлением.",
+    "city": "Каменка",
+    "level": "School",
+    "categories": [
+      "Patriotic"
+    ],
+    "contactPhone": "778 33290",
+    "contactEmail": "marina.podoprigora.2020@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Отряд «Консилиул де елевь ал школий»",
+        "directions": [
+          "Patriotic"
+        ],
+        "leaderName": "Подопригора Марина Юрьевна",
+        "phone": "778 33290",
+        "email": "marina.podoprigora.2020@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "kamenka2",
+    "name": "МОУ «Каменская ОСШ с гимназическими классами №2»",
+    "shortName": "Каменская ОСШ №2",
+    "description": "Социальное добровольчество через ученическое самоуправление.",
+    "city": "Каменка",
+    "level": "School",
+    "categories": [
+      "Social"
+    ],
+    "contactPhone": "778 68133",
+    "contactEmail": "nasteuhabog@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Отряд «Ученическое самоуправление и добровольческое движение»",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Богорош Анастасия Андреевна",
+        "phone": "778 68133",
+        "email": "nasteuhabog@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "kamenka3",
+    "name": "МОУ «Каменская ОСШ №3»",
+    "shortName": "Каменская ОСШ №3",
+    "description": "Мотивация и развитие добровольческой деятельности среди школьников.",
+    "city": "Каменка",
+    "level": "School",
+    "categories": [
+      "Youth"
+    ],
+    "contactPhone": "777 17614",
+    "contactEmail": "sofiavlad2630@gmil.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Отряд «Ученическое самоуправление и добровольческое движение»",
+        "directions": [],
+        "leaderName": "Кафтанатий Мариана Валерьевна",
+        "phone": "777 17614",
+        "email": "sofiavlad2630@gmil.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "raskovo-kamenka",
+    "name": "МОУ «Рашковская ОСШ им. Ф.И. Жарчинского»",
+    "shortName": "Рашковская ОСШ",
+    "description": "Экологическое направление через ученическое самоуправление.",
+    "city": "Каменка",
+    "level": "School",
+    "categories": [
+      "Eco"
+    ],
+    "contactPhone": "777 65835",
+    "contactEmail": "rahkovskaiahkola@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Отряд «Ученическое самоуправление»",
+        "directions": [
+          "Ecological"
+        ],
+        "leaderName": "Гнатышена Елена Сергеевна",
+        "phone": "777 65835",
+        "email": "rahkovskaiahkola@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "kamenka-ddut",
+    "name": "МОУ «Каменский ДДЮТ»",
+    "shortName": "Каменский ДДЮТ",
+    "description": "Районный координационный штаб по развитию добровольчества среди молодёжи.",
+    "city": "Каменка",
+    "level": "School",
+    "categories": [
+      "Youth",
+      "Social"
+    ],
+    "contactPhone": "778 33290",
+    "contactEmail": "marina.podoprigora.2020@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Районный штаб «Ученическое соуправление и добровольческое движение»",
+        "directions": [],
+        "leaderName": "Подопригора Марина Юрьевна",
+        "phone": "778 33290",
+        "email": "marina.podoprigora.2020@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "spo-benders-ped",
+    "name": "ГОУ СПО «Бендерский педагогический колледж»",
+    "shortName": "Бендерский педколледж",
+    "description": "«Волонтёры Победы» — патриотика, социокультурная деятельность и сохранение исторической памяти.",
+    "city": "Бендеры",
+    "level": "College",
+    "categories": [
+      "Patriotic",
+      "Cultural"
+    ],
+    "contactPhone": "778 48702",
+    "contactEmail": "irenka_0884@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтёры Победы",
+        "directions": [
+          "CivicPatriotic",
+          "Cultural"
+        ],
+        "leaderName": "Китаева Ирина Петровна",
+        "phone": "778 48702",
+        "email": "irenka_0884@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "spo-tatk",
+    "name": "ГОУ СПО «Тираспольский аграрно-технический колледж им. М.В. Фрунзе»",
+    "shortName": "ТАТК им. Фрунзе",
+    "description": "Уникальное агроволонтерство в сочетании с экологической и социальной деятельностью.",
+    "city": "Тирасполь",
+    "level": "College",
+    "categories": [
+      "Eco",
+      "Zoo",
+      "Social",
+      "Patriotic"
+    ],
+    "contactPhone": "779 90799",
+    "contactEmail": "baichulia25.10.81.baichulia@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры ТАТК",
+        "directions": [
+          "Zoo",
+          "Agro",
+          "Social",
+          "Patriotic"
+        ],
+        "leaderName": "Криворучко Юлия Михайловна",
+        "phone": "779 90799",
+        "email": "baichulia25.10.81.baichulia@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "spo-pktu",
+    "name": "ГОУ СПО «Приднестровский колледж технологий и управления»",
+    "shortName": "Приднестровский КТУ",
+    "description": "«Волонтёры Победы» — от благотворительности до пропаганды ЗОЖ.",
+    "city": "Тирасполь",
+    "level": "College",
+    "categories": [
+      "Social",
+      "Patriotic",
+      "Health"
+    ],
+    "contactPhone": "777 69663",
+    "contactEmail": "tanya.prusakova.28@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "Charity",
+          "Social",
+          "CivicPatriotic"
+        ],
+        "leaderName": "Прусакова Татьяна Валентиновна",
+        "phone": "777 69663",
+        "email": "tanya.prusakova.28@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "spo-kamenka-tech",
+    "name": "ГОУ СПО «Каменский политехнический техникум им. И.С. Солтыса»",
+    "shortName": "Каменский политехникум",
+    "description": "«Волонтёры Победы» — шесть направлений, включая инклюзивное и событийное.",
+    "city": "Каменка",
+    "level": "College",
+    "categories": [
+      "Patriotic",
+      "Social",
+      "Sport"
+    ],
+    "contactPhone": "777 88851",
+    "contactEmail": "taisy5@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "Patriotic",
+          "Inclusive",
+          "Events",
+          "Improvement",
+          "Social",
+          "Sport"
+        ],
+        "leaderName": "Китайка Анастасия Викторовна",
+        "phone": "777 88851",
+        "email": "taisy5@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "spo-slobodzeya-tech",
+    "name": "ГОУ СПО «Слободзейский политехнический техникум»",
+    "shortName": "Слободзейский политехникум",
+    "description": "В т.ч. волонтёрство в чрезвычайных ситуациях и медицинское направление.",
+    "city": "Слободзея",
+    "level": "College",
+    "categories": [
+      "Patriotic",
+      "Social",
+      "Sport",
+      "Eco",
+      "Health"
+    ],
+    "contactPhone": "778 98583",
+    "contactEmail": "natalya121075@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "Patriotic",
+          "Social",
+          "Sport",
+          "Ecological",
+          "Medical"
+        ],
+        "leaderName": "Баранова Наталья Георгиевна",
+        "phone": "778 98583",
+        "email": "natalya121075@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "spo-rybnitsa-tech",
+    "name": "ГОУ СПО «Рыбницкий политехнический техникум»",
+    "shortName": "Рыбницкий политехникум",
+    "description": "Два движения — сохранение исторической памяти и поддержка ветеранов.",
+    "city": "Рыбница",
+    "level": "College",
+    "categories": [
+      "Patriotic",
+      "Health"
+    ],
+    "contactPhone": "775 44743",
+    "contactEmail": null,
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "Improvement"
+        ],
+        "leaderName": "Сулима Светлана Александровна",
+        "phone": "775 44743",
+        "email": null
+      },
+      {
+        "name": "Волонтеры ветеранов ОГБ «Меч»",
+        "directions": [
+          "HealthyLife",
+          "Improvement"
+        ],
+        "leaderName": "Мурадов Олег Суванович",
+        "phone": "779 34563",
+        "email": null
+      }
+    ]
+  },
+  {
+    "legacyId": "spo-dubossary-tech",
+    "name": "ГОУ СПО «Дубоссарский индустриальный техникум»",
+    "shortName": "Дубоссарский инд. техникум",
+    "description": "«Доброе сердце» — социальная, экологическая и патриотическая активность.",
+    "city": "Дубоссары",
+    "level": "College",
+    "categories": [
+      "Social",
+      "Patriotic",
+      "Eco",
+      "Health"
+    ],
+    "contactPhone": "060232756",
+    "contactEmail": "golovachmarina1970@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Доброе сердце",
+        "directions": [
+          "Charity",
+          "HealthyLife",
+          "Social",
+          "CivicPatriotic",
+          "Ecological"
+        ],
+        "leaderName": "Головач Марина Валерьевна",
+        "phone": "060232756",
+        "email": "golovachmarina1970@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "spo-dnestrovsk",
+    "name": "ГОУ СПО «Днестровский техникум энергетики и компьютерных технологий»",
+    "shortName": "Днестровский ТЭиКТ",
+    "description": "«Наследники Прометея» — патриотика, ЗОЖ, экология и культура.",
+    "city": "Тирасполь",
+    "level": "College",
+    "categories": [
+      "Patriotic",
+      "Eco",
+      "Cultural",
+      "Health"
+    ],
+    "contactPhone": "778 94066",
+    "contactEmail": "yakushenkovasvetlana@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Наследники Прометея",
+        "directions": [
+          "CivicPatriotic",
+          "HealthyLife",
+          "Ecological",
+          "Cultural"
+        ],
+        "leaderName": "Якушенкова Светлана Дмитриевна",
+        "phone": "778 94066",
+        "email": "yakushenkovasvetlana@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "spo-ttip",
+    "name": "ГОУ СПО «Тираспольский техникум информатики и права»",
+    "shortName": "ТТИиП",
+    "description": "Два движения: социальное «Добрые сердца» и патриотическое «Волонтёры Победы».",
+    "city": "Тирасполь",
+    "level": "College",
+    "categories": [
+      "Social",
+      "Patriotic"
+    ],
+    "contactPhone": "779 17872",
+    "contactEmail": "Liya-moroz@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Волонтеры добрые сердца",
+        "directions": [
+          "Social"
+        ],
+        "leaderName": "Котвицкая Лилия Сергеевна",
+        "phone": "779 17872",
+        "email": "Liya-moroz@mail.ru"
+      },
+      {
+        "name": "Волонтеры Победы",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Котвицкая Лилия Сергеевна",
+        "phone": "779 17872",
+        "email": null
+      }
+    ]
+  },
+  {
+    "legacyId": "spo-ttk",
+    "name": "ГОУ СПО «Тираспольский техникум коммерции»",
+    "shortName": "Техникум коммерции",
+    "description": "Зооволонтёрское движение «От сердца к лапе» — помощь животным.",
+    "city": "Тирасполь",
+    "level": "College",
+    "categories": [
+      "Zoo"
+    ],
+    "contactPhone": "777 06151",
+    "contactEmail": null,
+    "website": null,
+    "movements": [
+      {
+        "name": "От сердца к лапе",
+        "directions": [
+          "Zoo"
+        ],
+        "leaderName": "Моздюк Анастасия (студентка 4 курса)",
+        "phone": "777 06151",
+        "email": null
+      }
+    ]
+  },
+  {
+    "legacyId": "pgu",
+    "name": "ГОУ «Приднестровский государственный университет им. Т.Г. Шевченко»",
+    "shortName": "ПГУ им. Шевченко",
+    "description": "Главный университет ПМР — 7 направлений добровольчества: от медицины до помощи зооприютам.",
+    "city": "Тирасполь",
+    "level": "University",
+    "categories": [
+      "Social",
+      "Patriotic",
+      "Eco",
+      "Health",
+      "Zoo",
+      "Sport"
+    ],
+    "contactPhone": "0779 11795 / 0779 57644",
+    "contactEmail": "mortindima@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Мы из ПГУ!",
+        "directions": [
+          "Social",
+          "Ecological",
+          "CivicPatriotic",
+          "Medical",
+          "SportHealth"
+        ],
+        "leaderName": "Мортин Дмитрий Евгеньевич / Кучерявый Владислав Юрьевич",
+        "phone": "0779 11795 / 0779 57644",
+        "email": "mortindima@mail.ru"
+      }
+    ]
+  },
+  {
+    "legacyId": "pgiis",
+    "name": "ГОУ ВПО «Приднестровский Государственный институт искусств им. А.Г. Рубинштейна»",
+    "shortName": "Институт искусств им. Рубинштейна",
+    "description": "Благотворительные концерты и акции «Вторая жизнь вещам».",
+    "city": "Тирасполь",
+    "level": "University",
+    "categories": [
+      "Cultural",
+      "Social"
+    ],
+    "contactPhone": "777 23528",
+    "contactEmail": "ee694556@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Согреем сердца добром",
+        "directions": [
+          "Charity"
+        ],
+        "leaderName": "Егорова Елена Вячеславовна",
+        "phone": "777 23528",
+        "email": "ee694556@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "bvhk",
+    "name": "ГОУ ВПО «Бендерский высший художественный колледж им. В.И. Постойкина»",
+    "shortName": "БВХК им. Постойкина",
+    "description": "Художественный колледж: патриотика, благотворительность и городские мероприятия.",
+    "city": "Бендеры",
+    "level": "University",
+    "categories": [
+      "Patriotic",
+      "Cultural"
+    ],
+    "contactPhone": "775 29084",
+    "contactEmail": "benderyart@gmail.com",
+    "website": null,
+    "movements": [
+      {
+        "name": "Согреем сердца добром",
+        "directions": [
+          "CivicPatriotic",
+          "Charity"
+        ],
+        "leaderName": "Бивол Ирина Федоровна",
+        "phone": "775 29084",
+        "email": "benderyart@gmail.com"
+      }
+    ]
+  },
+  {
+    "legacyId": "pgmk",
+    "name": "ГОУ ВПО «Приднестровский государственный медицинский колледж им. Л.А. Тарасевича»",
+    "shortName": "Медицинский колледж им. Тарасевича",
+    "description": "Медицинский колледж: санитарное просвещение и гражданско-патриотическое воспитание.",
+    "city": "Тирасполь",
+    "level": "University",
+    "categories": [
+      "Health",
+      "Patriotic"
+    ],
+    "contactPhone": "775 97829",
+    "contactEmail": "pgmk_osv@mail.ru",
+    "website": null,
+    "movements": [
+      {
+        "name": "Отряд «Дорогой добра»",
+        "directions": [
+          "Enlightenment",
+          "HealthyLife"
+        ],
+        "leaderName": "Шептефрац И.С.",
+        "phone": "775 97829",
+        "email": "pgmk_osv@mail.ru"
+      },
+      {
+        "name": "Отряд «Волонтеры Победы»",
+        "directions": [
+          "CivicPatriotic"
+        ],
+        "leaderName": "Терентьев В.И.",
+        "phone": "777 90495",
+        "email": "pgmk_osv@mail.ru"
+      }
+    ]
+  }
+]

@@ -1,9 +1,9 @@
 import { apiClient } from './client';
 import type {
   EventListResponseDto, EventResponseDto,
-  CreateEventDto, UpdateEventDto, UpdateMaxParticipantsDto,
-  ParticipationResponseDto, ReviewParticipationDto, ConfirmAttendanceDto,
-  EventStatus, ParticipationStatus,
+  CreateEventDto, UpdateEventDto,
+  ParticipationResponseDto,
+  EventStatus,
 } from '../types/event';
 
 export const eventsApi = {
@@ -27,6 +27,10 @@ export const eventsApi = {
   withdraw: async (participationId: string): Promise<void> => {
     await apiClient.delete(`/api/participations/${participationId}`);
   },
+  /** Отказ от участия (заявка на рассмотрении или принятая); причина необязательна и видна организаторам и администраторам. */
+  cancelParticipation: async (participationId: string, reason?: string): Promise<void> => {
+    await apiClient.post(`/api/participations/${participationId}/cancel`, { reason: reason || null });
+  },
   getMyParticipations: async (): Promise<ParticipationResponseDto[]> => {
     const { data } = await apiClient.get<ParticipationResponseDto[]>('/api/users/me/participations');
     return data;
@@ -39,10 +43,6 @@ export const eventsApi = {
   },
   update: async (id: string, dto: UpdateEventDto): Promise<EventResponseDto> => {
     const { data } = await apiClient.put<EventResponseDto>(`/api/events/${id}`, dto);
-    return data;
-  },
-  updateMaxParticipants: async (id: string, dto: UpdateMaxParticipantsDto): Promise<EventResponseDto> => {
-    const { data } = await apiClient.patch<EventResponseDto>(`/api/events/${id}/max-participants`, dto);
     return data;
   },
   delete: async (id: string): Promise<void> => {
@@ -71,26 +71,5 @@ export const eventsApi = {
   },
   complete: async (id: string): Promise<void> => {
     await apiClient.post(`/api/events/${id}/complete`);
-  },
-
-  // ── Participations (Admin/Organizer) ──────────────────────────────────────
-  getParticipations: async (eventId: string, status?: ParticipationStatus): Promise<ParticipationResponseDto[]> => {
-    const { data } = await apiClient.get<ParticipationResponseDto[]>(
-        `/api/events/${eventId}/participations`,
-        { params: status ? { status } : {} }
-    );
-    return data;
-  },
-  review: async (participationId: string, dto: ReviewParticipationDto): Promise<ParticipationResponseDto> => {
-    const { data } = await apiClient.post<ParticipationResponseDto>(
-        `/api/participations/${participationId}/review`, dto
-    );
-    return data;
-  },
-  confirmAttendance: async (participationId: string, dto?: ConfirmAttendanceDto): Promise<ParticipationResponseDto> => {
-    const { data } = await apiClient.post<ParticipationResponseDto>(
-        `/api/participations/${participationId}/confirm-attendance`, dto ?? {}
-    );
-    return data;
   },
 };

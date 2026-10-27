@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { newsApi, type NewsResponseDto } from '../../api/news';
 import { Spinner } from '../../components/Spinner';
+import { SecureImage } from '../../components/SecureImage';
 
 const fmtDate = (s: string) =>
   new Date(s).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -49,7 +50,7 @@ export function NewsDetailPage() {
   if (error || !news) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <div className="text-8xl font-bold text-primary/20 mb-4">404</div>
+        <div className="text-6xl sm:text-8xl font-bold text-primary/20 mb-4">404</div>
         <h1 className="text-2xl font-bold text-gray-900 mb-3">Новость не найдена</h1>
         <p className="text-gray-600 mb-8">Возможно, она была удалена или перемещена.</p>
         <Link to="/news" className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg no-underline">
@@ -106,10 +107,10 @@ export function NewsDetailPage() {
           {/* Cover image */}
           {news.imageUrl && (
             <div className="rounded-2xl overflow-hidden mb-10 shadow-lg">
-              <img
+              <SecureImage
                 src={news.imageUrl}
                 alt={news.title}
-                className="w-full max-h-[480px] object-cover"
+                className="w-full max-h-[30rem] object-cover"
               />
             </div>
           )}

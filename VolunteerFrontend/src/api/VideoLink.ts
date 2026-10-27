@@ -9,10 +9,10 @@ import type {
 
 // ── Public ────────────────────────────────────────────────────────────────────
 
-export async function getVideoLinks(skip = 0, take = 20): Promise<VideoLinkListResponseDto> {
-    const { data } = await apiClient.get<VideoLinkListResponseDto>(
-        `/api/video-links?skip=${skip}&take=${take}`,
-    );
+export async function getVideoLinks(skip = 0, take = 20, organizationId?: string): Promise<VideoLinkListResponseDto> {
+    const { data } = await apiClient.get<VideoLinkListResponseDto>('/api/video-links', {
+        params: { skip, take, ...(organizationId ? { organizationId } : {}) },
+    });
     return data;
 }
 

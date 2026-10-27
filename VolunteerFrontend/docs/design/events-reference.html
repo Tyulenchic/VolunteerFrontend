@@ -1,0 +1,633 @@
+<title>Волонтёры Приднестровья</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Layout: афиша. Герой асимметричный (заголовок слева, поиск справа); категории прямоугольными кнопками;
+     лента времени по датам с билетами (фото слева на всю высоту, основная часть, корешок с местами);
+     справа мини-календарь событий. Шрифты и синий как на сайте, второй акцент зелёный. Только светлая тема. */
+  :root {
+    color-scheme: light;
+    --bg: #f3f6fc;
+    --surface: #ffffff;
+    --fg: #0f1b33;
+    --muted: #4a5873;
+    --faint: #66728a;
+    --line: #e2e8f2;
+    --rule: #cbd5e4;
+    --accent: #2563eb;
+    --accent-fg: #ffffff;
+    --accent-soft: #eaf1ff;
+    --green: #10b981;
+    --mint: #b6efd6;
+    --warn: #d92d20;
+    --font-display: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
+    --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+  html { font-size: 15px; }
+  body {
+    background-color: var(--bg);
+    background-image: linear-gradient(180deg, #f6f8fd 0%, #eef3fd 45%, #f4f7fd 100%);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  .font-display { font-family: var(--font-display); }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  .glass { background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(10px); }
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button, a { transition: background-color .15s, color .15s, border-color .15s, opacity .15s; }
+
+  /* маркер: мягкая мятная подчёркивающая полоса */
+  .mark {
+    background: linear-gradient(transparent 60%, var(--mint) 60%, var(--mint) 92%, transparent 92%);
+    padding: 0 .1em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .band { height: 5px; background: linear-gradient(90deg, var(--accent), var(--green)); }
+
+  /* боковой фон: векторные плитки с рисунками повторяются по высоте страницы по краям.
+     Ширина зависит от свободного поля рядом с контентом, внутренний край плавно растворяется. */
+  .side-art {
+    display: none;
+    position: absolute;
+    top: 0; bottom: 0;
+    z-index: 0;
+    width: clamp(150px, calc((100vw - 76rem) / 2 + 3rem), 400px);
+    background-size: 100% auto;
+    background-repeat: repeat-y;
+    pointer-events: none;
+  }
+  .side-art-l {
+    left: 0;
+    background-image: url('data:image/svg+xml;base64,__ART_L__');
+    background-position: left top;
+    -webkit-mask-image: linear-gradient(to right, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 55%, transparent 100%);
+  }
+  .side-art-r {
+    right: 0;
+    background-image: url('data:image/svg+xml;base64,__ART_R__');
+    background-position: right top;
+    -webkit-mask-image: linear-gradient(to left, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to left, #000 55%, transparent 100%);
+  }
+  @media (min-width: 1200px) { .side-art { display: block; } }
+  /* мягкое голубое пятно в углу подвала, как волны на фоне */
+  .footer-art {
+    background-image:
+      radial-gradient(55% 80% at 100% 100%, #e4edff 0%, rgba(228, 237, 255, 0) 72%),
+      radial-gradient(30% 50% at 0% 0%, #eef4ff 0%, rgba(238, 244, 255, 0) 70%);
+  }
+
+  /* билет: вырезы у корешка делает маска, контур даёт drop-shadow на обёртке */
+  .ticket-wrap {
+    filter: drop-shadow(0 0 0.6px rgba(15, 27, 51, 0.55)) drop-shadow(0 8px 14px rgba(15, 27, 51, 0.05));
+    transition: filter .2s, transform .2s;
+  }
+  .ticket-wrap:hover {
+    transform: translateY(-2px);
+    filter: drop-shadow(0 0 0.6px rgba(15, 27, 51, 0.7)) drop-shadow(0 14px 20px rgba(15, 27, 51, 0.12));
+  }
+  .ticket {
+    --stubh: 3.25rem;
+    --stubw: 8.25rem;
+    --r: 9px;
+    background: var(--surface);
+    border-radius: 16px;
+    -webkit-mask:
+      radial-gradient(circle var(--r) at 0 calc(100% - var(--stubh)), #0000 calc(var(--r) - .5px), #000 var(--r)) left / 51% 100% no-repeat,
+      radial-gradient(circle var(--r) at 100% calc(100% - var(--stubh)), #0000 calc(var(--r) - .5px), #000 var(--r)) right / 51% 100% no-repeat;
+    mask:
+      radial-gradient(circle var(--r) at 0 calc(100% - var(--stubh)), #0000 calc(var(--r) - .5px), #000 var(--r)) left / 51% 100% no-repeat,
+      radial-gradient(circle var(--r) at 100% calc(100% - var(--stubh)), #0000 calc(var(--r) - .5px), #000 var(--r)) right / 51% 100% no-repeat;
+  }
+  @media (min-width: 640px) {
+    .ticket {
+      -webkit-mask:
+        radial-gradient(circle var(--r) at calc(100% - var(--stubw)) 0, #0000 calc(var(--r) - .5px), #000 var(--r)) top / 100% 51% no-repeat,
+        radial-gradient(circle var(--r) at calc(100% - var(--stubw)) 100%, #0000 calc(var(--r) - .5px), #000 var(--r)) bottom / 100% 51% no-repeat;
+      mask:
+        radial-gradient(circle var(--r) at calc(100% - var(--stubw)) 0, #0000 calc(var(--r) - .5px), #000 var(--r)) top / 100% 51% no-repeat,
+        radial-gradient(circle var(--r) at calc(100% - var(--stubw)) 100%, #0000 calc(var(--r) - .5px), #000 var(--r)) bottom / 100% 51% no-repeat;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div id="root"></div>
+
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: 'var(--bg)', surface: 'var(--surface)', line: 'var(--line)', rule: 'var(--rule)', fg: 'var(--fg)',
+          muted: 'var(--muted)', faint: 'var(--faint)', accent: 'var(--accent)',
+          'accent-fg': 'var(--accent-fg)', 'accent-soft': 'var(--accent-soft)', green: 'var(--green)', mint: 'var(--mint)', warn: 'var(--warn)'
+        }
+      }
+    }
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+(function () {
+  const { useState, useMemo, useEffect, useRef } = React;
+  const html = htm.bind(React.createElement);
+
+  /* Фото из скриншота пользователя: в проекте это поле imageUrl из API */
+  const PHOTO = 'data:image/jpeg;base64,__PHOTO__';
+
+  /* ---------- иконки ---------- */
+  const ICONS = {
+    search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    pin: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+    grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+    leaf: '<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c2-5 5-8 9-10"/>',
+    heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
+    handheart: '<path d="M11 14h2a2 2 0 0 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16"/><path d="m7 20 1.6 1.4c.3.3.8.6 1.4.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 15 6 6"/><path d="M19.5 8.5c.7-.7 1.5-1.6 1.5-2.7A2.73 2.73 0 0 0 16 4a2.78 2.78 0 0 0-5 1.8c0 1.2.8 2 1.5 2.8L16 12Z"/>',
+    drop: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
+    book: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H20v14H5.5A1.5 1.5 0 0 0 4 19.5z"/><path d="M4 19.5A1.5 1.5 0 0 0 5.5 21H20v-3"/>',
+    pulse: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+    paw: '<circle cx="7" cy="10" r="1.6"/><circle cx="11" cy="6.5" r="1.6"/><circle cx="16" cy="7" r="1.6"/><circle cx="19" cy="11.5" r="1.6"/><path d="M8 18c0-3 2.5-5 5-5s5 2 4 5c-.6 1.8-2.3 2-4 2s-4.5-.2-5-2z"/>',
+    star: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+    palette: '<path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-1.2-1-1.4-1-2.5 0-1 .8-1.7 2-1.7h2.5A3.5 3.5 0 0 0 21 11.5C21 6.8 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/>',
+    camera: '<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+    flag: '<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',
+    city: '<path d="M4 21V7l7-3v17M11 21V10l9 3v8M3 21h18"/>',
+    cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+    cross: '<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/>',
+    check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    close: '<path d="M6 6l12 12M18 6 6 18"/>',
+    chevron: '<path d="m6 9 6 6 6-6"/>',
+    image: '<rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="1.7"/><path d="m4 18 5-5 4 4 3-3 4 4"/>'
+  };
+  const Icon = ({ n, size = 16, className = '' }) => html`
+    <svg width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className=${className}
+      dangerouslySetInnerHTML=${{ __html: ICONS[n] }} />`;
+
+  /* ---------- данные (демо) ---------- */
+  const CATEGORIES = [
+    { id: 'Ecological', label: 'Экологическое', icon: 'leaf' },
+    { id: 'Social', label: 'Социальное', icon: 'heart' },
+    { id: 'Donation', label: 'Донорство', icon: 'drop' },
+    { id: 'Education', label: 'Образование', icon: 'book' },
+    { id: 'HealthyLife', label: 'ЗОЖ', icon: 'pulse' },
+    { id: 'Animals', label: 'Животные', icon: 'paw' },
+    { id: 'Veterans', label: 'Ветераны', icon: 'star' },
+    { id: 'Medical', label: 'Медицина', icon: 'cross' },
+    { id: 'Culture', label: 'Культура', icon: 'palette' },
+    { id: 'Media', label: 'Медиа', icon: 'camera' },
+    { id: 'Events', label: 'События', icon: 'cal' },
+    { id: 'Patriotic', label: 'Патриотическое', icon: 'flag' },
+    { id: 'Urban', label: 'Городская среда', icon: 'city' }
+  ];
+  const CAT = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+
+  const EVENTS = [
+    { id: 'e1', title: 'Фотосессия', category: 'Media', startsAt: '2026-10-12T19:00:00', location: 'Тирасполь', max: 20, approved: 5, image: PHOTO },
+    { id: 'e2', title: 'Полив саженцев в парке Кирова', category: 'Ecological', startsAt: '2026-10-14T10:00:00', location: 'Тирасполь, парк Кирова', max: 20, approved: 16, image: null },
+    { id: 'e3', title: 'День донора в республиканской больнице', category: 'Donation', startsAt: '2026-10-16T09:00:00', location: 'Тирасполь', max: 40, approved: 22, image: null },
+    { id: 'e4', title: 'Помощь приюту для бездомных животных', category: 'Animals', startsAt: '2026-10-18T11:00:00', location: 'Бендеры', max: 15, approved: 15, image: null },
+    { id: 'e5', title: 'Урок финансовой грамотности для школьников', category: 'Education', startsAt: '2026-10-20T15:00:00', location: 'Тирасполь, школа № 5', max: 12, approved: 7, image: null },
+    { id: 'e6', title: 'Осенний кросс в парке Победы', category: 'HealthyLife', startsAt: '2026-10-25T10:00:00', location: 'Тирасполь, парк Победы', max: 60, approved: 31, image: null },
+    { id: 'e7', title: 'Встреча с ветеранами', category: 'Veterans', startsAt: '2026-10-29T14:00:00', location: 'Рыбница', max: 25, approved: 9, image: null },
+    { id: 'e8', title: 'Экскурсия по Бендерской крепости', category: 'Culture', startsAt: '2026-11-01T12:00:00', location: 'Бендеры', max: null, approved: 0, image: null }
+  ].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+
+  const TODAY = new Date(2026, 9, 7);
+  const MONTH_NOM = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+  const MONTH_SHORT = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+  const WEEKDAYS = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+  const WD_SHORT = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  const WD_ABBR = ['вс','пн','вт','ср','чт','пт','сб'];
+
+  const pad = n => String(n).padStart(2, '0');
+  const parseDay = key => { const [y, m, d] = key.split('-').map(Number); return { y, m, d, date: new Date(y, m - 1, d) }; };
+  const timeOf = iso => iso.slice(11, 16);
+  const plural = (n, [a, b, c]) => {
+    const m = n % 100, d = n % 10;
+    if (m > 10 && m < 20) return c;
+    if (d === 1) return a;
+    if (d >= 2 && d <= 4) return b;
+    return c;
+  };
+  const seatsLeft = e => (e.max == null ? null : Math.max(e.max - e.approved, 0));
+  const noJump = ev => ev.preventDefault();
+
+  /* ---------- декор в стиле фона: тонкая синяя линия и бледная заливка ---------- */
+  const LINE = '#7ea2e8';
+  const FILL = '#dce8ff';
+  const PeopleArt = () => html`
+    <svg viewBox="0 0 120 76" fill="none" stroke=${LINE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="h-auto w-full">
+      <circle cx="60" cy="22" r="11" fill=${FILL}/>
+      <path d="M38 64c0-12 10-21 22-21s22 9 22 21z" fill=${FILL}/>
+      <circle cx="26" cy="31" r="8" fill=${FILL}/>
+      <path d="M10 64c0-9 7-16 16-16 3 0 5 .6 7 1.8"/>
+      <circle cx="94" cy="31" r="8" fill=${FILL}/>
+      <path d="M110 64c0-9-7-16-16-16-3 0-5 .6-7 1.8"/>
+      <path d="M4 68h112" strokeOpacity="0.5"/>
+    </svg>`;
+
+  /* ---------- шапка ---------- */
+  const NAV = [
+    { id: 'home', label: 'Главная' }, { id: 'about', label: 'О нас' }, { id: 'news', label: 'Новости' },
+    { id: 'events', label: 'Мероприятия', active: true }, { id: 'contacts', label: 'Контакты' }
+  ];
+  const MORE = ['Организаторы', 'Волонтёры', 'FAQ'];
+
+  const Logo = ({ size = 32 }) => html`
+    <span className="grid shrink-0 place-items-center rounded-lg bg-accent text-accent-fg" style=${{ width: size, height: size }}>
+      <${Icon} n="handheart" size=${Math.round(size * 0.6)} />
+    </span>`;
+
+  function Header() {
+    const [menu, setMenu] = useState(false);
+    const [more, setMore] = useState(false);
+    const moreRef = useRef(null);
+    useEffect(() => {
+      const h = ev => { if (moreRef.current && !moreRef.current.contains(ev.target)) setMore(false); };
+      document.addEventListener('click', h);
+      return () => document.removeEventListener('click', h);
+    }, []);
+    const link = it => html`
+      <a key=${it.id} href=${'#' + it.id} onClick=${noJump} aria-current=${it.active ? 'page' : undefined}
+        className=${`px-3 py-2 text-[14px] ${it.active ? 'font-semibold text-fg' : 'font-medium text-muted hover:text-fg'}`}>
+        <span className=${it.active ? 'mark' : ''}>${it.label}</span>
+      </a>`;
+
+    return html`
+      <header className="glass sticky z-30 border-b border-line" style=${{ top: 'env(safe-area-inset-top, 0px)' }}>
+        <div className="mx-auto flex h-[3.75rem] max-w-[76rem] items-center gap-4 px-4 sm:px-6">
+          <a href="#home" onClick=${noJump} className="flex min-w-0 items-center gap-2.5">
+            <${Logo} />
+            <span className="font-display truncate text-[15px] font-bold tracking-tight">Волонтёры Приднестровья</span>
+          </a>
+
+          <nav className="ml-6 hidden items-center lg:flex" aria-label="Основная навигация">
+            ${NAV.map(link)}
+            <div className="relative" ref=${moreRef}>
+              <button type="button" onClick=${() => setMore(v => !v)} aria-expanded=${more}
+                className="inline-flex items-center gap-1 px-3 py-2 text-[14px] font-medium text-muted hover:text-fg">
+                Ещё <${Icon} n="chevron" size=${14} />
+              </button>
+              ${more && html`
+                <div className="absolute left-0 top-full mt-2 w-44 rounded-xl border border-line bg-surface p-1 shadow-lg">
+                  ${MORE.map(t => html`<a key=${t} href="#more" onClick=${noJump}
+                    className="block rounded-lg px-3 py-2 text-[13.5px] text-muted hover:bg-accent-soft hover:text-fg">${t}</a>`)}
+                </div>`}
+            </div>
+            ${link({ id: 'admin', label: 'Управление' })}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-accent-soft text-[11px] font-semibold text-accent">AV</span>
+              <span className="hidden text-[13.5px] font-medium sm:inline">Aen Virel</span>
+            </div>
+            <button type="button"
+              className="hidden h-8 items-center rounded-lg border-[1.5px] border-rule px-3.5 text-[13px] font-medium hover:border-accent hover:text-accent sm:inline-flex">Выйти</button>
+            <button type="button" onClick=${() => setMenu(v => !v)} aria-label=${menu ? 'Закрыть меню' : 'Открыть меню'} aria-expanded=${menu}
+              className="grid h-8 w-8 place-items-center rounded-lg border-[1.5px] border-rule hover:border-accent lg:hidden">
+              <${Icon} n=${menu ? 'close' : 'menu'} size=${16} />
+            </button>
+          </div>
+        </div>
+        ${menu && html`
+          <div className="border-t border-line bg-surface lg:hidden">
+            <nav className="mx-auto flex max-w-[76rem] flex-col gap-0.5 px-4 py-3 sm:px-6" aria-label="Мобильная навигация">
+              ${NAV.concat(MORE.map(t => ({ id: t, label: t })), [{ id: 'admin', label: 'Управление' }]).map(it => html`
+                <a key=${it.id} href=${'#' + it.id} onClick=${noJump}
+                  className=${`rounded-lg px-3 py-2.5 text-[14px] font-medium ${it.active ? 'bg-accent-soft text-accent' : 'text-muted hover:bg-bg'}`}>${it.label}</a>`)}
+              <button type="button" className="mt-2 h-9 rounded-lg border-[1.5px] border-rule text-[13.5px] font-medium sm:hidden">Выйти</button>
+            </nav>
+          </div>`}
+      </header>`;
+  }
+
+  /* ---------- мини-календарь ---------- */
+  function MiniCalendar({ days, onPick, next }) {
+    const [view, setView] = useState({ y: TODAY.getFullYear(), m: TODAY.getMonth() });
+    const offset = (new Date(view.y, view.m, 1).getDay() + 6) % 7;
+    const dim = new Date(view.y, view.m + 1, 0).getDate();
+    const cells = [];
+    for (let i = 0; i < offset; i++) cells.push(null);
+    for (let d = 1; d <= dim; d++) cells.push(d);
+    const shift = k => setView(v => { const dt = new Date(v.y, v.m + k, 1); return { y: dt.getFullYear(), m: dt.getMonth() }; });
+    const keyOf = d => `${view.y}-${pad(view.m + 1)}-${pad(d)}`;
+    const isToday = d => view.y === TODAY.getFullYear() && view.m === TODAY.getMonth() && d === TODAY.getDate();
+
+    const nextDay = parseDay(next.startsAt.slice(0, 10));
+    const diff = Math.round((nextDay.date - TODAY) / 86400000);
+    const when = diff <= 0 ? 'сегодня' : diff === 1 ? 'завтра' : `через ${diff} ${plural(diff, ['день', 'дня', 'дней'])}`;
+
+    return html`
+      <div className="flex flex-col gap-5">
+        <div className="rounded-2xl border border-line bg-surface p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="font-display text-[14px] font-bold capitalize">${MONTH_NOM[view.m]} ${view.y}</p>
+            <div className="flex gap-1">
+              <button type="button" onClick=${() => shift(-1)} aria-label="Предыдущий месяц"
+                className="grid h-7 w-7 place-items-center rounded-md border border-line text-muted hover:border-accent hover:text-accent"><${Icon} n="chevron" size=${14} className="rotate-90" /></button>
+              <button type="button" onClick=${() => shift(1)} aria-label="Следующий месяц"
+                className="grid h-7 w-7 place-items-center rounded-md border border-line text-muted hover:border-accent hover:text-accent"><${Icon} n="chevron" size=${14} className="-rotate-90" /></button>
+            </div>
+          </div>
+          <div className="grid grid-cols-7 text-center">
+            ${WD_SHORT.map(w => html`<span key=${w} className="pb-1.5 text-[11px] font-medium text-faint">${w}</span>`)}
+            ${cells.map((d, i) => {
+              if (d == null) return html`<span key=${'e' + i}></span>`;
+              const has = days.has(keyOf(d));
+              const base = 'relative grid h-8 place-items-center rounded-lg text-[12.5px] tabular-nums';
+              return has
+                ? html`<button key=${d} type="button" onClick=${() => onPick(keyOf(d))} title="Есть мероприятия"
+                    className=${`${base} bg-accent-soft font-semibold text-accent hover:bg-accent hover:text-accent-fg ${isToday(d) ? 'ring-[1.5px] ring-fg' : ''}`}>
+                    ${d}<span className="absolute bottom-1 h-1 w-1 rounded-full bg-green"></span></button>`
+                : html`<span key=${d} className=${`${base} ${isToday(d) ? 'font-semibold text-fg ring-[1.5px] ring-fg' : 'text-muted'}`}>${d}</span>`;
+            })}
+          </div>
+          <p className="mt-3 flex items-center gap-2 text-[11.5px] text-faint"><span className="h-1.5 w-1.5 rounded-full bg-green"></span>Дни с мероприятиями</p>
+        </div>
+
+        <button type="button" onClick=${() => onPick(next.startsAt.slice(0, 10))}
+          className="rounded-2xl border border-line bg-surface p-5 text-left hover:border-accent">
+          <p className="label text-faint">Ближайшее</p>
+          <p className="mt-1.5 text-[14px] font-semibold leading-snug">${next.title}</p>
+          <p className="mt-1 text-[13px] text-muted"><span className="mark font-medium text-fg">${when}</span>, ${nextDay.d} ${MONTH_SHORT[nextDay.m - 1]} в ${timeOf(next.startsAt)}</p>
+        </button>
+      </div>`;
+  }
+
+  /* ---------- билет ---------- */
+  function Ticket({ e, applied, onToggle }) {
+    const cat = CAT[e.category];
+    const left = seatsLeft(e);
+    const closed = left === 0;
+    const low = left != null && left > 0 && left <= 5;
+    const pct = e.max ? Math.min(100, Math.round((e.approved / e.max) * 100)) : 0;
+
+    let btnClass = 'bg-accent text-accent-fg hover:opacity-90';
+    let btnText = 'Подать заявку';
+    if (closed) { btnClass = 'cursor-not-allowed bg-line text-faint'; btnText = 'Набор закрыт'; }
+    else if (applied) { btnClass = 'border-[1.5px] border-accent bg-accent-soft text-accent'; btnText = 'Заявка подана'; }
+
+    const label = closed ? 'Набор закрыт' : e.max == null ? 'Мест' : 'Осталось';
+    const num = e.max == null ? '∞' : left;
+    const word = e.max == null ? 'без лимита' : plural(left, ['место', 'места', 'мест']);
+
+    return html`
+      <div id=${'ev-' + e.id} className="ticket-wrap scroll-mt-24">
+        <article className="ticket flex flex-col sm:flex-row">
+          <div className="relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-t-2xl sm:aspect-auto sm:w-40 sm:rounded-l-2xl sm:rounded-tr-none">
+            ${e.image
+              ? html`<img src=${e.image} alt=${e.title} className="absolute inset-0 h-full w-full object-cover" />`
+              : html`<div className="absolute inset-0 grid place-items-center" style=${{ background: 'linear-gradient(135deg, #d9e6ff, #eef4ff)', color: '#7ea2e8' }}>
+                  <${Icon} n="image" size=${36} />
+                </div>`}
+          </div>
+
+          <div className="flex min-w-0 flex-1 flex-col gap-3 p-5">
+            <p className="label flex items-center gap-1.5 text-accent"><${Icon} n=${cat.icon} size=${13} />${cat.label}</p>
+            <h3 className="font-display text-[16px] font-bold leading-snug">${e.title}</h3>
+            <ul className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-muted">
+              <li className="flex items-center gap-1.5"><${Icon} n="clock" size=${14} className="shrink-0 text-accent" /><span className="font-medium tabular-nums text-fg">${timeOf(e.startsAt)}</span></li>
+              <li className="flex min-w-0 items-center gap-1.5"><${Icon} n="pin" size=${14} className="shrink-0 text-accent" /><span className="truncate">${e.location}</span></li>
+            </ul>
+            <div className="mt-auto flex gap-2.5 pt-3">
+              <button type="button" disabled=${closed} onClick=${() => onToggle(e.id)}
+                title=${applied ? 'Нажмите, чтобы отозвать заявку' : undefined}
+                className=${`inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg px-4 text-[13px] font-semibold sm:flex-none ${btnClass}`}>
+                ${applied && html`<${Icon} n="check" size=${15} />`}${btnText}
+              </button>
+              <a href=${'#' + e.id} onClick=${noJump}
+                className="grid h-9 flex-1 place-items-center rounded-lg border-[1.5px] border-rule px-4 text-[13px] font-medium hover:border-accent hover:text-accent sm:flex-none">Подробнее</a>
+            </div>
+          </div>
+
+          <div className="flex h-[3.25rem] items-center justify-between gap-2 border-t-[1.5px] border-dashed border-rule px-4 sm:h-auto sm:w-[8.25rem] sm:flex-col sm:items-start sm:justify-center sm:gap-1.5 sm:border-l-[1.5px] sm:border-t-0">
+            <p className="label text-faint" style=${{ fontSize: '10.5px' }}>${label}</p>
+            <p className=${`flex items-baseline gap-1.5 ${low ? 'text-warn' : ''}`}>
+              <span className=${`font-display text-[1.7rem] font-bold leading-none tabular-nums ${closed ? 'text-faint' : ''}`}>${num}</span>
+              <span className=${`text-[12.5px] ${low ? 'font-medium' : 'text-muted'}`}>${word}</span>
+            </p>
+            ${e.max != null && html`
+              <div className="hidden h-[3px] w-full overflow-hidden rounded-full bg-line sm:block">
+                <div className=${`h-full rounded-full ${low ? 'bg-warn' : 'bg-accent'}`} style=${{ width: pct + '%' }}></div>
+              </div>`}
+          </div>
+        </article>
+      </div>`;
+  }
+
+  /* ---------- подвал ---------- */
+  const CONTACTS = [
+    ['Почта', 'ump@minpros.gospmr.org'], ['Телефон', '0 (533) 2-22-29'],
+    ['Адрес', 'г. Тирасполь, ул. Мира, 27'], ['Часы', 'Пн–Пт: 8:00–17:00']
+  ];
+  const FOOT = [
+    { title: 'Разделы', items: ['Новости', 'Мероприятия', 'Организаторы', 'Волонтёры', 'О нас'] },
+    { title: 'Помощь', items: ['Стать волонтёром', 'FAQ', 'Правила сайта', 'Конфиденциальность'] }
+  ];
+  function Footer() {
+    return html`
+      <footer className="footer-art relative z-10 mt-4 bg-surface">
+        <div className="band"></div>
+        <div className="mx-auto max-w-[76rem] px-4 sm:px-6">
+          <div className="grid gap-12 py-14 lg:grid-cols-[1.15fr_1fr_1.25fr] lg:gap-16">
+            <div className="flex max-w-xs flex-col gap-3.5">
+              <div className="flex items-center gap-2.5">
+                <${Logo} size=${30} />
+                <span className="font-display text-[14.5px] font-bold tracking-tight">Волонтёры Приднестровья</span>
+              </div>
+              <p className="text-[13px] leading-relaxed text-muted">Официальный портал волонтёрского движения Приднестровья. Делаем мир лучше вместе с 2020 года.</p>
+              <div className="flex gap-2">
+                ${['VK', 'TG', 'IG'].map(s => html`<a key=${s} href="#social" onClick=${noJump}
+                  className="grid h-8 w-8 place-items-center rounded-lg border-[1.5px] border-rule text-[11px] font-semibold text-muted hover:border-accent hover:bg-accent-soft hover:text-accent">${s}</a>`)}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              ${FOOT.map(col => html`
+                <div key=${col.title}>
+                  <h4 className="label mb-3 text-faint">${col.title}</h4>
+                  <ul className="flex flex-col gap-2 text-[13px]">
+                    ${col.items.map(t => html`<li key=${t}><a href="#foot" onClick=${noJump} className="text-muted hover:text-accent">${t}</a></li>`)}
+                  </ul>
+                </div>`)}
+            </div>
+
+            <div>
+              <h4 className="label mb-3 text-faint">Контакты</h4>
+              <dl className="flex flex-col gap-2.5 text-[13px]">
+                ${CONTACTS.map(([k, v]) => html`
+                  <div key=${k} className="flex items-baseline gap-2">
+                    <dt className="shrink-0 text-muted">${k}</dt>
+                    <span className="min-w-3 flex-1 border-b border-dotted border-rule"></span>
+                    <dd className="min-w-0 select-text break-words text-right font-medium tabular-nums">${v}</dd>
+                  </div>`)}
+              </dl>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 border-t border-line py-4 text-[12.5px] text-faint sm:flex-row sm:items-center sm:justify-between">
+            <p>© 2020–2026 Волонтёры Приднестровья. Все права защищены.</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              ${['Политика конфиденциальности', 'Правила сайта', 'FAQ'].map(t => html`<a key=${t} href="#legal" onClick=${noJump} className="hover:text-accent">${t}</a>`)}
+            </div>
+          </div>
+        </div>
+      </footer>`;
+  }
+
+  /* ---------- страница ---------- */
+  function App() {
+    const [cat, setCat] = useState('all');
+    const [query, setQuery] = useState('');
+    const [freeOnly, setFreeOnly] = useState(false);
+    const [applied, setApplied] = useState({ e2: true });
+
+    const counts = useMemo(() => {
+      const c = {};
+      EVENTS.forEach(e => { c[e.category] = (c[e.category] || 0) + 1; });
+      return c;
+    }, []);
+    const cats = CATEGORIES.filter(c => counts[c.id]);
+    const eventDays = useMemo(() => new Set(EVENTS.map(e => e.startsAt.slice(0, 10))), []);
+
+    const list = useMemo(() => {
+      const q = query.trim().toLowerCase();
+      return EVENTS.filter(e =>
+        (cat === 'all' || e.category === cat) &&
+        (!freeOnly || seatsLeft(e) !== 0) &&
+        (!q || (e.title + ' ' + e.location + ' ' + CAT[e.category].label).toLowerCase().includes(q)));
+    }, [cat, query, freeOnly]);
+
+    const groups = useMemo(() => {
+      const m = new Map();
+      list.forEach(e => { const k = e.startsAt.slice(0, 10); if (!m.has(k)) m.set(k, []); m.get(k).push(e); });
+      return Array.from(m.entries());
+    }, [list]);
+
+    const toggle = id => setApplied(s => ({ ...s, [id]: !s[id] }));
+    const reset = () => { setCat('all'); setQuery(''); setFreeOnly(false); };
+    const filtered = cat !== 'all' || query.trim() !== '' || freeOnly;
+    const pickDay = key => {
+      const visible = groups.some(([k]) => k === key);
+      if (!visible) reset();
+      setTimeout(() => {
+        const el = document.getElementById('day-' + key);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, visible ? 0 : 80);
+    };
+
+    const rect = (id, label, icon, count) => {
+      const on = cat === id;
+      return html`
+        <button key=${id} type="button" onClick=${() => setCat(id)} aria-pressed=${on}
+          className=${`inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border-[1.5px] px-3.5 text-[13.5px] font-medium ${on ? 'border-accent bg-accent text-accent-fg' : 'border-rule bg-surface text-fg hover:border-accent hover:text-accent'}`}>
+          <${Icon} n=${icon} size=${15} />${label}<span className="text-[12px] tabular-nums opacity-70">${count}</span>
+        </button>`;
+    };
+
+    return html`
+      <div className="relative flex min-h-screen flex-col overflow-x-clip">
+        <div className="side-art side-art-l" aria-hidden="true"></div>
+        <div className="side-art side-art-r" aria-hidden="true"></div>
+        <${Header} />
+        <main className="relative z-10 flex-1">
+          <section className="relative">
+            <div className="relative z-10 mx-auto grid max-w-[76rem] items-end gap-8 px-4 pb-12 pt-14 sm:px-6 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pb-16 md:pt-20">
+              <div className="min-w-0">
+                <h1 className="font-display text-[clamp(1.85rem,4.4vw,3rem)] font-extrabold leading-[1.1] tracking-tight" style=${{ textWrap: 'balance' }}>
+                  Волонтёрские <span className="text-accent">мероприятия</span>
+                </h1>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[14.5px] leading-relaxed text-muted">Находите события, регистрируйтесь и участвуйте в жизни Приднестровья.</p>
+                <form className="mt-6 flex items-center gap-2 border-b-2 border-fg pb-2" onSubmit=${ev => ev.preventDefault()} role="search">
+                  <label htmlFor="event-search" className="sr-only">Поиск мероприятий</label>
+                  <span className="text-fg"><${Icon} n="search" size=${18} /></span>
+                  <input id="event-search" type="search" value=${query} onChange=${ev => setQuery(ev.target.value)}
+                    placeholder="Название, место, категория"
+                    className="h-9 min-w-0 flex-1 bg-transparent text-[15px] text-fg outline-none placeholder:text-faint" />
+                  <button type="submit" className="h-9 shrink-0 rounded-lg bg-accent px-5 text-[13.5px] font-semibold text-accent-fg hover:opacity-90">Найти</button>
+                </form>
+              </div>
+            </div>
+          </section>
+
+          <section className="mx-auto max-w-[76rem] px-4 sm:px-6" aria-label="Категории">
+            <div className="no-scrollbar -mx-4 flex gap-2.5 overflow-x-auto border-y border-line px-4 py-6 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group">
+              ${rect('all', 'Все', 'grid', EVENTS.length)}
+              ${cats.map(c => rect(c.id, c.label, c.icon, counts[c.id]))}
+            </div>
+          </section>
+
+          <section className="mx-auto max-w-[76rem] px-4 pb-24 pt-12 sm:px-6">
+            <div className="grid gap-14 lg:grid-cols-[1fr_16rem]">
+              <div className="min-w-0">
+                <div className="mb-9 flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-[14px] font-semibold tabular-nums">${list.length} ${plural(list.length, ['мероприятие', 'мероприятия', 'мероприятий'])}</h2>
+                    ${filtered && html`<button type="button" onClick=${reset} className="text-[13px] font-medium text-accent hover:underline">Сбросить фильтры</button>`}
+                  </div>
+                  <button type="button" role="switch" aria-checked=${freeOnly} onClick=${() => setFreeOnly(v => !v)}
+                    className="inline-flex items-center gap-2.5 text-[13px] font-medium text-muted hover:text-fg">
+                    <span className=${`relative h-5 w-9 rounded-full ${freeOnly ? 'bg-accent' : 'bg-rule'}`}>
+                      <span className=${`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all ${freeOnly ? 'left-[1.1rem]' : 'left-0.5'}`}></span>
+                    </span>
+                    Только со свободными местами
+                  </button>
+                </div>
+
+                ${groups.length
+                  ? html`<div className="flex flex-col gap-14">
+                      ${groups.map(([key, items]) => {
+                        const d = parseDay(key);
+                        return html`
+                          <section key=${key} id=${'day-' + key} className="relative grid scroll-mt-24 gap-4 md:grid-cols-[6.25rem_1fr] md:gap-x-8 md:before:absolute md:before:-bottom-14 md:before:left-[calc(6.25rem+1rem-0.5px)] md:before:top-3 md:before:w-px md:before:bg-rule md:last:before:bottom-0">
+                            <div className="flex items-baseline gap-2.5 md:flex-col md:items-end md:gap-0 md:text-right xl:-ml-24 xl:w-[calc(100%+6rem)]">
+                              <p className="font-display text-[1.7rem] font-extrabold leading-none tabular-nums md:text-[2.5rem]">${d.d}</p>
+                              <p className="label whitespace-nowrap text-muted md:mt-2.5">${MONTH_SHORT[d.m - 1]} · <span className="md:hidden xl:inline">${WEEKDAYS[d.date.getDay()]}</span><span className="hidden md:inline xl:hidden">${WD_ABBR[d.date.getDay()]}</span></p>
+                            </div>
+                            <span className="absolute left-[calc(6.25rem+1rem-4px)] top-[1.05rem] hidden h-2 w-2 rounded-full bg-green ring-[1.5px] ring-fg md:block" aria-hidden="true"></span>
+                            <div className="flex min-w-0 flex-col gap-6">
+                              ${items.map(e => html`<${Ticket} key=${e.id} e=${e} applied=${!!applied[e.id]} onToggle=${toggle} />`)}
+                            </div>
+                          </section>`;
+                      })}
+                    </div>`
+                  : html`<div className="rounded-2xl border-[1.5px] border-dashed border-rule px-6 py-14 text-center">
+                      <div className="mx-auto mb-4 w-28"><${PeopleArt} /></div>
+                      <p className="font-display text-[15px] font-bold">Ничего не найдено</p>
+                      <p className="mt-1.5 text-[13px] text-muted">Измените запрос или выберите другую категорию.</p>
+                      <button type="button" onClick=${reset} className="mt-4 h-9 rounded-lg bg-accent px-5 text-[13.5px] font-semibold text-accent-fg hover:opacity-90">Сбросить фильтры</button>
+                    </div>`}
+
+                <p className="mt-8 text-[12px] text-faint">Показаны демонстрационные данные.</p>
+              </div>
+
+              <aside className="hidden lg:block" aria-label="Календарь">
+                <div className="sticky top-24">
+                  <${MiniCalendar} days=${eventDays} onPick=${pickDay} next=${EVENTS[0]} />
+                </div>
+              </aside>
+            </div>
+          </section>
+        </main>
+        <${Footer} />
+      </div>`;
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+})();
+</script>
