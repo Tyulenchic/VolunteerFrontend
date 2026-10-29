@@ -188,12 +188,24 @@ export function PhotoEditorModal({ purpose, mode, currentSrc, currentCrop, onClo
               Клавиатура: стрелки — двигать, «+» и «−» — размер.
             </p>
             <div className="flex flex-col md:flex-row gap-5 items-start">
-              <div className="min-w-0 flex-1 flex justify-center">
+              <div className="min-w-0 w-full flex-1 flex justify-center">
                 <ImageCropper src={src} naturalWidth={size.w} naturalHeight={size.h} aspect={cfg.aspect} rect={rect} onChange={setRect} round={cfg.round} />
               </div>
-              <div className="shrink-0 w-40">
+              {/* Предпросмотр тем же компонентом, что и на сайте, — совпадает с результатом после сохранения. */}
+              <div className="w-full md:w-40 shrink-0" aria-label="Предпросмотр" role="group">
                 <p className={`text-xs mb-2 ${t.muted}`}>Так увидят посетители</p>
-                <CroppedImage src={src} crop={toApiCrop(rect)} aspect={cfg.aspect} round={cfg.round} />
+                <div className="flex flex-wrap items-start gap-3 md:flex-col">
+                  <figure className={cfg.previews ? 'w-[7.5rem] md:w-40' : 'w-32 md:w-40'}>
+                    <CroppedImage src={src} crop={toApiCrop(rect)} aspect={cfg.aspect} round={cfg.round} />
+                    {cfg.previews && <figcaption className={`mt-1 text-[11px] ${t.muted}`}>Карточка</figcaption>}
+                  </figure>
+                  {cfg.previews?.map(pv => (
+                    <figure key={pv.label} style={{ width: pv.aspect < 1 ? '4.5rem' : '7.5rem' }}>
+                      <CroppedImage src={src} crop={toApiCrop(rect)} aspect={pv.aspect} />
+                      <figcaption className={`mt-1 text-[11px] ${t.muted}`}>{pv.label}</figcaption>
+                    </figure>
+                  ))}
+                </div>
               </div>
             </div>
             {warning && <p className={`text-xs ${t.warn}`}><i className="fas fa-triangle-exclamation mr-1" aria-hidden />{warning}</p>}

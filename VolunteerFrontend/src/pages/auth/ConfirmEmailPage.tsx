@@ -1,3 +1,4 @@
+import { SideArt } from '../../components/afisha/SideArt';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '../../api/auth';
@@ -57,7 +58,7 @@ export function ConfirmEmailPage() {
     body = (
       <>
         {icon('fas fa-check text-green-600', 'bg-green-100')}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Email подтверждён!</h1>
+        <h1 className="vol-compact mb-2">Email подтверждён!</h1>
         <p className="text-gray-600 mb-6">Теперь вы можете войти в аккаунт.</p>
         <Link to="/login" className="inline-block px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition no-underline">Войти</Link>
       </>
@@ -66,7 +67,7 @@ export function ConfirmEmailPage() {
     body = (
       <>
         {icon('fas fa-link-slash text-red-600', 'bg-red-100')}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Ссылка недействительна</h1>
+        <h1 className="vol-compact mb-2">Ссылка недействительна</h1>
         <p className="text-gray-600 mb-6">В ссылке нет токена подтверждения. Откройте ссылку из письма целиком или запросите новое письмо.</p>
         <ResendConfirmation />
       </>
@@ -75,7 +76,7 @@ export function ConfirmEmailPage() {
     body = (
       <>
         {icon('fas fa-exclamation-triangle text-red-600', 'bg-red-100')}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Ссылка недействительна или устарела</h1>
+        <h1 className="vol-compact mb-2">Ссылка недействительна или устарела</h1>
         <p className="text-gray-600 mb-6">{message} Запросите новое письмо.</p>
         <ResendConfirmation />
       </>
@@ -85,7 +86,7 @@ export function ConfirmEmailPage() {
     body = (
       <>
         {icon(temporary ? 'fas fa-wifi text-amber-600' : 'fas fa-envelope-circle-check text-primary', temporary ? 'bg-amber-100' : 'bg-primary/10')}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Подтверждение email</h1>
+        <h1 className="vol-compact mb-2">Подтверждение email</h1>
         {temporary
           ? <p role="alert" className="mb-6 p-3 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-sm">{message} Ссылка не потеряна — её можно использовать повторно.</p>
           : <p className="text-gray-600 mb-6">Нажмите кнопку, чтобы подтвердить адрес электронной почты.</p>}
@@ -100,8 +101,9 @@ export function ConfirmEmailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center">
+    <div className="vol-page relative overflow-x-clip min-h-dvh flex items-center justify-center p-4">
+      <SideArt />
+      <div className="relative z-10 bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center">
         {body}
         <Link to="/login" className="block text-center mt-6 text-sm text-gray-500 hover:text-primary no-underline"><i className="fas fa-arrow-left mr-1" />К входу</Link>
       </div>

@@ -6,12 +6,17 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { Modal } from '../../components/Modal';
 import { Spinner } from '../../components/Spinner';
+import { Avatar } from '../../components/ui/Avatar';
+import { MediaPlaceholder } from '../../components/ui/MediaPlaceholder';
 import { CroppedImage } from '../../components/ImageCropper';
 import { PostCard } from '../../components/organizations/PostCard';
+import { Breadcrumbs } from '../../components/afisha/Breadcrumbs';
+import { FEED_BLEED, PostFeed } from '../../components/organizations/PostFeed';
 import { getCategoryColor, getCategoryLabel, type EventResponseDto } from '../../types/event';
 import {
   CATEGORY_BADGE, CATEGORY_LABEL, DIRECTION_ICON, DIRECTION_LABEL, LEVEL_ICON, LEVEL_LABEL,
   type OrganizationApplication, type OrganizationDetails, type OrganizationMember, type OrganizationPost,
+  type OrganizationSummary,
 } from '../../types/organization';
 
 type Tab = 'about' | 'events' | 'posts' | 'members';
@@ -104,7 +109,7 @@ export function OrganizationDetailPage() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6 text-center px-4">
         <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center"><i className="fas fa-search text-4xl text-gray-400" /></div>
-        <h2 className="text-2xl font-bold text-gray-800">{failed === 'error' ? 'Не удалось загрузить страницу' : 'Организация не найдена'}</h2>
+        <h2 className="vol-compact">{failed === 'error' ? 'Не удалось загрузить страницу' : 'Организация не найдена'}</h2>
         <p className="text-gray-500 max-w-sm">{failed === 'error' ? 'Проверьте соединение и попробуйте ещё раз.' : 'Возможно, она в архиве или ссылка устарела.'}</p>
         <div className="flex gap-3">
           {failed === 'error' && <button onClick={() => { setLoading(true); void load(); }} className="px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition">Повторить</button>}
@@ -118,28 +123,19 @@ export function OrganizationDetailPage() {
 
   return (
     <>
-      {/* ── BREADCRUMB ── */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <nav className="flex items-center gap-2 text-sm text-gray-500" aria-label="Хлебные крошки">
-            <Link to="/" className="hover:text-primary transition">Главная</Link>
-            <i className="fas fa-chevron-right text-xs text-gray-300" />
-            <Link to="/organizations" className="hover:text-primary transition">Организации</Link>
-            <i className="fas fa-chevron-right text-xs text-gray-300" />
-            <span className="text-gray-700 font-medium truncate max-w-[200px]">{title}</span>
-          </nav>
-        </div>
-      </div>
+      <Breadcrumbs items={[{ to: '/', label: 'Главная' }, { to: '/organizations', label: 'Организации' }]} current={title} />
 
       {/* ── HERO ── */}
-      <section className="relative bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50 overflow-hidden">
+      <section className="relative overflow-hidden">
         {org.coverUrl && (
-          <div className="absolute inset-0 opacity-25">
-            <CroppedImage src={org.coverUrl} crop={org.coverCrop} aspect={16 / 5} className="!rounded-none w-full h-full [&>img]:!h-full" />
-          </div>
+          <>
+            <div className="absolute inset-0 opacity-25">
+              <CroppedImage src={org.coverUrl} crop={org.coverCrop} fill className="!rounded-none" />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-white/70 to-transparent pointer-events-none" />
+          </>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-white/70 to-transparent pointer-events-none" />
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative z-10">
+        <div className="wrap py-12 sm:py-16 relative z-10">
           <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition mb-6 group">
             <span className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center group-hover:shadow-md transition"><i className="fas fa-arrow-left text-xs" /></span>
             Назад
@@ -149,25 +145,25 @@ export function OrganizationDetailPage() {
             <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-gray-100 overflow-hidden">
               {org.logoUrl
                 ? <CroppedImage src={org.logoUrl} crop={org.logoCrop} aspect={1} className="w-full !rounded-none" alt={`Логотип: ${org.name}`} />
-                : <i className={`${LEVEL_ICON[org.level]} text-5xl text-teal-500`} />}
+                : <i className={`${LEVEL_ICON[org.level]} text-5xl text-blue-500`} />}
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-xs font-semibold text-gray-600 shadow-sm">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-[0.8125rem] font-semibold text-gray-600 shadow-sm">
                   <i className={`${LEVEL_ICON[org.level]} text-primary`} />{LEVEL_LABEL[org.level]}
                 </span>
                 {org.city && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-xs font-semibold text-gray-600 shadow-sm">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-[0.8125rem] font-semibold text-gray-600 shadow-sm">
                     <i className="fas fa-map-marker-alt text-primary" />{org.city}
                   </span>
                 )}
-                {!org.isActive && <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">В архиве — видна только организаторам</span>}
+                {!org.isActive && <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-[0.8125rem] font-semibold">В архиве — видна только организаторам</span>}
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-extrabold text-gray-900 leading-tight mb-4">{org.name}</h1>
+              <h1 className="vol-h1-detail mb-4">{org.name}</h1>
               <div className="flex flex-wrap gap-2 mb-6">
                 {org.categories.map(c => (
-                  <span key={c} className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${CATEGORY_BADGE[c]}`}>{CATEGORY_LABEL[c]}</span>
+                  <span key={c} className={`px-3 py-1 rounded-full text-[0.8125rem] font-bold uppercase tracking-wide ${CATEGORY_BADGE[c]}`}>{CATEGORY_LABEL[c]}</span>
                 ))}
               </div>
 
@@ -213,8 +209,8 @@ export function OrganizationDetailPage() {
       </section>
 
       {/* ── TABS ── */}
-      <div className="bg-white border-b border-gray-200 sticky top-[3.75rem] z-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="vol-bar border-b border-vol-line sticky top-[3.75rem] z-20">
+        <div className="wrap">
           <div role="tablist" aria-label="Разделы страницы организации" className="flex gap-1 overflow-x-auto no-scrollbar">
             {visibleTabs.map(t => (
               <button key={t.key} role="tab" aria-selected={tab === t.key} onClick={() => setTab(t.key)}
@@ -226,11 +222,11 @@ export function OrganizationDetailPage() {
         </div>
       </div>
 
-      <section className="py-12 sm:py-16 bg-gray-50 min-h-[40vh]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-12 sm:py-16 min-h-[40vh]">
+        <div className="wrap">
           {tab === 'about' && <AboutTab org={org} />}
           {tab === 'events' && <EventsTab orgId={org.id} canManage={org.canManage} />}
-          {tab === 'posts' && <PostsTab orgId={org.id} orgName={title} />}
+          {tab === 'posts' && <PostsTab orgId={org.id} organization={{ id: org.id, name: title, logoUrl: org.logoUrl, logoThumbnailUrl: org.logoThumbnailUrl, logoCrop: org.logoCrop }} />}
           {tab === 'members' && <MembersTab orgId={org.id} />}
         </div>
       </section>
@@ -246,7 +242,7 @@ export function OrganizationDetailPage() {
             <textarea value={message} onChange={e => setMessage(e.target.value)} maxLength={500} rows={4}
               placeholder="Чем хотите заниматься, есть ли опыт"
               className="mt-1 w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none" />
-            <span className="text-xs text-gray-400">{message.length}/500</span>
+            <span className="text-[0.8125rem] text-gray-400">{message.length}/500</span>
           </label>
           <div className="flex justify-end gap-2">
             <button onClick={() => setApplyOpen(false)} className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition">Отмена</button>
@@ -267,24 +263,24 @@ function AboutTab({ org }: { org: OrganizationDetails }) {
     <div className="grid lg:grid-cols-3 gap-10">
       <div className="lg:col-span-2 space-y-8">
         <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8">
-          <h2 className="text-xl font-heading font-bold text-gray-900 mb-4">О нас</h2>
+          <h2 className="vol-h3 mb-4">О нас</h2>
           <p className="text-gray-700 leading-relaxed whitespace-pre-line">{org.description}</p>
         </div>
 
         {org.movements.length > 0 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-heading font-bold text-gray-900 flex items-center gap-3">
+            <h2 className="vol-h3 flex items-center gap-3">
               <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center"><i className="fas fa-users text-primary text-sm" /></span>
               Волонтёрские движения
             </h2>
             {org.movements.map(m => (
               <article key={m.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-primary/30 hover:shadow-md transition">
-                <div className="bg-gradient-to-r from-primary/5 to-teal-50 px-6 py-4 border-b border-gray-100">
+                <div className="bg-gradient-to-r from-primary/5 to-blue-50 px-6 py-4 border-b border-gray-100">
                   <h3 className="font-bold text-gray-900">{m.name}</h3>
                   {m.directions.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {m.directions.map(d => (
-                        <span key={d} className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-white border border-gray-200 rounded-full text-xs text-gray-600">
+                        <span key={d} className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-white border border-gray-200 rounded-full text-[0.8125rem] text-gray-600">
                           <i className={`fas ${DIRECTION_ICON[d]} text-primary`} aria-hidden />{DIRECTION_LABEL[d]}
                         </span>
                       ))}
@@ -304,7 +300,7 @@ function AboutTab({ org }: { org: OrganizationDetails }) {
 
       <aside className="space-y-6">
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="text-lg font-heading font-bold text-gray-900 mb-4">Контакты</h2>
+          <h2 className="vol-h3 mb-4">Контакты</h2>
           <ul className="space-y-3 text-sm">
             {org.city && <li className="flex gap-3 text-gray-700"><i className="fas fa-map-marker-alt w-4 text-primary mt-0.5" aria-hidden />{org.city}</li>}
             {org.contactPhone && <li className="flex gap-3 text-gray-700"><i className="fas fa-phone w-4 text-primary mt-0.5" aria-hidden />{org.contactPhone}</li>}
@@ -357,16 +353,14 @@ function MembersTab({ orgId }: { orgId: string }) {
         {items.map(m => (
           <li key={m.userId} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
             <Link to={`/users/${m.userId}`} className="flex items-center gap-3 no-underline">
-              {m.avatarThumbnailUrl
-                ? <img src={m.avatarThumbnailUrl} alt="" className="h-11 w-11 rounded-full object-cover" />
-                : <span className="grid h-11 w-11 place-items-center rounded-full bg-primary/10 text-sm font-bold text-primary">{m.fullName.charAt(0).toUpperCase()}</span>}
+              <Avatar name={m.fullName} thumb={m.avatarThumbnailUrl} size="md" />
               <span className="min-w-0">
                 <span className="block truncate font-semibold text-gray-900">{m.fullName}</span>
-                <span className="block text-xs text-gray-500">{m.role === 'Organizer' ? 'Организатор' : 'Волонтёр'}{m.city && <> · {m.city}</>}</span>
+                <span className="block text-[0.8125rem] text-gray-500">{m.role === 'Organizer' ? 'Организатор' : 'Волонтёр'}{m.city && <> · {m.city}</>}</span>
               </span>
             </Link>
             {(m.email || m.phoneNumber) && (
-              <p className="mt-2 break-words text-xs text-gray-500">
+              <p className="mt-2 break-words text-[0.8125rem] text-gray-500">
                 {m.email && <a href={`mailto:${m.email}`} className="hover:underline">{m.email}</a>}
                 {m.email && m.phoneNumber && ' · '}{m.phoneNumber}
               </p>
@@ -424,13 +418,14 @@ function EventsTab({ orgId, canManage }: { orgId: string; canManage: boolean }) 
         {items.map(e => (
           <Link key={e.id} to={`/events/${e.id}`} className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/30 transition no-underline flex flex-col">
             <div className="relative">
-              <CroppedImage src={e.imageThumbnailUrl ?? e.imageUrl} crop={e.imageCrop} aspect={16 / 10} className="!rounded-none w-full" alt={e.title} />
-              <span className={`absolute left-3 top-3 px-2.5 py-1 rounded-full text-xs font-bold text-white ${getCategoryColor(e.category)}`}>{getCategoryLabel(e.category)}</span>
-              {STATUS_LABEL[e.status] && <span className="absolute right-3 top-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/90 text-gray-700">{STATUS_LABEL[e.status]}</span>}
+              <CroppedImage src={e.imageThumbnailUrl ?? e.imageUrl} crop={e.imageCrop} aspect={16 / 10} className="!rounded-none w-full" alt={e.title}
+                placeholder={<MediaPlaceholder kind="event" />} />
+              <span className={`absolute left-3 top-3 px-2.5 py-1 rounded-full text-[0.8125rem] font-bold text-white ${getCategoryColor(e.category)}`}>{getCategoryLabel(e.category)}</span>
+              {STATUS_LABEL[e.status] && <span className="absolute right-3 top-3 px-2.5 py-1 rounded-full text-[0.8125rem] font-semibold bg-white/90 text-gray-700">{STATUS_LABEL[e.status]}</span>}
             </div>
             <div className="p-5 flex flex-col flex-grow">
-              <p className="text-xs text-primary font-semibold mb-1">{new Date(e.startsAt).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</p>
-              <h3 className="font-bold text-gray-900 group-hover:text-primary transition mb-2">{e.title}</h3>
+              <p className="text-[0.8125rem] text-primary font-semibold mb-1">{new Date(e.startsAt).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</p>
+              <h3 className="vol-h3 group-hover:text-primary transition mb-2">{e.title}</h3>
               <p className="text-sm text-gray-500 mt-auto"><i className="fas fa-map-marker-alt mr-1.5" aria-hidden />{e.location}</p>
             </div>
           </Link>
@@ -448,7 +443,7 @@ function EventsTab({ orgId, canManage }: { orgId: string; canManage: boolean }) 
 
 // ─── Вкладка «Публикации» ─────────────────────────────────────────────────────
 
-function PostsTab({ orgId, orgName }: { orgId: string; orgName: string }) {
+function PostsTab({ orgId, organization }: { orgId: string; organization: OrganizationSummary }) {
   const [items, setItems] = useState<OrganizationPost[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -469,25 +464,21 @@ function PostsTab({ orgId, orgName }: { orgId: string; orgName: string }) {
 
   useEffect(() => { void load(0); }, [load]);
 
-  if (!loading && error) return <p className="text-center text-gray-600">Не удалось загрузить публикации. <button className="text-primary underline" onClick={() => void load(0)}>Повторить</button></p>;
+  const more = useCallback(() => { void load(items.length); }, [load, items.length]);
+
+  if (!loading && error) return <p className="vol-text-sm text-center">Не удалось загрузить публикации. <button className="press-flat font-semibold text-primary underline" onClick={() => void load(0)}>Повторить</button></p>;
   if (!loading && items.length === 0) {
     return (
-      <div className="text-center py-16">
-        <i className="fas fa-images text-4xl text-gray-300 mb-4" aria-hidden />
-        <p className="text-gray-600">Публикаций пока нет.</p>
+      <div className="py-16 text-center">
+        <i className="fas fa-images mb-4 text-4xl text-vol-rule" aria-hidden />
+        <p className="vol-text-sm">Публикаций пока нет.</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {items.map(p => <PostCard key={p.id} post={p} orgName={orgName} />)}
-      {loading && <div className="flex justify-center py-8"><Spinner /></div>}
-      {!loading && items.length < total && (
-        <div className="text-center">
-          <button onClick={() => void load(items.length)} className="px-8 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition">Показать ещё</button>
-        </div>
-      )}
-    </div>
+    <PostFeed count={items.length} total={total} loading={loading} onMore={more}>
+      {items.map(p => <PostCard key={p.id} post={p} organization={organization} className={FEED_BLEED} />)}
+    </PostFeed>
   );
 }

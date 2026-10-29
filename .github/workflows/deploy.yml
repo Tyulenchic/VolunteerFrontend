@@ -30,11 +30,41 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: VolunteerFrontend/package-lock.json
 
+      # npm ci ставит ровно то, что в package-lock.json (npm install мог тихо обновить зависимости).
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Check API URL
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+        run: |
+          if [ -z "$VITE_API_URL" ]; then
+            echo "::error::Repository variable VITE_API_URL is not set (Settings -> Secrets and variables -> Actions -> Variables). Use the public https URL of the API."
+            exit 1
+          fi
+          case "$VITE_API_URL" in https://*) ;; *) echo "::error::VITE_API_URL must be an https URL"; exit 1;; esac
 
       - name: Build
+        env:
+          # Публичный URL API (не секрет) — repository *variable*, а не secret.
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          # Ящик для ответов на обращения (не секрет). Не задан — в админке подставится временный адрес.
+          VITE_REPLY_FROM_EMAIL: ${{ vars.VITE_REPLY_FROM_EMAIL }}
         run: npm run build
 
       - name: Upload artifact

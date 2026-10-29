@@ -1,3 +1,4 @@
+import { SideArt } from '../../components/afisha/SideArt';
 import logo from '../../assets/logo.webp';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -30,11 +31,12 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+    <div className="vol-page relative overflow-x-clip min-h-dvh flex items-center justify-center p-4">
+      <SideArt />
+      <div className="relative z-10 bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
         <div className="text-center mb-8">
           <img src={logo} alt="Волонтёры ПМР" className="mx-auto mb-4 h-28 w-auto" />
-          <h1 className="text-2xl font-bold text-gray-900">Вход в систему</h1>
+          <h1 className="vol-compact">Вход в систему</h1>
           <p className="text-gray-600 mt-1">Добро пожаловать обратно!</p>
         </div>
         {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm">{error}</div>}

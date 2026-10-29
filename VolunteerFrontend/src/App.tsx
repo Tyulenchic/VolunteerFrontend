@@ -8,10 +8,10 @@ import { Layout } from './components/Layout';
 import { Spinner } from './components/Spinner';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { AfishaLayout } from './components/afisha/AfishaLayout';
+import { NotFoundState } from './components/afisha/NotFoundState';
 import { ProtectedRoute, AdminRoute, GuestRoute, OrganizerRoute } from './components/ProtectedRoute';
 import { SiteContentProvider } from './context/SiteContentContext';
 
-import { Link } from 'react-router-dom';
 
 
 // Страницы грузятся по требованию: первый заход скачивает только каркас, а не весь сайт и админку целиком.
@@ -57,6 +57,7 @@ const AdminEventsPage = lazy(() => import('./pages/admin/AdminEventsPage').then(
 const AdminParticipationsPage = lazy(() => import('./pages/admin/AdminParticipationsPage').then(m => ({ default: m.AdminParticipationsPage })));
 const AdminNewsPage = lazy(() => import('./pages/admin/AdminNewsPage').then(m => ({ default: m.AdminNewsPage })));
 const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage').then(m => ({ default: m.AdminAnalyticsPage })));
+const AdminDatabasePage = lazy(() => import('./pages/admin/AdminDatabasePage').then(m => ({ default: m.AdminDatabasePage })));
 const AdminAuditLogPage = lazy(() => import('./pages/admin/AdminAuditLogPage').then(m => ({ default: m.AdminAuditLogPage })));
 const MyFeedPage = lazy(() => import('./pages/feed/MyFeedPage').then(m => ({ default: m.MyFeedPage })));
 const AdminVideoLinksPage = lazy(() => import('./pages/admin/AdminVideoLinksPage').then(m => ({ default: m.AdminVideoLinksPage })));
@@ -77,26 +78,7 @@ function WOL({ children }: { children: React.ReactNode }) {
 }
 
 function NotFound() {
-  return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <div className="text-8xl font-bold text-primary/20 mb-4">404</div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-3">
-          Страница не найдена
-        </h1>
-        <p className="text-gray-600 mb-8 max-w-md">
-          К сожалению, запрашиваемая страница не существует.
-        </p>
-
-        <Link
-            to="/"
-            className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg"
-            style={{ textDecoration: 'none' }}
-        >
-          <i className="fas fa-home mr-2" />
-          На главную
-        </Link>
-      </div>
-  );
+  return <NotFoundState title="Страница не найдена" hint="Такой страницы нет: возможно, ссылка устарела или в адресе опечатка." to="/" action="На главную" />;
 }
 
 // Компонент для прокрутки в верх при смене маршрута
@@ -104,7 +86,7 @@ function ScrollToTop() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' }); // без плавной прокрутки html: новая страница сразу открывается сверху
   }, [pathname]);
 
   return null;
@@ -183,6 +165,7 @@ export default function App() {
               <Route path="/admin/videos"          element={<WAL><AdminVideoLinksPage /></WAL>} />
               <Route path="/admin/analytics"       element={<WAL><AdminAnalyticsPage /></WAL>} />
               <Route path="/admin/audit-log"       element={<WAL><AdminAuditLogPage /></WAL>} />
+              <Route path="/admin/database"        element={<WAL><AdminDatabasePage /></WAL>} />
             </Route>
 
             {/* ── 404 ─────────────────────────────────────────── */}

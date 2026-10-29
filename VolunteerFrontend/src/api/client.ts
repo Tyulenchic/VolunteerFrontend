@@ -1,7 +1,7 @@
 import axios, { type InternalAxiosRequestConfig } from "axios";
 import { API_BASE_URL, API_TIMEOUT_MS } from "../config";
 import { absolutizeImageUrls } from "../utils/imageUrl";
-import { getAccessToken, getRefreshToken, markRefreshUnavailable, refreshSession } from "../auth/session";
+import { accessTokenExpiresSoon, getAccessToken, getRefreshToken, markRefreshUnavailable, refreshSession } from "../auth/session";
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -52,8 +52,18 @@ function logApiFailure(err: unknown) {
 
 type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
-apiClient.interceptors.request.use((config) => {
-  const token = isPublicEmailEndpoint(config.url) ? null : getAccessToken();
+apiClient.interceptors.request.use(async (config) => {
+  if (isPublicEmailEndpoint(config.url)) {
+    delete config.headers.Authorization;
+    return config;
+  }
+  let token = getAccessToken();
+  // Токен уже истёк (или вот-вот истечёт): обновляем сессию ДО запроса. Иначе запрос сначала получает 401
+  // (ошибка в консоли браузера), потом идёт refresh и повтор — три запроса вместо двух, отправка заметно медленнее.
+  if (token && getRefreshToken() && !isNoRefreshEndpoint(config.url) && accessTokenExpiresSoon(token)) {
+    await refreshSession(token); // при сбое (unavailable/invalid) запрос уйдёт как раньше, и сработает обычный путь через 401
+    token = getAccessToken();
+  }
   if (token) config.headers.Authorization = "Bearer " + token;
   else delete config.headers.Authorization;
   return config;

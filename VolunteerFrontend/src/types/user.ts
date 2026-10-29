@@ -49,6 +49,8 @@ export interface PublicUserDto {
   bio: string | null;
   socialLinks: string[];
   avatarUrl: string | null;
+  avatarThumbnailUrl?: string | null;  // квадратная миниатюра по кадру; null, если фото скрыто или не одобрено
+  avatarCrop?: import('./organization').ImageCropDto | null;
   events: ProfileEventDto[] | null;   // null, если волонтёр не открыл мероприятия
   phoneNumber: string | null;         // только для организаторов и администраторов
   organizations?: OrganizationSummary[] | null;   // null, если волонтёр не открыл организации

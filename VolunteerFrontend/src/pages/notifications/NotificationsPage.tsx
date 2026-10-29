@@ -55,10 +55,10 @@ export function NotificationsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto max-w-2xl px-4 py-8">
+    <div>
+      <div className="wrap max-w-2xl py-8">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">Уведомления</h1>
+          <h1 className="vol-compact">Уведомления</h1>
           <button type="button" onClick={readAll} className="text-sm text-blue-600 hover:underline">Прочитать все</button>
         </div>
         <div className="mb-4 flex gap-2">{tab('all', 'Все')}{tab('unread', 'Непрочитанные')}</div>

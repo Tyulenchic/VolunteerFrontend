@@ -61,13 +61,13 @@ export function OrganizationsPage() {
   return (
     <>
       {/* HERO */}
-      <section className="bg-gradient-to-br from-teal-50 to-blue-50 py-16 sm:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-24">
+        <div className="wrap">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-gray-900 mb-6 leading-tight">
+            <h1 className="vol-h1 mb-6">
               Волонтёрские организации <span className="text-primary">Приднестровья</span>
             </h1>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="vol-lead mx-auto mb-8">
               Познакомьтесь с командами, которые ежедневно делают мир вокруг нас лучше. Загляните на страницу организации,
               посмотрите её мероприятия и фотографии, подайте заявку и становитесь волонтёром.
             </p>
@@ -83,8 +83,8 @@ export function OrganizationsPage() {
       </section>
 
       {/* FILTERS */}
-      <section className="py-5 bg-white border-b border-gray-200 sticky top-[3.75rem] z-20 shadow-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
+      <section className="py-5 vol-bar border-b border-vol-line sticky top-[3.75rem] z-20">
+        <div className="wrap space-y-3">
           <div className="flex flex-col md:flex-row gap-3 justify-between">
             <div className="relative w-full md:w-96">
               <input
@@ -92,18 +92,18 @@ export function OrganizationsPage() {
                 onChange={e => onSearch(e.target.value)}
                 placeholder="Поиск организации..."
                 aria-label="Поиск организации"
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
               />
               <i className="fas fa-search absolute left-3.5 top-3.5 text-gray-400" />
             </div>
             <div className="flex gap-2 w-full md:w-auto">
               <select value={level} onChange={e => setLevel(e.target.value as OrganizationLevel | '')} aria-label="Тип организации"
-                className="flex-1 md:flex-none px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm">
+                className="flex-1 md:flex-none px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm">
                 <option value="">Все типы</option>
                 {ALL_LEVELS.map(l => <option key={l} value={l}>{LEVEL_LABEL[l]}</option>)}
               </select>
               <select value={city} onChange={e => setCity(e.target.value)} aria-label="Город"
-                className="flex-1 md:flex-none px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm">
+                className="flex-1 md:flex-none px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm">
                 <option value="">Все города</option>
                 {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -128,8 +128,8 @@ export function OrganizationsPage() {
       </section>
 
       {/* GRID */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-20">
+        <div className="wrap">
           {loading ? (
             <div className="flex justify-center py-20"><Spinner /></div>
           ) : error ? (
@@ -142,18 +142,18 @@ export function OrganizationsPage() {
               <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-200 rounded-full mb-4">
                 <i className="fas fa-search text-3xl text-gray-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Ничего не найдено</h3>
+              <h3 className="vol-h3 mb-2">Ничего не найдено</h3>
               <p className="text-gray-600">Попробуйте изменить параметры поиска или направление.</p>
             </div>
           ) : (
             <>
               <p className="text-sm text-gray-500 mb-6" aria-live="polite">Найдено организаций: {total}</p>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,19rem),1fr))] gap-8">
                 {items.map(org => (
                   <article key={org.id}
                     className="group relative bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl hover:border-primary/30 transition-all duration-300 overflow-hidden flex flex-col">
                     {/* обложка */}
-                    <div className="h-24 bg-gradient-to-r from-teal-100 to-blue-100 overflow-hidden">
+                    <div className="h-24 bg-gradient-to-r from-blue-100 to-blue-100 overflow-hidden">
                       {org.coverThumbnailUrl && (
                         <CroppedImage src={org.coverThumbnailUrl} crop={org.coverCrop} aspect={16 / 5} className="!rounded-none w-full" />
                       )}
@@ -163,19 +163,19 @@ export function OrganizationsPage() {
                       <div className="w-[72px] h-[72px] bg-white rounded-2xl shadow-xl flex items-center justify-center border border-gray-100 overflow-hidden group-hover:scale-105 transition-transform duration-300">
                         {org.logoThumbnailUrl
                           ? <CroppedImage src={org.logoThumbnailUrl} crop={org.logoCrop} aspect={1} className="w-full !rounded-none" alt="" />
-                          : <i className={`${LEVEL_ICON[org.level]} text-3xl text-teal-500`} />}
+                          : <i className={`${LEVEL_ICON[org.level]} text-3xl text-blue-500`} />}
                       </div>
                     </div>
 
                     <div className="p-8 pt-4 flex flex-col flex-grow">
                       <div className="flex flex-wrap gap-1.5 mb-3">
                         {org.categories.slice(0, 2).map(c => (
-                          <span key={c} className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${CATEGORY_BADGE[c]}`}>{CATEGORY_LABEL[c]}</span>
+                          <span key={c} className={`px-2.5 py-0.5 rounded-full text-[0.8125rem] font-bold uppercase ${CATEGORY_BADGE[c]}`}>{CATEGORY_LABEL[c]}</span>
                         ))}
-                        {org.city && <span className="px-2.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase">{org.city}</span>}
+                        {org.city && <span className="px-2.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[0.8125rem] font-bold uppercase">{org.city}</span>}
                       </div>
                       <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-primary transition">{org.shortName || org.name}</h3>
-                      <p className="text-xs text-gray-500 mb-3">{LEVEL_LABEL[org.level]}</p>
+                      <p className="text-[0.8125rem] text-gray-500 mb-3">{LEVEL_LABEL[org.level]}</p>
                       <p className="text-gray-600 text-sm mb-4 leading-relaxed flex-grow">{org.shortDescription}</p>
 
                       <Link to={`/organizations/${org.id}`}
@@ -203,8 +203,8 @@ export function OrganizationsPage() {
       <section className="bg-primary py-16 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-primary-dark/30 rounded-full -ml-20 -mb-20 blur-3xl" />
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <h2 className="text-3xl sm:text-4xl font-heading font-bold text-white mb-6">Представить свою организацию?</h2>
+        <div className="wrap relative z-10 text-center">
+          <h2 className="vol-h2 !text-white mb-6">Представить свою организацию?</h2>
           <p className="text-lg text-blue-100 mb-10 max-w-2xl mx-auto">
             Если вы руководите волонтёрской инициативой и хотите появиться в каталоге, напишите нам: администратор создаст страницу
             организации и назначит организаторов, которые смогут проводить мероприятия и принимать волонтёров.

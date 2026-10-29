@@ -507,7 +507,7 @@ export function AdminParticipationsPage() {
                     const actions = STATUS_ACTIONS[p.status] || [];
                     const isPending = p.status === 'Pending';
                     return (
-                      <tr key={p.id} className={isPending ? 'bg-warning-50/40 shadow-[inset_3px_0_0_0_#d9962a]' : ''}>
+                      <tr key={p.id} className={isPending ? 'bg-warning-50/40 shadow-[inset_3px_0_0_0_theme(colors.warning.600)]' : ''}>
                         <td className="pl-4 pr-1 py-3">
                           {isPending && (
                             <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => toggleSelect(p.id)} aria-label={`Выбрать заявку: ${p.userName}`} className="w-4 h-4 rounded cursor-pointer" />
@@ -515,7 +515,7 @@ export function AdminParticipationsPage() {
                         </td>
                         <td className="px-4 py-3 rt-grow">
                           <div className="flex items-center gap-3 min-w-0">
-                            <Avatar name={p.userName} />
+                            <Avatar name={p.userName} thumb={p.userAvatarThumbnailUrl} />
                             <div className="min-w-0">
                               <p className="font-medium text-ink-900 truncate max-w-[14rem]">{p.userName}</p>
                               <p className="meta truncate max-w-[14rem]">{p.userEmail}</p>

@@ -23,7 +23,7 @@ export function OrganizationBadge({ organization, className = '', size = 'sm' }:
       <span className={`${box} shrink-0 rounded-full overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center`}>
         {organization.logoThumbnailUrl
           ? <CroppedImage src={organization.logoThumbnailUrl} crop={organization.logoCrop} aspect={1} round className={`${box} !rounded-none`} />
-          : <i className="fas fa-hands-helping text-[11px] text-teal-500" aria-hidden />}
+          : <i className="fas fa-hands-helping text-[11px] text-blue-500" aria-hidden />}
       </span>
       <span className={`truncate ${size === 'md' ? 'text-sm font-medium' : 'text-xs'}`}>{organization.name}</span>
     </Link>

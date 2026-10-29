@@ -1,25 +1,27 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFeedback } from '../../context/FeedbackContext';
 import { useSiteJson } from '../../context/SiteContentContext';
 import { FAQ_DEFAULT } from '../../content/defaults';
 
+/** Вопрос раскрывается плавно (высота 0 → по содержимому через grid-template-rows); свёрнутый ответ недоступен фокусу и чтецам. */
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
+  const id = useId();
   return (
-    <div className="border border-gray-200 rounded-xl overflow-hidden">
-      <button
-        onClick={() => setOpen(p => !p)}
-        className="w-full flex items-center justify-between gap-4 p-5 text-left bg-white hover:bg-gray-50 transition"
-      >
-        <span className="font-semibold text-gray-900">{q}</span>
-        <i className={`fas fa-chevron-down text-primary transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`} />
+    <div className={`overflow-hidden rounded-card border bg-vol-surface transition-[border-color,box-shadow] duration-300 ${open ? 'border-primary/30 shadow-raise' : 'border-vol-line'}`}>
+      <button type="button" onClick={() => setOpen(p => !p)} aria-expanded={open} aria-controls={id}
+        className="flex w-full items-center justify-between gap-4 p-4 text-left hover:bg-vol-bg sm:p-5">
+        <span className="text-body-sm font-semibold text-vol-fg sm:text-body">{q}</span>
+        <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full transition-[background-color,rotate] duration-300 ${open ? 'rotate-180 bg-vol-accent-soft' : ''}`}>
+          <i className="fas fa-chevron-down text-primary" aria-hidden />
+        </span>
       </button>
-      {open && (
-        <div className="px-5 pb-5 bg-white border-t border-gray-100">
-          <p className="text-gray-600 leading-relaxed pt-3">{a}</p>
+      <div id={id} inert={!open} className={`grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.2,.7,.2,1)] ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+        <div className="min-h-0">
+          <p className={`vol-text-sm border-t border-vol-line px-4 pb-5 pt-3 leading-relaxed transition-opacity duration-300 sm:px-5 ${open ? 'opacity-100' : 'opacity-0'}`}>{a}</p>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -41,15 +43,15 @@ export function FaqPage() {
   return (
     <>
       {/* HERO */}
-      <section className="bg-gradient-to-br from-blue-50 to-teal-50 py-16 sm:py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-6">
+      <section className="py-16 sm:py-20">
+        <div className="wrap text-center max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-6">
             <i className="fas fa-question-circle" />FAQ
           </div>
-          <h1 className="text-4xl sm:text-5xl font-heading font-extrabold text-gray-900 leading-tight mb-5">
+          <h1 className="vol-h1 mb-6">
             Часто задаваемые <span className="text-primary">вопросы</span>
           </h1>
-          <p className="text-lg text-gray-600 mb-8">
+          <p className="vol-lead mx-auto mb-8">
             Ответы на самые популярные вопросы о волонтёрстве на нашем портале
           </p>
           <div className="relative max-w-lg mx-auto">
@@ -65,8 +67,8 @@ export function FaqPage() {
       </section>
 
       {/* FAQ LIST */}
-      <section className="py-12 sm:py-16 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+      <section className="py-12 sm:py-16">
+        <div className="wrap max-w-4xl">
           {filtered.length === 0 ? (
             <div className="text-center py-20">
               <i className="fas fa-search text-4xl text-gray-300 mb-3 block" />
@@ -80,7 +82,7 @@ export function FaqPage() {
                     <div className={`w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center`}>
                       <i className={`fas ${cat.icon} ${cat.color}`} />
                     </div>
-                    <h2 className="text-xl font-heading font-bold text-gray-900">{cat.cat}</h2>
+                    <h2 className="vol-h3">{cat.cat}</h2>
                   </div>
                   <div className="space-y-3">
                     {cat.items.map(item => (
@@ -95,9 +97,9 @@ export function FaqPage() {
       </section>
 
       {/* STILL HAVE QUESTIONS */}
-      <section className="py-12 bg-gradient-to-br from-teal-50 to-blue-50 border-t border-gray-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-xl text-center">
-          <h2 className="text-2xl font-heading font-bold text-gray-900 mb-3">Не нашли ответ?</h2>
+      <section className="py-12">
+        <div className="wrap max-w-xl text-center">
+          <h2 className="vol-compact mb-3">Не нашли ответ?</h2>
           <p className="text-gray-600 mb-6">Свяжитесь с нами — мы ответим в течение рабочего дня.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button

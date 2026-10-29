@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Button } from '../ui/Button';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { organizationsApi } from '../../api/organizations';
@@ -53,7 +54,7 @@ export function MyOrganizationsPanel() {
     finally { setBusy(null); }
   };
 
-  if (failed) return <p className="text-gray-600">Не удалось загрузить организации. <button className="text-primary underline" onClick={() => void load()}>Повторить</button></p>;
+  if (failed) return <p className="vol-text-sm">Не удалось загрузить организации. <button className="press-flat font-semibold text-primary underline" onClick={() => void load()}>Повторить</button></p>;
   if (!memberships) return <div className="flex justify-center py-8"><Spinner /></div>;
 
   const volunteerCount = memberships.filter(m => m.role === 'Volunteer').length;
@@ -63,31 +64,31 @@ export function MyOrganizationsPanel() {
   return (
     <div className="space-y-8">
       <section>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Мои организации</h2>
+        <h2 className="vol-h3 mb-1">Мои организации</h2>
         {user?.role === 'Volunteer' && (
-          <p className="text-sm text-gray-500 mb-4">Вы состоите в {volunteerCount} из {MAX_VOLUNTEER_ORGANIZATIONS} возможных организаций. Организация добавляется автоматически, когда организатор принимает вашу заявку.</p>
+          <p className="vol-text-sm mb-4">Вы состоите в {volunteerCount} из {MAX_VOLUNTEER_ORGANIZATIONS} возможных организаций. Организация добавляется автоматически, когда организатор принимает вашу заявку.</p>
         )}
         {memberships.length === 0 ? (
-          <div className="text-center py-10 bg-gray-50 rounded-2xl">
-            <i className="fas fa-building-columns text-3xl text-gray-300 mb-3" aria-hidden />
-            <p className="text-gray-600 mb-4">Вы пока не состоите ни в одной организации.</p>
-            <Link to="/organizations" className="inline-block px-5 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition no-underline">Найти организацию</Link>
+          <div className="rounded-panel bg-vol-bg py-10 text-center">
+            <i className="fas fa-building-columns mb-3 text-3xl text-vol-rule" aria-hidden />
+            <p className="vol-text-sm mb-5">Вы пока не состоите ни в одной организации.</p>
+            <Button to="/organizations" size="lg">Найти организацию</Button>
           </div>
         ) : (
           <ul className="grid sm:grid-cols-2 gap-4">
             {memberships.map(m => (
-              <li key={m.organization.id} className="flex items-center gap-4 p-4 border border-gray-200 rounded-2xl">
-                <div className="w-14 h-14 shrink-0 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
+              <li key={m.organization.id} className="flex items-center gap-3 rounded-card border border-vol-line bg-vol-surface p-3 sm:gap-4 sm:p-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-card border border-vol-line bg-vol-bg sm:h-14 sm:w-14">
                   {m.organization.logoThumbnailUrl
                     ? <CroppedImage src={m.organization.logoThumbnailUrl} crop={m.organization.logoCrop} aspect={1} className="w-full !rounded-none" />
-                    : <i className="fas fa-hands-helping text-teal-500" aria-hidden />}
+                    : <i className="fas fa-hands-helping text-primary" aria-hidden />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <Link to={`/organizations/${m.organization.id}`} className="font-semibold text-gray-900 hover:text-primary no-underline block truncate">{m.organization.name}</Link>
-                  <p className="text-xs text-gray-500">{m.role === 'Organizer' ? 'Организатор' : 'Волонтёр'} · с {new Date(m.joinedAt).toLocaleDateString('ru-RU')}</p>
+                  <Link to={`/organizations/${m.organization.id}`} className="block truncate font-semibold text-vol-fg no-underline hover:text-vol-accent">{m.organization.name}</Link>
+                  <p className="vol-meta">{m.role === 'Organizer' ? 'Организатор' : 'Волонтёр'} · с {new Date(m.joinedAt).toLocaleDateString('ru-RU')}</p>
                 </div>
                 {m.role === 'Volunteer' && (
-                  <button onClick={() => leave(m)} disabled={busy === m.organization.id} className="text-sm text-red-600 hover:underline disabled:opacity-50">Выйти</button>
+                  <button onClick={() => leave(m)} disabled={busy === m.organization.id} className="press-flat h-9 shrink-0 rounded-control px-3 text-ctrl font-medium text-vol-warn hover:bg-red-50 disabled:opacity-50">Выйти</button>
                 )}
               </li>
             ))}
@@ -97,13 +98,13 @@ export function MyOrganizationsPanel() {
 
       {pending.length > 0 && (
         <section>
-          <h3 className="font-bold text-gray-900 mb-3">Заявки на рассмотрении</h3>
+          <h3 className="vol-h3 mb-3">Заявки на рассмотрении</h3>
           <ul className="space-y-2">
             {pending.map(a => (
-              <li key={a.id} className="flex items-center gap-3 p-3 border border-amber-200 bg-amber-50 rounded-xl">
-                <Link to={`/organizations/${a.organizationId}`} className="flex-1 font-medium text-gray-900 hover:text-primary no-underline truncate">{a.organizationName}</Link>
-                <span className="text-xs text-gray-500">{new Date(a.createdAt).toLocaleDateString('ru-RU')}</span>
-                <button onClick={() => withdraw(a)} disabled={busy === a.id} className="text-sm text-gray-600 hover:underline disabled:opacity-50">Отозвать</button>
+              <li key={a.id} className="flex items-center gap-3 rounded-card border border-amber-200 bg-amber-50 p-3">
+                <Link to={`/organizations/${a.organizationId}`} className="min-w-0 flex-1 truncate font-medium text-vol-fg no-underline hover:text-vol-accent">{a.organizationName}</Link>
+                <span className="vol-meta">{new Date(a.createdAt).toLocaleDateString('ru-RU')}</span>
+                <button onClick={() => withdraw(a)} disabled={busy === a.id} className="press-flat h-9 shrink-0 rounded-control px-3 text-ctrl font-medium text-vol-muted hover:bg-white disabled:opacity-50">Отозвать</button>
               </li>
             ))}
           </ul>
@@ -112,15 +113,15 @@ export function MyOrganizationsPanel() {
 
       {history.length > 0 && (
         <section>
-          <h3 className="font-bold text-gray-900 mb-3">История заявок</h3>
+          <h3 className="vol-h3 mb-3">История заявок</h3>
           <ul className="space-y-2">
             {history.map(a => (
-              <li key={a.id} className="p-3 border border-gray-200 rounded-xl">
+              <li key={a.id} className="rounded-card border border-vol-line p-3">
                 <div className="flex items-center gap-3">
-                  <Link to={`/organizations/${a.organizationId}`} className="flex-1 font-medium text-gray-900 hover:text-primary no-underline truncate">{a.organizationName}</Link>
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${BADGE[a.status]}`}>{APPLICATION_STATUS_LABEL[a.status]}</span>
+                  <Link to={`/organizations/${a.organizationId}`} className="min-w-0 flex-1 truncate font-medium text-vol-fg no-underline hover:text-vol-accent">{a.organizationName}</Link>
+                  <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-meta font-semibold ${BADGE[a.status]}`}>{APPLICATION_STATUS_LABEL[a.status]}</span>
                 </div>
-                {a.decisionNote && <p className="text-sm text-gray-600 mt-1">Комментарий организатора: {a.decisionNote}</p>}
+                {a.decisionNote && <p className="vol-text-sm mt-1">Комментарий организатора: {a.decisionNote}</p>}
               </li>
             ))}
           </ul>

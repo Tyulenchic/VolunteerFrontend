@@ -6,7 +6,7 @@ import { VolIcon } from '../../../components/afisha/VolIcon';
 export function Feedback() {
   const { openFeedback } = useFeedback();
   return (
-    <section className="relative z-10 mx-auto max-w-[76rem] px-4 pb-32 sm:px-6">
+    <section className="wrap relative z-10 pb-[var(--section-y)]">
       <div className="flex flex-col items-center justify-between gap-8 rounded-2xl border border-vol-line bg-vol-surface p-8 text-center shadow-[0_12px_32px_rgba(15,27,51,.06)] sm:p-12 md:flex-row md:text-left">
         <div className="flex min-w-0 flex-col items-center gap-5 md:flex-row md:items-start">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-vol-accent-soft text-vol-accent"><VolIcon n="mail" size={22} /></span>

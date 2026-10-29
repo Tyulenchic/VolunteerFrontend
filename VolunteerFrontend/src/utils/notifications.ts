@@ -56,7 +56,7 @@ export function notificationIcon(type: string): { icon: string; color: string } 
     case 'ParticipatedEventRescheduled': return { icon: 'fa-clock', color: 'text-amber-600 bg-amber-50' };
     case 'NewEventInOrganization':
     case 'NewEventPublished': return { icon: 'fa-calendar-plus', color: 'text-blue-600 bg-blue-50' };
-    case 'NewOrganizationPost': return { icon: 'fa-pen-to-square', color: 'text-teal-600 bg-teal-50' };
+    case 'NewOrganizationPost': return { icon: 'fa-pen-to-square', color: 'text-blue-600 bg-blue-50' };
     case 'NewsPublished': return { icon: 'fa-newspaper', color: 'text-indigo-600 bg-indigo-50' };
     case 'MembershipApproved': return { icon: 'fa-people-group', color: 'text-green-600 bg-green-50' };
     case 'MembershipRejected': return { icon: 'fa-people-group', color: 'text-red-600 bg-red-50' };

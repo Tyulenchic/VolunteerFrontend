@@ -2,13 +2,14 @@ import type { MouseEventHandler, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { VolIcon, type IconName } from './VolIcon';
 
-/** One button for the whole public site: 44px high, 8px radius, Inter 14/600. The three kinds differ only in colour. */
+/** One button for the whole public site: 44px high, 8px radius, Inter 14/600. The three kinds differ only in colour.
+ *  Hover lifts it by 1px, press pushes it in (.press in index.css). */
 export const BTN_BASE =
-  'group inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg px-5 text-[14px] font-semibold no-underline sm:px-6';
+  'press group inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-control px-5 text-ctrl font-semibold no-underline sm:px-6';
 
 export const BTN_KIND = {
-  primary: 'bg-vol-accent text-vol-accent-fg hover:opacity-90',
-  outline: 'border-[1.5px] border-vol-rule bg-vol-surface text-vol-fg hover:border-vol-accent hover:text-vol-accent',
+  primary: 'press-shadow bg-vol-accent text-vol-accent-fg hover:bg-primary-dark',
+  outline: 'border-[1.5px] border-vol-ctrl bg-vol-surface text-vol-fg hover:border-vol-accent hover:text-vol-accent',
   light: 'bg-vol-surface text-vol-accent shadow-[0_10px_26px_rgba(2,12,32,.3)] hover:bg-vol-accent-soft',
 } as const;
 

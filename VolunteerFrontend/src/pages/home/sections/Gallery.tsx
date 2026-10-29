@@ -55,7 +55,7 @@ export function Gallery() {
   const shown = items.slice(current * PER_PAGE, current * PER_PAGE + PER_PAGE);
 
   return (
-    <section className="relative z-10 mx-auto max-w-[76rem] px-4 pb-32 sm:px-6">
+    <section className="wrap relative z-10 pb-[var(--section-y)]">
       <VolSectionHead title="Как это было" sub="Фото и видео с прошедших событий" />
 
       {loading ? (
@@ -85,11 +85,11 @@ export function Gallery() {
             {pages > 1 && (
               <div className="flex items-center gap-2.5 max-sm:justify-center">
                 <button type="button" onClick={() => go(-1)} aria-label="Предыдущие материалы"
-                  className="vol-tap relative grid h-11 w-11 place-items-center rounded-lg border-[1.5px] border-vol-rule bg-vol-surface hover:border-vol-accent hover:text-vol-accent">
+                  className="vol-tap relative grid h-11 w-11 place-items-center rounded-lg border-[1.5px] border-vol-ctrl bg-vol-surface hover:border-vol-accent hover:text-vol-accent">
                   <VolIcon n="chevron" size={17} className="rotate-90" />
                 </button>
                 <button type="button" onClick={() => go(1)} aria-label="Следующие материалы"
-                  className="vol-tap relative grid h-11 w-11 place-items-center rounded-lg border-[1.5px] border-vol-rule bg-vol-surface hover:border-vol-accent hover:text-vol-accent">
+                  className="vol-tap relative grid h-11 w-11 place-items-center rounded-lg border-[1.5px] border-vol-ctrl bg-vol-surface hover:border-vol-accent hover:text-vol-accent">
                   <VolIcon n="chevron" size={17} className="-rotate-90" />
                 </button>
                 <div className="ml-1 flex items-center">

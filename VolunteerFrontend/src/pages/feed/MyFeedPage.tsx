@@ -5,6 +5,7 @@ import { useNotification } from '../../context/NotificationContext';
 import {apiClient} from "../../api/client.ts";
 import type {ParticipationResponseDto} from "../../types/event.ts";
 import { SecureImage } from '../../components/SecureImage';
+import { Avatar } from '../../components/ui/Avatar';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,6 +23,7 @@ interface UserProfile {
     role: string;
     isActive: boolean;
     avatarUrl?: string | null;
+    avatarThumbnailUrl?: string | null;
     createdAt: string;
 }
 
@@ -161,7 +163,7 @@ function StatPill({ icon, value, label }: { icon: string; value: number; label: 
         <div className="flex flex-col items-center gap-1 bg-white/60 rounded-2xl px-5 py-4 min-w-[80px]">
             <i className={`${icon} text-primary text-lg`} />
             <span className="text-2xl font-extrabold text-gray-900 leading-none">{value}</span>
-            <span className="text-xs text-gray-500 font-medium text-center leading-tight">{label}</span>
+            <span className="text-[0.8125rem] text-gray-500 font-medium text-center leading-tight">{label}</span>
         </div>
     );
 }
@@ -185,23 +187,23 @@ function ActivityCard({ rec, onRevoke }: {
                 >
                     {rec.eventTitle}
                 </Link>
-                <p className="text-xs text-gray-400 mt-1">Заявка от {formatDate(rec.createdAt)}</p>
+                <p className="text-[0.8125rem] text-gray-400 mt-1">Заявка от {formatDate(rec.createdAt)}</p>
                 {rec.status === 'Withdrawn' && rec.withdrawalReason && (
-                    <p className="text-xs text-gray-500 mt-1 italic">Ваш комментарий: «{rec.withdrawalReason}»</p>
+                    <p className="text-[0.8125rem] text-gray-500 mt-1 italic">Ваш комментарий: «{rec.withdrawalReason}»</p>
                 )}
                 {rec.adminComment && (
-                    <p className="text-xs text-gray-500 mt-1 italic">«{rec.adminComment}»</p>
+                    <p className="text-[0.8125rem] text-gray-500 mt-1 italic">«{rec.adminComment}»</p>
                 )}
             </div>
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
-        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${m.cls}`}>
+        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[0.8125rem] font-semibold ${m.cls}`}>
           <i className={`${m.icon} text-xs`} />
             {m.label}
         </span>
                 {rec.status === 'Pending' && !confirming && (
                     <button
                         onClick={() => setConfirming(true)}
-                        className="text-xs text-gray-400 hover:text-red-500 transition"
+                        className="text-[0.8125rem] text-gray-400 hover:text-red-500 transition"
                     >
                         Отозвать
                     </button>
@@ -210,13 +212,13 @@ function ActivityCard({ rec, onRevoke }: {
                     <div className="flex gap-2">
                         <button
                             onClick={() => { onRevoke(rec.id); setConfirming(false); }}
-                            className="text-xs text-red-600 font-semibold hover:underline"
+                            className="text-[0.8125rem] text-red-600 font-semibold hover:underline"
                         >
                             Да, отозвать
                         </button>
                         <button
                             onClick={() => setConfirming(false)}
-                            className="text-xs text-gray-400 hover:underline"
+                            className="text-[0.8125rem] text-gray-400 hover:underline"
                         >
                             Нет
                         </button>
@@ -255,12 +257,12 @@ function EventCard({ event, participatedIds, pendingSet, onApply }: {
                     </div>
                 )}
                 {/* category */}
-                <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold ${CAT_COLORS[event.category as EventCategory] ?? 'bg-gray-100 text-gray-600'}`}>
+                <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[0.8125rem] font-bold ${CAT_COLORS[event.category as EventCategory] ?? 'bg-gray-100 text-gray-600'}`}>
           {CAT_LABELS[event.category as EventCategory] ?? event.category}
         </span>
                 {/* urgency */}
                 {urgencyBadge && (
-                    <span className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-bold ${urgencyBadge.cls}`}>
+                    <span className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[0.8125rem] font-bold ${urgencyBadge.cls}`}>
             {urgencyBadge.text}
           </span>
                 )}
@@ -273,16 +275,16 @@ function EventCard({ event, participatedIds, pendingSet, onApply }: {
 
                 {/* meta */}
                 <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-2 text-[0.8125rem] text-gray-500">
                         <i className="fas fa-calendar w-3.5 text-center text-primary/70" />
                         <span>{formatDateShort(event.startsAt)} · {formatTime(event.startsAt)}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-2 text-[0.8125rem] text-gray-500">
                         <i className="fas fa-map-marker-alt w-3.5 text-center text-primary/70" />
                         <span className="truncate">{event.location}</span>
                     </div>
                     {event.maxParticipants != null && (
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 text-[0.8125rem] text-gray-500">
                             <i className="fas fa-users w-3.5 text-center text-primary/70" />
                             <span>{event.approvedCount} / {event.maxParticipants} мест</span>
                             {/* seats bar */}
@@ -298,12 +300,12 @@ function EventCard({ event, participatedIds, pendingSet, onApply }: {
 
                 <div className="mt-auto pt-1">
                     {alreadyIn ? (
-                        <div className="w-full text-center py-2.5 bg-green-50 text-green-700 rounded-xl text-xs font-semibold">
+                        <div className="w-full text-center py-2.5 bg-green-50 text-green-700 rounded-xl text-[0.8125rem] font-semibold">
                             <i className="fas fa-check mr-1.5" />
                             Заявка подана
                         </div>
                     ) : isFull ? (
-                        <div className="w-full text-center py-2.5 bg-gray-100 text-gray-400 rounded-xl text-xs font-semibold cursor-not-allowed">
+                        <div className="w-full text-center py-2.5 bg-gray-100 text-gray-400 rounded-xl text-[0.8125rem] font-semibold cursor-not-allowed">
                             <i className="fas fa-ban mr-1.5" />
                             Мест нет
                         </div>
@@ -311,7 +313,7 @@ function EventCard({ event, participatedIds, pendingSet, onApply }: {
                         <button
                             onClick={() => onApply(event.id)}
                             disabled={isApplying}
-                            className="w-full py-2.5 bg-primary text-white rounded-xl text-xs font-bold hover:bg-primary-dark transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="w-full py-2.5 bg-primary text-white rounded-xl text-[0.8125rem] font-bold hover:bg-primary-dark transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {isApplying ? (
                                 <><i className="fas fa-spinner fa-spin" /> Отправляю…</>
@@ -324,7 +326,7 @@ function EventCard({ event, participatedIds, pendingSet, onApply }: {
 
                 <Link
                     to={`/events/${event.id}`}
-                    className="text-center text-xs text-gray-400 hover:text-primary transition"
+                    className="text-center text-[0.8125rem] text-gray-400 hover:text-primary transition"
                 >
                     Подробнее →
                 </Link>
@@ -422,7 +424,7 @@ export function MyFeedPage() {
                     <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
                         <i className="fas fa-exclamation-triangle text-red-500 text-2xl" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">Что-то пошло не так</h2>
+                    <h2 className="vol-h3">Что-то пошло не так</h2>
                     <p className="text-gray-500 text-sm">{error}</p>
                     <button
                         onClick={load}
@@ -453,30 +455,21 @@ export function MyFeedPage() {
     return (
         <>
             {/* ── PROFILE HERO ─────────────────────────────────────────────── */}
-            <section className="bg-gradient-to-br from-[#0f1117] via-[#1a2410] to-[#0f1117] text-white">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+            <section className="bg-gradient-to-br from-vol-head via-vol-head to-vol-head text-white">
+                <div className="wrap py-10 sm:py-14">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                         {/* avatar */}
                         <div className="relative flex-shrink-0">
-                            {profile.avatarUrl ? (
-                                <img
-                                    src={profile.avatarUrl}
-                                    alt={fullName(profile)}
-                                    className="w-20 h-20 rounded-2xl object-cover ring-4 ring-primary/30"
-                                />
-                            ) : (
-                                <div className="w-20 h-20 rounded-2xl bg-primary/20 ring-4 ring-primary/30 flex items-center justify-center">
-                                    <i className="fas fa-user text-primary text-3xl" />
-                                </div>
-                            )}
-                            <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-primary rounded-full flex items-center justify-center ring-2 ring-[#0f1117]">
+                            <Avatar name={fullName(profile)} thumb={profile.avatarThumbnailUrl} src={profile.avatarUrl} size="lg" square
+                              className="ring-4 ring-primary/30" />
+                            <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-primary rounded-full flex items-center justify-center ring-2 ring-vol-head">
                                 <i className="fas fa-leaf text-white text-xs" />
                             </div>
                         </div>
 
                         {/* name + meta */}
                         <div className="flex-1 min-w-0">
-                            <p className="text-primary/80 text-xs font-semibold uppercase tracking-widest mb-1">
+                            <p className="text-primary/80 text-[0.8125rem] font-semibold uppercase tracking-widest mb-1">
                                 Личный кабинет волонтёра
                             </p>
                             <h1 className="text-2xl sm:text-3xl font-extrabold leading-tight mb-1">
@@ -511,8 +504,8 @@ export function MyFeedPage() {
             </section>
 
             {/* ── TABS ─────────────────────────────────────────────────────── */}
-            <div className="bg-white border-b border-gray-200 sticky top-[3.75rem] z-20">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="vol-bar border-b border-vol-line sticky top-[3.75rem] z-20">
+                <div className="wrap">
                     <div className="flex gap-0">
                         {(['feed', 'history'] as const).map(t => (
                             <button
@@ -529,7 +522,7 @@ export function MyFeedPage() {
                                 ) : (
                                     <><i className="fas fa-history mr-2" />Моя история
                                         {pending > 0 && (
-                                            <span className="ml-2 w-5 h-5 rounded-full bg-yellow-400 text-yellow-900 text-xs font-bold inline-flex items-center justify-center">
+                                            <span className="ml-2 w-5 h-5 rounded-full bg-yellow-400 text-yellow-900 text-[0.8125rem] font-bold inline-flex items-center justify-center">
                         {pending}
                       </span>
                                         )}
@@ -542,8 +535,8 @@ export function MyFeedPage() {
             </div>
 
             {/* ── CONTENT ──────────────────────────────────────────────────── */}
-            <section className="py-10 bg-gray-50 min-h-[50vh]">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <section className="py-10 min-h-[50vh]">
+                <div className="wrap">
 
                     {/* ── TAB: FEED ── */}
                     {tab === 'feed' && (
@@ -551,7 +544,7 @@ export function MyFeedPage() {
                             {/* section header */}
                             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                                 <div>
-                                    <h2 className="text-xl font-bold text-gray-900">Ближайшие мероприятия</h2>
+                                    <h2 className="vol-h3">Ближайшие мероприятия</h2>
                                     <p className="text-sm text-gray-500 mt-0.5">
                                         {newEvents.length > 0
                                             ? `${newEvents.length} событий ждут вашего участия`
@@ -600,7 +593,7 @@ export function MyFeedPage() {
                         <>
                             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                                 <div>
-                                    <h2 className="text-xl font-bold text-gray-900">История участий</h2>
+                                    <h2 className="vol-h3">История участий</h2>
                                     <p className="text-sm text-gray-500 mt-0.5">{activities.length} заявок за всё время</p>
                                 </div>
                             </div>

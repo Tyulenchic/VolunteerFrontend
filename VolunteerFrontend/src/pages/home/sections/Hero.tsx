@@ -9,7 +9,7 @@ interface Props {
 export function Hero({ isAuthenticated, onRegister }: Props) {
   return (
     <section className="relative">
-      <div className="relative z-10 mx-auto grid max-w-[76rem] items-center px-4 sm:px-6 lg:grid-cols-[.92fr_1.4fr] lg:gap-6 lg:pb-24 lg:pt-12">
+      <div className="wrap relative z-10 grid items-center lg:grid-cols-[.92fr_1.4fr] lg:gap-6 lg:pb-24 lg:pt-12">
         <div className="relative z-10 order-2 min-w-0 max-lg:-mt-9 max-lg:mb-14 max-lg:text-center lg:order-1">
           <h1
             className="font-display text-[clamp(1.55rem,6.7vw,2.6rem)] font-extrabold leading-[1.1] tracking-tight text-vol-head sm:text-[clamp(2rem,5.6vw,3rem)] sm:leading-[1.08] lg:text-[clamp(2.2rem,3.4vw,3.2rem)]"

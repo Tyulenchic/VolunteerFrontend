@@ -15,8 +15,8 @@ import { VolIcon, type IconName } from '../../components/afisha/VolIcon';
 
 /** Illustration for the empty state: thin blue line on a pale fill, same style as the page backdrop. */
 function PeopleArt() {
-  const LINE = '#7ea2e8';
-  const FILL = '#dce8ff';
+  const LINE = 'var(--vol-sky)';
+  const FILL = 'var(--vol-decor)';
   return (
     <svg viewBox="0 0 120 76" fill="none" stroke={LINE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="h-auto w-full">
       <circle cx="60" cy="22" r="11" fill={FILL} />
@@ -163,7 +163,7 @@ export function EventsPage() {
     const on = cat === id;
     return (
       <button key={id} type="button" onClick={() => setCat(id)} aria-pressed={on}
-        className={`inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border-[1.5px] px-3.5 text-[13.5px] font-medium ${on ? 'border-vol-accent bg-vol-accent text-vol-accent-fg' : 'border-vol-rule bg-vol-surface text-vol-fg hover:border-vol-accent hover:text-vol-accent'}`}>
+        className={`inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border-[1.5px] px-3.5 text-[13.5px] font-medium ${on ? 'border-vol-accent bg-vol-accent text-vol-accent-fg' : 'border-vol-ctrl bg-vol-surface text-vol-fg hover:border-vol-accent hover:text-vol-accent'}`}>
         <VolIcon n={icon} size={15} />{label}<span className="text-[12px] tabular-nums opacity-70">{count}</span>
       </button>
     );
@@ -172,9 +172,9 @@ export function EventsPage() {
   return (
     <>
       <section className="relative">
-        <div className="relative z-10 mx-auto grid max-w-[76rem] items-end gap-8 px-4 pb-12 pt-14 sm:px-6 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pb-16 md:pt-20">
+        <div className="wrap relative z-10 grid items-end gap-8 pb-12 pt-14 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pb-16 md:pt-20">
           <div className="min-w-0">
-            <h1 className="font-display text-[clamp(1.85rem,4.4vw,3rem)] font-extrabold leading-[1.1] tracking-tight" style={{ textWrap: 'balance' }}>
+            <h1 className="vol-h1" style={{ textWrap: 'balance' }}>
               Волонтёрские <span className="text-vol-accent">мероприятия</span>
             </h1>
           </div>
@@ -192,14 +192,14 @@ export function EventsPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[76rem] px-4 sm:px-6" aria-label="Категории">
+      <section className="wrap" aria-label="Категории">
         <div className="no-scrollbar -mx-4 flex gap-2.5 overflow-x-auto border-y border-vol-line px-4 py-6 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group">
           {rect('all', 'Все', 'grid', events.length)}
           {cats.map(c => rect(c.id, c.label, c.icon, counts[c.id]))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-[76rem] px-4 pb-24 pt-12 sm:px-6">
+      <section className="wrap pb-24 pt-12">
         <div className="grid gap-14 lg:grid-cols-[1fr_16rem]">
           <div className="min-w-0">
             <div className="mb-9 flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
@@ -221,7 +221,7 @@ export function EventsPage() {
                 {[0, 1, 2].map(i => <div key={i} className="h-44 animate-pulse rounded-2xl border border-vol-line bg-vol-surface" />)}
               </div>
             ) : failed ? (
-              <div className="rounded-2xl border-[1.5px] border-dashed border-vol-rule px-6 py-14 text-center" role="alert">
+              <div className="rounded-2xl border-[1.5px] border-dashed border-vol-ctrl px-6 py-14 text-center" role="alert">
                 <p className="font-display text-[15px] font-bold">Не удалось загрузить мероприятия</p>
                 <p className="mt-1.5 text-[13px] text-vol-muted">Проверьте соединение и попробуйте ещё раз.</p>
                 <button type="button" onClick={load} className="mt-4 h-9 rounded-lg bg-vol-accent px-5 text-[13.5px] font-semibold text-vol-accent-fg hover:opacity-90">Повторить</button>
@@ -246,7 +246,7 @@ export function EventsPage() {
                 })}
               </div>
             ) : (
-              <div className="rounded-2xl border-[1.5px] border-dashed border-vol-rule px-6 py-14 text-center">
+              <div className="rounded-2xl border-[1.5px] border-dashed border-vol-ctrl px-6 py-14 text-center">
                 <div className="mx-auto mb-4 w-28"><PeopleArt /></div>
                 <p className="font-display text-[15px] font-bold">{events.length === 0 ? 'Пока нет предстоящих мероприятий' : 'Ничего не найдено'}</p>
                 <p className="mt-1.5 text-[13px] text-vol-muted">{events.length === 0 ? 'Загляните позже: новые события появятся здесь.' : 'Измените запрос или выберите другую категорию.'}</p>

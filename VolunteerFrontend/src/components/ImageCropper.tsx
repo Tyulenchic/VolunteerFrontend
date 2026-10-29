@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { useSecureSrc } from './SecureImage';
 import type { ImageCropDto } from '../types/organization';
 
@@ -22,16 +22,25 @@ export type PurposeConfig = {
   min: [number, number];    // рекомендуемый минимальный размер ОРИГИНАЛА в пикселях (предупреждение, не запрет)
   round?: boolean;          // круглая рамка (аватар, логотип)
   note: string;
+  /**
+   * Где ещё показывается это фото, если рамка там другой формы. Кадр один (в aspect), а в этих местах CroppedImage
+   * вписывает его сам (fitCropToFrame) — редактор показывает каждое место, чтобы не пришлось кадрировать заново.
+   */
+  previews?: { label: string; aspect: number }[];
 };
 
 export const PURPOSES: Record<ImagePurpose, PurposeConfig> = {
   avatar:   { label: 'Аватар',              aspect: 1,       min: [256, 256],   round: true,  note: 'Фото профиля: шапка, карточка волонтёра' },
-  news:     { label: 'Новость',             aspect: 16 / 10, min: [800, 500],                  note: 'Обложка новости в списке и на главной' },
-  event:    { label: 'Мероприятие',         aspect: 16 / 10, min: [800, 500],                  note: 'Фото на карточке мероприятия' },
+  news:     { label: 'Новость',             aspect: 16 / 10, min: [800, 500],                  note: 'Обложка новости в списке и на главной',
+              previews: [{ label: 'Плитка на главной', aspect: 4 / 3 }] },
+  event:    { label: 'Мероприятие',         aspect: 16 / 10, min: [800, 500],                  note: 'Фото на карточке мероприятия',
+              // билет афиши: 2:1 на телефоне и вертикальная полоса 160px на компьютере
+              previews: [{ label: 'Билет — телефон', aspect: 2 / 1 }, { label: 'Билет — компьютер', aspect: 2 / 3 }] },
   orgLogo:  { label: 'Логотип организации', aspect: 1,       min: [256, 256],   round: true,  note: 'Логотип в карточке организации' },
   orgCover: { label: 'Обложка организации', aspect: 16 / 5,  min: [1200, 375],                 note: 'Широкая обложка страницы организации' },
   video:    { label: 'Обложка видео',      aspect: 16 / 9,  min: [640, 360],                  note: 'Обложка видео на главной странице' },
-  post:     { label: 'Фото публикации',     aspect: 4 / 3,   min: [600, 450],                  note: 'Фото в ленте организации' },
+  post:     { label: 'Фото публикации',     aspect: 4 / 3,   min: [600, 450],                  note: 'Фото в ленте организации',
+              previews: [{ label: 'Плитка в сетке', aspect: 1 }] },
 };
 
 /** Максимальный размер загружаемого файла — как на сервере (Images:MaxUploadBytes). */
@@ -196,50 +205,98 @@ export function cropFocus(crop: ImageCropDto | null | undefined): string {
   return `${pct(crop.x + crop.width / 2)} ${pct(crop.y + crop.height / 2)}`;
 }
 
+/**
+ * Окно показа для рамки любых пропорций (доли 0…1 от оригинала).
+ * Кадр хранится один (в пропорциях назначения), а показывается в разных рамках: карточка 16:10, вертикальный билет,
+ * квадратная плитка. Окно — самый большой прямоугольник пропорций рамки ВНУТРИ выбранной области, с тем же центром:
+ * так сохраняются и положение, и масштаб кадра (крупный план остаётся крупным), а рамка не выходит за пределы фото.
+ * imageAspect — ширина/высота оригинала, frameAspect — ширина/высота рамки.
+ */
+export function fitCropToFrame(crop: ImageCropDto, imageAspect: number, frameAspect: number): ImageCropDto {
+  // всё в «пикселях» оригинала высотой 1: ширина оригинала = imageAspect
+  const cw = crop.width * imageAspect;
+  const ch = crop.height;
+  let w = cw;
+  let h = ch;
+  if (cw / ch > frameAspect) w = ch * frameAspect; else h = cw / frameAspect;
+  const cx = (crop.x + crop.width / 2) * imageAspect;
+  const cy = crop.y + crop.height / 2;
+  const x = clamp(cx - w / 2, 0, imageAspect - w);
+  const y = clamp(cy - h / 2, 0, 1 - h);
+  return { x: x / imageAspect, y, width: w / imageAspect, height: h };
+}
+
+/** Пропорции элемента (ширина/высота), отслеживаются при изменении размеров. */
+function useBoxAspect(enabled: boolean) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [aspect, setAspect] = useState<number | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!enabled || !el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (width > 0 && height > 0) setAspect(width / height);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [enabled]);
+  return [ref, aspect] as const;
+}
+
 /* ------------------------------------------------------------------
-   Показ изображения с сохранённым кадром: сервер отдаёт картинку целиком, а показывается ровно выбранная область.
-   Оригинал не режется — он сдвигается и масштабируется внутри окна нужных пропорций (aspect).
+   Показ изображения с сохранённым кадром: сервер отдаёт картинку целиком, а показывается выбранная область.
+   Оригинал не режется — он сдвигается и масштабируется внутри окна рамки. Пропорции рамки задаются aspect
+   или (fill) берутся у родителя — для блоков, высота которых зависит от соседнего текста (билет, плитка новости).
    Без кадра картинка заполняет окно (object-cover).
    ------------------------------------------------------------------ */
 export function CroppedImage({
-  src, crop, aspect, className = '', round = false, alt = '', placeholder,
+  src, crop, aspect, fill = false, className = '', round = false, alt = '', placeholder,
 }: {
-  src: string | null | undefined; crop?: ImageCropDto | null; aspect: number; className?: string; round?: boolean; alt?: string;
+  src: string | null | undefined; crop?: ImageCropDto | null;
+  /** Пропорции рамки; не нужны при fill. */
+  aspect?: number;
+  /** Рамка занимает родителя целиком (absolute inset-0); пропорции измеряются. */
+  fill?: boolean;
+  className?: string; round?: boolean; alt?: string;
   placeholder?: React.ReactNode;
 }) {
   const resolved = useSecureSrc(src);
+  const [boxRef, boxAspect] = useBoxAspect(fill);
+  const [imageAspect, setImageAspect] = useState<number | null>(null);
   const shape = round ? 'rounded-full' : 'rounded-xl';
+  const frame = `${fill ? 'absolute inset-0' : 'relative'} overflow-hidden ${shape} ${className}`;
+  const frameStyle = fill ? undefined : { aspectRatio: aspect ?? 16 / 10 };
+  const frameAspect = fill ? boxAspect : (aspect ?? 16 / 10);
 
   if (!resolved.src || resolved.failed) {
     return (
-      <div className={`relative overflow-hidden bg-gray-100 flex items-center justify-center text-gray-300 ${shape} ${className}`} style={{ aspectRatio: aspect }}>
+      <div ref={boxRef} className={`${frame} bg-gray-100 flex items-center justify-center text-gray-300`} style={frameStyle}>
         {placeholder ?? <i className="fas fa-image text-3xl" aria-hidden />}
       </div>
     );
   }
 
-  if (!crop) {
-    return (
-      <div className={`relative overflow-hidden bg-gray-100 ${shape} ${className}`} style={{ aspectRatio: aspect }}>
-        <img src={resolved.src} alt={alt} loading="lazy" onError={resolved.onError} className="absolute inset-0 w-full h-full object-cover" />
-      </div>
-    );
-  }
+  const onLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { naturalWidth, naturalHeight } = e.currentTarget;
+    if (naturalWidth && naturalHeight) setImageAspect(naturalWidth / naturalHeight);
+  };
+
+  // Пока неизвестны пропорции оригинала или рамки — object-cover с фокусом в центре кадра (без скачка после загрузки).
+  const win = crop && imageAspect && frameAspect ? fitCropToFrame(crop, imageAspect, frameAspect) : null;
 
   return (
-    <div className={`relative overflow-hidden bg-gray-100 ${shape} ${className}`} style={{ aspectRatio: aspect }}>
+    <div ref={boxRef} className={`${frame} bg-gray-100`} style={frameStyle}>
       <img
         src={resolved.src}
         alt={alt}
         loading="lazy"
         draggable={false}
+        onLoad={onLoad}
         onError={resolved.onError}
-        className="absolute max-w-none select-none"
-        style={{
-          width: `${100 / crop.width}%`,
-          left: `${-(crop.x / crop.width) * 100}%`,
-          top: `${-(crop.y / crop.height) * 100}%`,
-        }}
+        className={win ? 'absolute max-w-none select-none' : 'absolute inset-0 h-full w-full object-cover select-none'}
+        style={win
+          ? { width: `${100 / win.width}%`, height: `${100 / win.height}%`, left: `${-(win.x / win.width) * 100}%`, top: `${-(win.y / win.height) * 100}%` }
+          : { objectPosition: cropFocus(crop) }}
       />
     </div>
   );
