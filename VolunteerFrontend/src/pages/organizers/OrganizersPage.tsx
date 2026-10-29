@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { publicUsersApi } from '../../api/publicUsers';
 import type { PublicUserDto } from '../../types/user';
 import { Spinner } from '../../components/Spinner';
+import { Avatar } from '../../components/ui/Avatar';
+import { AnimatedBackdrop } from '../../components/ui/AnimatedBackdrop';
 import { useFeedback } from '../../context/FeedbackContext';
 
 export function OrganizersPage() {
@@ -15,7 +17,8 @@ export function OrganizersPage() {
 
   useEffect(() => {
     publicUsersApi.getOrganizers(0, 50)
-      .then(res => setOrganizers(res.items.length ? res.items : [])) // API may return empty array with 200 status, treat as no organizers
+      // Сервер не отдаёт тех, кто скрыл ФИО или фото; страховка на случай старой версии API — без имени карточку не рисуем.
+      .then(res => setOrganizers(res.items.filter(u => u.firstName || u.lastName)))
       .finally(() => setLoading(false));
   }, []);
 
@@ -35,29 +38,30 @@ export function OrganizersPage() {
   return (
     <>
       {/* HERO */}
-      <section className="bg-gradient-to-br from-teal-50 to-blue-50 py-16 sm:py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl">
+      <section className="relative overflow-hidden py-16 sm:py-20">
+        <AnimatedBackdrop variant="organizers" />
+        <div className="wrap relative z-10 text-center max-w-3xl">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-6">
             <i className="fas fa-star" />Команда организаторов
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-gray-900 leading-tight mb-5">
+          <h1 className="vol-h1 mb-6">
             Люди, которые <span className="text-primary">создают</span> добрые дела
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="vol-lead mx-auto">
             Наши организаторы координируют волонтёрские проекты и помогают каждому найти своё место в движении.
           </p>
         </div>
       </section>
 
       {/* SEARCH */}
-      <div className="sticky top-[3.75rem] z-20 bg-white border-b border-gray-200 py-4 shadow-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="sticky top-[3.75rem] z-20 vol-bar border-b border-vol-line py-4">
+        <div className="wrap">
           <div className="relative max-w-md mx-auto">
             <input
               value={searchRaw}
               onChange={e => onSearch(e.target.value)}
               placeholder="Поиск по имени..."
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
             />
             <i className="fas fa-search absolute left-3.5 top-3 text-gray-400" />
           </div>
@@ -65,8 +69,8 @@ export function OrganizersPage() {
       </div>
 
       {/* GRID */}
-      <section className="py-12 sm:py-16 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-12 sm:py-16">
+        <div className="wrap">
           {loading ? (
             <div className="flex justify-center py-20"><Spinner /></div>
           ) : filtered.length === 0 ? (
@@ -75,26 +79,19 @@ export function OrganizersPage() {
               Организаторы не найдены
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,18rem),1fr))] gap-6">
               {filtered.map(o => {
                 const name = [o.firstName, o.lastName].filter(Boolean).join(' ') || 'Пользователь'; // роль уже в бейдже ниже
-                const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
                 return (
                   <Link key={o.id} to={`/users/${o.id}`} className="no-underline">
                     <article className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl hover:border-primary/30 transition-all duration-300 overflow-hidden group cursor-pointer h-full flex flex-col">
                       <div className="h-2 bg-gradient-to-r from-primary to-blue-500" />
                       <div className="p-6 flex-grow flex flex-col">
                         <div className="flex items-start gap-4 mb-4">
-                          {o.avatarUrl ? (
-                            <img src={o.avatarUrl} alt={name} className="w-16 h-16 rounded-2xl object-cover flex-shrink-0 shadow-sm" />
-                          ) : (
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-blue-400/30 flex items-center justify-center flex-shrink-0">
-                              <span className="text-xl font-bold text-primary">{initials}</span>
-                            </div>
-                          )}
+                          <Avatar name={name} thumb={o.avatarThumbnailUrl} src={o.avatarUrl} crop={o.avatarCrop} size="lg" square className="shadow-sm" />
                           <div className="min-w-0 flex-grow">
                             <h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-primary transition">{name}</h3>
-                            <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full mt-1">
+                            <span className="inline-flex items-center gap-1 text-[0.8125rem] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full mt-1">
                               <i className="fas fa-star text-[10px]" />Организатор
                             </span>
                           </div>
@@ -102,7 +99,7 @@ export function OrganizersPage() {
                         {o.bio && (
                           <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">{o.bio}</p>
                         )}
-                        <div className="flex flex-col gap-2 pt-4 border-t border-gray-100 text-xs text-gray-600 mt-auto">
+                        <div className="flex flex-col gap-2 pt-4 border-t border-gray-100 text-[0.8125rem] text-gray-600 mt-auto">
                           {o.city && (
                             <span className="flex items-center gap-1">
                               <i className="fas fa-map-marker-alt text-primary" aria-hidden />{o.city}
@@ -126,9 +123,9 @@ export function OrganizersPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-12 bg-gradient-to-br from-teal-50 to-blue-50 border-t border-gray-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-xl">
-          <h2 className="text-2xl font-heading font-bold text-gray-900 mb-3">Хотите стать организатором?</h2>
+      <section className="py-12">
+        <div className="wrap text-center max-w-xl">
+          <h2 className="vol-compact mb-3">Хотите стать организатором?</h2>
           <p className="text-gray-600 mb-6">Если вы хотите возглавить направление или организовать своё мероприятие — свяжитесь с нами!</p>
           <button type="button" onClick={openFeedback}
             className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg">

@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { UserNotificationBell } from '../notifications/UserNotificationBell';
 import { VolIcon, VolLogo } from './VolIcon';
+import { Avatar } from '../ui/Avatar';
 
 const NAV = [
   { to: '/', label: 'Главная' },
@@ -21,8 +23,13 @@ const MORE = [
   { to: '/faq', label: 'FAQ' },
 ] as const;
 
+const isActive = (to: string, pathname: string) => (to === '/' ? pathname === '/' : pathname.startsWith(to));
+
 const linkCls = (active: boolean) =>
-  `px-3 py-2 text-[14px] ${active ? 'font-semibold text-vol-accent' : 'font-medium text-vol-muted hover:text-vol-fg'}`;
+  `press-flat whitespace-nowrap rounded-control px-3 py-2 text-ctrl ${active ? 'font-semibold text-vol-accent' : 'font-medium text-vol-muted hover:bg-vol-accent-soft hover:text-vol-fg'}`;
+
+/** Small header control (Вход / Регистрация / Выйти): 36px, the tap area is widened to 44px by .vol-tap-2. */
+const headBtn = 'press-flat vol-tap-2 relative hidden h-9 items-center rounded-control px-3.5 text-meta font-medium no-underline sm:inline-flex';
 
 export function SiteHeader() {
   const { user, logout, isAdmin, isOrganizer } = useAuth();
@@ -30,10 +37,12 @@ export function SiteHeader() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [menu, setMenu] = useState(false);
+  const [closing, setClosing] = useState(false); // меню доигрывает анимацию закрытия, потом снимается
   const [more, setMore] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
+  const burgerRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => { setMenu(false); setMore(false); }, [pathname]);
+  useEffect(() => { setMenu(false); setClosing(false); setMore(false); }, [pathname]);
 
   useEffect(() => {
     if (!more) return;
@@ -47,9 +56,9 @@ export function SiteHeader() {
   const displayName = user?.firstName
     ? `${user.firstName}${user.lastName ? ' ' + user.lastName : ''}`
     : user?.email?.split('@')[0] ?? '';
-  const initials = (displayName || '?').split(/\s+/).map(w => w.charAt(0)).join('').slice(0, 2).toUpperCase();
 
   const handleLogout = async () => {
+    setMenu(false);
     await logout();
     notify('Вы вышли из системы', 'info');
     navigate('/');
@@ -62,19 +71,25 @@ export function SiteHeader() {
     if (pathname !== '/about') { navigate('/about#contacts'); setTimeout(scroll, 150); } else scroll();
   };
 
-  const mobileItem = 'rounded-lg px-3 py-2.5 text-[14px] font-medium text-vol-muted hover:bg-vol-bg text-left';
+  const closeTimer = useRef<number | undefined>(undefined);
+  const closeMenu = useCallback(() => {
+    setClosing(true);
+    window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => { setMenu(false); setClosing(false); burgerRef.current?.focus(); }, 200);
+  }, []);
+  useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
   return (
     <header className="vol-glass vol-head sticky z-50 border-b border-vol-line" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
-      <div className="mx-auto flex h-[3.75rem] max-w-[76rem] items-center gap-4 px-4 sm:px-6">
-        <Link to="/" className="flex min-w-0 items-center gap-2.5 no-underline text-vol-fg">
+      <div className="wrap flex min-h-[3.75rem] items-center gap-3 lg:gap-4">
+        <Link to="/" className="press-flat flex min-w-0 items-center gap-2.5 no-underline text-vol-fg">
           <VolLogo size={38} />
-          <span className="font-display truncate text-[15px] font-bold tracking-tight max-[359px]:whitespace-normal max-[359px]:text-[13.5px] max-[359px]:leading-[1.15]">Волонтёры Приднестровья</span>
+          <span className="font-display truncate text-body-sm font-bold tracking-tight max-[359px]:whitespace-normal max-[359px]:text-meta max-[359px]:leading-[1.15] lg:max-xl:sr-only">Волонтёры Приднестровья</span>
         </Link>
 
-        <nav className="ml-6 hidden items-center lg:flex" aria-label="Основная навигация">
+        <nav className="ml-2 hidden items-center lg:flex xl:ml-6" aria-label="Основная навигация">
           {NAV.map(it => {
-            const active = it.to === '/' ? pathname === '/' : pathname.startsWith(it.to);
+            const active = isActive(it.to, pathname);
             return (
               <Link key={it.to} to={it.to} aria-current={active ? 'page' : undefined} className={`${linkCls(active)} no-underline`}>
                 {it.label}
@@ -84,73 +99,147 @@ export function SiteHeader() {
           <button type="button" onClick={goContacts} className={linkCls(false)}>Контакты</button>
           <div className="relative" ref={moreRef}>
             <button type="button" onClick={() => setMore(v => !v)} aria-expanded={more} aria-haspopup="true"
-              className="inline-flex items-center gap-1 px-3 py-2 text-[14px] font-medium text-vol-muted hover:text-vol-fg">
-              Ещё <VolIcon n="chevron" size={14} />
+              className={`${linkCls(false)} inline-flex items-center gap-1`}>
+              Ещё <VolIcon n="chevron" size={14} className={`transition-transform duration-200 ${more ? 'rotate-180' : ''}`} />
             </button>
             {more && (
-              <div className="absolute left-0 top-full mt-2 w-44 rounded-xl border border-vol-line bg-vol-surface p-1 shadow-lg">
+              <div className="anim-pop absolute left-0 top-full mt-2 w-52 rounded-card border border-vol-line bg-vol-surface p-1 shadow-raise">
                 {MORE.map(t => (
-                  <Link key={t.to} to={t.to} className="block rounded-lg px-3 py-2 text-[13.5px] text-vol-muted no-underline hover:bg-vol-accent-soft hover:text-vol-fg">{t.label}</Link>
+                  <Link key={t.to} to={t.to} className="block rounded-control px-3 py-2 text-meta text-vol-muted no-underline hover:bg-vol-accent-soft hover:text-vol-fg">{t.label}</Link>
                 ))}
+                {/* на 1024–1279px строка навигации тесная: служебные разделы роли доступны отсюда, от 1280px — в строке */}
+                {isAdmin && <Link to="/admin/users" className="block rounded-control px-3 py-2 text-meta text-vol-muted no-underline hover:bg-vol-accent-soft hover:text-vol-fg xl:hidden">Управление</Link>}
+                {isOrganizer && <Link to="/organizer" className="block rounded-control px-3 py-2 text-meta text-vol-muted no-underline hover:bg-vol-accent-soft hover:text-vol-fg xl:hidden">Кабинет организатора</Link>}
               </div>
             )}
           </div>
-          {isAdmin && <Link to="/admin/users" className={`${linkCls(false)} no-underline`}>Управление</Link>}
-          {isOrganizer && <Link to="/organizer" className={`${linkCls(false)} no-underline`}>Кабинет организатора</Link>}
+          {isAdmin && <Link to="/admin/users" className={`${linkCls(false)} hidden no-underline xl:block`}>Управление</Link>}
+          {isOrganizer && <Link to="/organizer" className={`${linkCls(false)} hidden no-underline xl:block`}>Кабинет организатора</Link>}
         </nav>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           {user ? (
             <>
               <UserNotificationBell />
-              <Link to="/profile" className="vol-tap-2 relative flex items-center gap-2 no-underline text-vol-fg" aria-label="Профиль">
-                {user.avatarUrl
-                  ? <img src={user.avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
-                  : <span className="grid h-8 w-8 place-items-center rounded-full bg-vol-accent-soft text-[11px] font-semibold text-vol-accent">{initials}</span>}
-                <span className="hidden max-w-[10rem] truncate text-[13.5px] font-medium sm:inline">{displayName}</span>
+              <Link to="/profile" className="press-flat vol-tap-2 relative flex items-center gap-2 no-underline text-vol-fg" aria-label="Профиль">
+                <Avatar name={displayName || '?'} thumb={user.avatarThumbnailUrl} src={user.avatarUrl} crop={user.avatarCrop} size="sm" />
+                <span className="hidden max-w-[10rem] truncate text-meta font-medium sm:inline lg:hidden 2xl:inline">{displayName}</span>
               </Link>
               <button type="button" onClick={handleLogout}
-                className="vol-tap-2 relative hidden h-8 items-center rounded-lg border-[1.5px] border-vol-rule px-3.5 text-[13px] font-medium hover:border-vol-accent hover:text-vol-accent sm:inline-flex">Выйти</button>
+                className={`${headBtn} border-[1.5px] border-vol-ctrl hover:border-vol-accent hover:text-vol-accent`}>Выйти</button>
             </>
           ) : (
             <>
-              <Link to="/login"
-                className="vol-tap-2 relative hidden h-8 items-center rounded-lg border-[1.5px] border-vol-rule px-3.5 text-[13px] font-medium text-vol-fg no-underline hover:border-vol-accent hover:text-vol-accent sm:inline-flex">Вход</Link>
-              <Link to="/register"
-                className="vol-tap-2 relative hidden h-8 items-center rounded-lg bg-vol-accent px-3.5 text-[13px] font-semibold text-vol-accent-fg no-underline hover:opacity-90 sm:inline-flex">Регистрация</Link>
+              <Link to="/login" className={`${headBtn} border-[1.5px] border-vol-ctrl text-vol-fg hover:border-vol-accent hover:text-vol-accent`}>Вход</Link>
+              <Link to="/register" className={`${headBtn} press-shadow bg-vol-accent font-semibold text-vol-accent-fg hover:bg-primary-dark`}>Регистрация</Link>
             </>
           )}
-          <button type="button" onClick={() => setMenu(v => !v)} aria-label={menu ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={menu}
-            className="vol-tap relative grid h-8 w-8 place-items-center rounded-lg border-[1.5px] border-vol-rule hover:border-vol-accent lg:hidden">
-            <VolIcon n={menu ? 'close' : 'menu'} size={16} />
+          <button ref={burgerRef} type="button" onClick={() => setMenu(true)} aria-label="Открыть меню" aria-expanded={menu} aria-controls="site-menu"
+            className="press-flat grid h-10 w-10 place-items-center rounded-control border-[1.5px] border-vol-ctrl hover:border-vol-accent hover:text-vol-accent lg:hidden">
+            <VolIcon n="menu" size={18} />
           </button>
         </div>
       </div>
 
-      {menu && (
-        <div className="border-t border-vol-line bg-vol-surface lg:hidden">
-          <nav className="mx-auto flex max-w-[76rem] flex-col gap-0.5 px-4 py-3 sm:px-6" aria-label="Мобильная навигация">
-            {[...NAV, ...MORE].map(it => {
-              const active = it.to === '/' ? pathname === '/' : pathname.startsWith(it.to);
-              return (
-                <Link key={it.to} to={it.to} aria-current={active ? 'page' : undefined}
-                  className={`rounded-lg px-3 py-2.5 text-[14px] font-medium no-underline ${active ? 'bg-vol-accent-soft text-vol-accent' : 'text-vol-muted hover:bg-vol-bg'}`}>{it.label}</Link>
-              );
-            })}
-            <button type="button" onClick={goContacts} className={mobileItem}>Контакты</button>
-            {isAdmin && <Link to="/admin/users" className={`${mobileItem} no-underline`}>Управление</Link>}
-            {isOrganizer && <Link to="/organizer" className={`${mobileItem} no-underline`}>Кабинет организатора</Link>}
-            {user ? (
-              <button type="button" onClick={handleLogout} className="mt-2 h-9 rounded-lg border-[1.5px] border-vol-rule text-[13.5px] font-medium sm:hidden">Выйти</button>
-            ) : (
-              <div className="mt-2 flex gap-2 sm:hidden">
-                <Link to="/login" className="grid h-9 flex-1 place-items-center rounded-lg border-[1.5px] border-vol-rule text-[13.5px] font-medium text-vol-fg no-underline">Вход</Link>
-                <Link to="/register" className="grid h-9 flex-1 place-items-center rounded-lg bg-vol-accent text-[13.5px] font-semibold text-vol-accent-fg no-underline">Регистрация</Link>
-              </div>
-            )}
-          </nav>
-        </div>
+      {menu && createPortal(
+        <MobileMenu closing={closing} pathname={pathname} displayName={displayName} onClose={closeMenu} onContacts={goContacts} onLogout={handleLogout} />,
+        document.body,
       )}
     </header>
+  );
+}
+
+/**
+ * Меню бургера: панель справа поверх страницы (до 1024px). Рендерится в body — у шапки backdrop-filter,
+ * и fixed-потомок внутри неё позиционировался бы от шапки, а не от экрана.
+ * Закрывается кнопкой, Esc, нажатием на затемнение и переходом; пока открыто, страница не прокручивается,
+ * фокус переходит в панель и не уходит из неё.
+ */
+function MobileMenu({ closing, pathname, displayName, onClose, onContacts, onLogout }: {
+  closing: boolean; pathname: string; displayName: string; onClose: () => void; onContacts: () => void; onLogout: () => void;
+}) {
+  const { user, isAdmin, isOrganizer } = useAuth();
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    panelRef.current?.querySelector<HTMLElement>('a, button')?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key !== 'Tab' || !panelRef.current) return;
+      const items = panelRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled])');
+      const first = items[0], last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = prev; document.removeEventListener('keydown', onKey); };
+  }, [onClose]);
+
+  const item = (active: boolean) =>
+    `press-flat flex min-h-11 items-center rounded-control px-3 text-ctrl no-underline text-left ${active ? 'bg-vol-accent-soft font-semibold text-vol-accent' : 'font-medium text-vol-fg hover:bg-vol-bg'}`;
+
+  return (
+    <div className="vol-head fixed inset-0 z-[70] lg:hidden">
+      <div className={`${closing ? 'vol-fade-out' : 'vol-fade'} absolute inset-0 bg-[color-mix(in_srgb,var(--pal-ink)_45%,transparent)] backdrop-blur-[2px]`} onClick={onClose} aria-hidden />
+      <div ref={panelRef} id="site-menu" role="dialog" aria-modal="true" aria-label="Меню сайта"
+        className={`${closing ? 'vol-drawer-out' : 'vol-drawer'} absolute inset-y-0 right-0 flex w-[min(21rem,88vw)] flex-col bg-vol-surface shadow-float`}
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+        <div className="flex h-[3.75rem] shrink-0 items-center justify-between gap-3 border-b border-vol-line px-4">
+          {user ? (
+            <Link to="/profile" className="press-flat flex min-w-0 items-center gap-2.5 no-underline text-vol-fg">
+              <Avatar name={displayName || '?'} thumb={user.avatarThumbnailUrl} src={user.avatarUrl} crop={user.avatarCrop} size="sm" />
+              <span className="min-w-0">
+                <span className="block truncate text-ctrl font-semibold">{displayName}</span>
+                <span className="block text-meta text-vol-faint">Мой профиль</span>
+              </span>
+            </Link>
+          ) : <span className="font-display text-body font-bold text-vol-head">Меню</span>}
+          <button type="button" onClick={onClose} aria-label="Закрыть меню"
+            className="press-flat grid h-10 w-10 shrink-0 place-items-center rounded-control text-vol-muted hover:bg-vol-bg hover:text-vol-fg">
+            <VolIcon n="close" size={18} />
+          </button>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto overscroll-contain px-3 py-3" aria-label="Мобильная навигация">
+          <ul className="flex flex-col gap-0.5">
+            {NAV.map(it => {
+              const active = isActive(it.to, pathname);
+              return <li key={it.to}><Link to={it.to} aria-current={active ? 'page' : undefined} className={item(active)}>{it.label}</Link></li>;
+            })}
+            <li><button type="button" onClick={onContacts} className={`${item(false)} w-full`}>Контакты</button></li>
+          </ul>
+          <p className="vol-meta mt-4 px-3 pb-1">Сообщество</p>
+          <ul className="flex flex-col gap-0.5">
+            {MORE.map(it => {
+              const active = isActive(it.to, pathname);
+              return <li key={it.to}><Link to={it.to} aria-current={active ? 'page' : undefined} className={item(active)}>{it.label}</Link></li>;
+            })}
+          </ul>
+          {(isAdmin || isOrganizer) && (
+            <>
+              <p className="vol-meta mt-4 px-3 pb-1">Работа</p>
+              <ul className="flex flex-col gap-0.5">
+                {isAdmin && <li><Link to="/admin/users" className={item(false)}>Управление</Link></li>}
+                {isOrganizer && <li><Link to="/organizer" className={item(false)}>Кабинет организатора</Link></li>}
+              </ul>
+            </>
+          )}
+        </nav>
+
+        <div className="shrink-0 border-t border-vol-line p-4">
+          {user ? (
+            <button type="button" onClick={onLogout}
+              className="press-flat h-11 w-full rounded-control border-[1.5px] border-vol-ctrl text-ctrl font-medium hover:border-vol-accent hover:text-vol-accent">Выйти</button>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <Link to="/login" className="press-flat grid h-11 place-items-center rounded-control border-[1.5px] border-vol-ctrl text-ctrl font-medium text-vol-fg no-underline">Вход</Link>
+              <Link to="/register" className="press-flat grid h-11 place-items-center rounded-control bg-vol-accent text-ctrl font-semibold text-vol-accent-fg no-underline">Регистрация</Link>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

@@ -36,7 +36,7 @@ export const CATEGORY_LABELS: Record<EventCategory, string> = {
 // Category color map (все 13 категорий)
 export const CATEGORY_COLORS: Record<EventCategory, string> = {
   Veterans: 'bg-red-500',
-  Medical: 'bg-teal-500',
+  Medical: 'bg-blue-400',
   Donation: 'bg-red-600',
   Animals: 'bg-yellow-500',
   HealthyLife: 'bg-sky-500',

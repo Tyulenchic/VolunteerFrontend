@@ -133,8 +133,8 @@ export function AdminDashboard() {
           ) : (
             <ul className="divide-y divide-line">
               {pending.data.items.map(p => (
-                <li key={p.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3 shadow-[inset_3px_0_0_0_#d9962a] hover:bg-surface-2">
-                  <Avatar name={p.userName} />
+                <li key={p.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3 shadow-[inset_3px_0_0_0_theme(colors.warning.600)] hover:bg-surface-2">
+                  <Avatar name={p.userName} thumb={p.userAvatarThumbnailUrl} />
                   <div className="min-w-0 flex-1 basis-48">
                     <p className="text-sm font-medium text-ink-900 truncate">{p.userName}</p>
                     <p className="meta truncate">{p.eventTitle} · {fmtShort(p.createdAt)}</p>

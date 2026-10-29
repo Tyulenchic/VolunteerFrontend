@@ -80,7 +80,7 @@ export function UserNotificationBell() {
     <div className="relative" ref={root}>
       <button type="button" onClick={toggle} aria-expanded={open} aria-haspopup="true"
         aria-label={`Уведомления${count ? `: ${count} непрочитанных` : ''}`}
-        className="relative grid h-8 w-8 place-items-center rounded-lg border-[1.5px] border-vol-rule text-vol-fg hover:border-vol-accent hover:text-vol-accent">
+        className="relative grid h-8 w-8 place-items-center rounded-lg border-[1.5px] border-vol-ctrl text-vol-fg hover:border-vol-accent hover:text-vol-accent">
         <i className="fas fa-bell text-[13px]" aria-hidden />
         {count > 0 && (
           <span className="absolute -right-1.5 -top-1.5 min-w-[1.1rem] rounded-full bg-red-600 px-1 text-center text-[10px] font-bold leading-[1.1rem] text-white">

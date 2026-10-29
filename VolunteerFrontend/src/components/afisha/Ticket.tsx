@@ -3,8 +3,8 @@ import type { EventResponseDto, ParticipationResponseDto } from '../../types/eve
 import { CAT, plural, seatsLeft, timeOf } from '../../utils/afisha';
 import { VolIcon } from './VolIcon';
 import { OrganizationBadge } from '../organizations/OrganizationBadge';
-import { cropFocus } from '../ImageCropper';
-import { SecureImage } from '../SecureImage';
+import { CroppedImage } from '../ImageCropper';
+import { MediaPlaceholder } from '../ui/MediaPlaceholder';
 
 interface Props {
   e: EventResponseDto;
@@ -47,13 +47,10 @@ export function Ticket({ e, mine, busy = false, onToggle, onTag }: Props) {
     <div id={'ev-' + e.id} className="vol-ticket-wrap scroll-mt-24">
       <article className="vol-ticket flex flex-col sm:flex-row">
         <div className="relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-t-2xl sm:aspect-auto sm:w-40 sm:rounded-l-2xl sm:rounded-tr-none">
-          <SecureImage src={e.imageThumbnailUrl ?? e.imageUrl} alt={e.title} loading="lazy"
-            style={{ objectPosition: cropFocus(e.imageCrop) }} className="absolute inset-0 h-full w-full object-cover"
-            fallback={
-              <div className="absolute inset-0 grid place-items-center" style={{ background: 'linear-gradient(135deg, #d9e6ff, #eef4ff)', color: '#7ea2e8' }}>
-                <VolIcon n="image" size={36} />
-              </div>
-            } />
+          {/* Кадр мероприятия сохранён в 16:10, а здесь рамка то 2:1 (телефон), то вертикальная (≥640px):
+              CroppedImage с fill сам вписывает выбранную область в текущие пропорции, сохраняя её центр и масштаб. */}
+          <CroppedImage src={e.imageThumbnailUrl ?? e.imageUrl} crop={e.imageCrop} fill alt={e.title} className="!rounded-none"
+            placeholder={<MediaPlaceholder kind="event" icon={cat?.icon} />} />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-3 p-5">

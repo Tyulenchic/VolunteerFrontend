@@ -33,6 +33,22 @@ export const getRefreshToken = () => read(REFRESH_KEY);
 /** Есть ли хоть какая-то сессия (access ИЛИ refresh). Отсутствие access ещё не значит, что сессии нет. */
 export const hasSession = () => !!(getAccessToken() || getRefreshToken());
 
+/**
+ * Истекает ли access-токен (JWT) в ближайшие skewMs: срок берётся из поля exp полезной нагрузки.
+ * Нужен, чтобы обновить сессию до запроса, а не после лишнего 401. Нечитаемый токен — false (тогда сработает обычный путь через 401).
+ */
+export function accessTokenExpiresSoon(token: string, skewMs = 30_000): boolean {
+  try {
+    const part = token.split(".")[1];
+    if (!part) return false;
+    const json = atob(part.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(part.length / 4) * 4, "="));
+    const exp = (JSON.parse(json) as { exp?: unknown }).exp;
+    return typeof exp === "number" && exp * 1000 - skewMs <= Date.now();
+  } catch {
+    return false;
+  }
+}
+
 export function setTokens(accessToken: string, refreshToken: string) {
   write(ACCESS_KEY, accessToken);
   write(REFRESH_KEY, refreshToken);

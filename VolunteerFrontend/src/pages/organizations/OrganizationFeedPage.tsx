@@ -2,8 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { organizationsApi } from '../../api/organizations';
 import { PostCard } from '../../components/organizations/PostCard';
-import { OrganizationBadge } from '../../components/organizations/OrganizationBadge';
-import { Spinner } from '../../components/Spinner';
+import { FEED_BLEED, PostFeed } from '../../components/organizations/PostFeed';
 import { mapApiError } from '../../utils/apiError';
 import type { OrganizationFeedItem } from '../../types/organization';
 
@@ -31,31 +30,26 @@ export function OrganizationFeedPage() {
     } finally { if (id === request.current) setLoading(false); }
   }, []);
   useEffect(() => { void load(0); }, [load]);
+  const more = useCallback(() => { void load(items.length); }, [load, items.length]);
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 max-w-2xl">
-      <header className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-heading font-extrabold text-gray-900 mb-2">Лента организаций</h1>
-        <p className="text-gray-600">Новости и фотографии от волонтёрских организаций. Все организации — в <Link to="/organizations" className="text-primary hover:underline">каталоге</Link>.</p>
+    <div className="wrap py-8 sm:py-10">
+      <header className="mx-auto mb-6 max-w-[36rem] sm:mb-8">
+        <h1 className="vol-h1 mb-3">Лента организаций</h1>
+        <p className="vol-lead">Новости и фотографии от волонтёрских организаций. Все организации — в <Link to="/organizations" className="text-primary hover:underline">каталоге</Link>.</p>
       </header>
 
-      {error && <p className="text-center text-gray-600">{error} <button className="text-primary underline" onClick={() => void load(0)}>Повторить</button></p>}
-      {!error && !loading && items.length === 0 && <p className="text-center text-gray-600 py-12">Публикаций пока нет.</p>}
+      {error && (
+        <p className="vol-text-sm text-center">{error} <button className="press-flat font-semibold text-primary underline" onClick={() => void load(0)}>Повторить</button></p>
+      )}
+      {!error && !loading && items.length === 0 && <p className="vol-text-sm py-12 text-center">Публикаций пока нет.</p>}
 
-      <div className="space-y-6">
-        {items.map(({ post, organization }) => (
-          <div key={post.id}>
-            <OrganizationBadge organization={organization} size="md" className="mb-2" />
-            <PostCard post={post} />
-          </div>
-        ))}
-      </div>
-
-      {loading && <div className="flex justify-center py-8"><Spinner /></div>}
-      {!loading && items.length < total && (
-        <div className="text-center mt-8">
-          <button onClick={() => void load(items.length)} className="px-8 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition">Показать ещё</button>
-        </div>
+      {!error && (
+        <PostFeed count={items.length} total={total} loading={loading} onMore={more}>
+          {items.map(({ post, organization }) => (
+            <PostCard key={post.id} post={post} organization={organization} className={FEED_BLEED} />
+          ))}
+        </PostFeed>
       )}
     </div>
   );

@@ -59,23 +59,23 @@ export function VideosPage() {
   return (
     <>
       <section className="relative">
-        <div className="relative z-10 mx-auto grid max-w-[76rem] items-end gap-8 px-4 pb-10 pt-14 sm:px-6 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pb-12 md:pt-20 max-md:text-center">
-          <h1 className="font-display text-[clamp(1.85rem,4.4vw,3rem)] font-extrabold leading-[1.1] tracking-tight text-vol-head" style={{ textWrap: 'balance' }}>
+        <div className="wrap relative z-10 grid items-end gap-8 pb-10 pt-14 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pb-12 md:pt-20 max-md:text-center">
+          <h1 className="vol-h1" style={{ textWrap: 'balance' }}>
             Видео <span className="text-vol-accent">волонтёров</span>
           </h1>
-          <p className="text-[14.5px] leading-relaxed text-vol-muted">
+          <p className="vol-lead">
             Ролики с событий и акций: их загружают администраторы портала и организации Приднестровья.
           </p>
         </div>
       </section>
 
       {chips.length > 2 && (
-        <section className="mx-auto max-w-[76rem] px-4 sm:px-6" aria-label="Автор видео">
+        <section className="wrap" aria-label="Автор видео">
           <div className="no-scrollbar -mx-4 flex gap-2.5 overflow-x-auto border-y border-vol-line px-4 py-6 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group">
             {chips.map(c => (
               <button key={c.id} type="button" onClick={() => setSource(c.id)} aria-pressed={source === c.id}
                 className={`inline-flex h-9 shrink-0 items-center rounded-lg border-[1.5px] px-3.5 text-[13.5px] font-medium ${source === c.id
-                  ? 'border-vol-accent bg-vol-accent text-vol-accent-fg' : 'border-vol-rule bg-vol-surface text-vol-fg hover:border-vol-accent hover:text-vol-accent'}`}>
+                  ? 'border-vol-accent bg-vol-accent text-vol-accent-fg' : 'border-vol-ctrl bg-vol-surface text-vol-fg hover:border-vol-accent hover:text-vol-accent'}`}>
                 {c.label}
               </button>
             ))}
@@ -83,7 +83,7 @@ export function VideosPage() {
         </section>
       )}
 
-      <section className="mx-auto max-w-[76rem] px-4 pb-32 pt-10 sm:px-6">
+      <section className="wrap pb-32 pt-10">
         {loading ? (
           <div className="flex justify-center py-16 text-vol-accent"><Spinner /></div>
         ) : failed ? (
@@ -95,7 +95,7 @@ export function VideosPage() {
           <p className="py-16 text-center text-[14.5px] text-vol-muted">Видео пока нет.</p>
         ) : (
           <>
-            <ul className="grid gap-x-6 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,18rem),1fr))] gap-x-6 gap-y-9">
               {shown.map(v => (
                 <li key={v.id}>
                   <button type="button" onClick={() => setPlaying(v)} aria-haspopup="dialog" aria-label={`Смотреть видео: ${v.title}`}

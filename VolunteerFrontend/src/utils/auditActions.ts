@@ -53,6 +53,11 @@ export const AUDIT_ACTIONS: Record<string, { label: string; icon: string; tone: 
   BlockedTermAdded:          { label: 'Добавлено запрещённое выражение', icon: 'fa-ban', tone: 'neutral' },
   BlockedTermRemoved:        { label: 'Удалено запрещённое выражение', icon: 'fa-rotate-left', tone: 'neutral' },
   UserDataExported:          { label: 'Выгружены данные пользователя', icon: 'fa-file-export', tone: 'pending' },
+  DatabaseAccessRequested:   { label: 'Запрошен доступ к базе данных', icon: 'fa-key', tone: 'pending' },
+  DatabaseAccessGranted:     { label: 'Открыт доступ к базе данных', icon: 'fa-lock-open', tone: 'pending' },
+  DatabaseAccessDenied:      { label: 'Отказ в доступе к базе данных', icon: 'fa-shield-halved', tone: 'error' },
+  DatabaseTableViewed:       { label: 'Просмотрена таблица базы данных', icon: 'fa-table', tone: 'neutral' },
+  DatabaseTableExported:     { label: 'Выгружена таблица базы данных', icon: 'fa-file-export', tone: 'pending' },
 };
 
 export const auditAction = (type: string) =>

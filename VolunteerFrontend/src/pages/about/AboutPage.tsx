@@ -1,8 +1,19 @@
 import { Link } from 'react-router-dom';
-import OnasImage from '../../assets/Onas.webp';
-import { IMAGE_POSITIONS } from '../../constants/imagePositions';
+import collage1 from '../../assets/about/collage-1.webp';
+import collage2 from '../../assets/about/collage-2.webp';
+import collage3 from '../../assets/about/collage-3.webp';
+import collage4 from '../../assets/about/collage-4.webp';
+import collage5 from '../../assets/about/collage-5.webp';
+import { Reveal } from '../../components/ui/Reveal';
+import { useFeedback } from '../../context/FeedbackContext';
 import { useSiteJson, useSiteText } from '../../context/SiteContentContext';
 import { ABOUT_TEAM_DEFAULT, ABOUT_TEXT_DEFAULT as T, ABOUT_VALUES_DEFAULT, type TeamMember } from '../../content/defaults';
+
+// Номер для ссылки tel: — только цифры и ведущий «+» («0 (533) 2-22-29» → «053322229»)
+const telHref = (phone: string) => `tel:${phone.trim().replace(/(?!^\+)[^\d]/g, '')}`;
+
+// Фото волонтёров для фона-коллажа в шапке (порядок = расположение плиток в .about-collage)
+const COLLAGE = [collage1, collage3, collage5, collage4, collage2];
 
 export function AboutPage() {
   const TEAM = useSiteJson<TeamMember[]>('about.team', ABOUT_TEAM_DEFAULT);
@@ -22,68 +33,71 @@ export function AboutPage() {
   const hours = useSiteText('about.contacts.hours', T.hours);
   const city = useSiteText('about.contacts.city', T.city);
   const office = useSiteText('about.contacts.office', T.office);
+  const { openFeedback } = useFeedback();
   return (
     <>
       {/* HERO */}
       <section className="relative py-20 sm:py-28 overflow-hidden">
-        {/* Background image */}
-        <div className="absolute inset-0">
-          <img
-            src={OnasImage}
-            alt="Background"
-            className="w-full h-full object-cover"
-            style={{ objectPosition: IMAGE_POSITIONS.about }}
-          />
-          <div className="absolute inset-0"></div>
+        {/* Фон-коллаж из фотографий */}
+        <div className="absolute inset-0" aria-hidden>
+          <div className="about-collage">
+            {COLLAGE.map(src => (
+              <div key={src} className="about-collage__tile">
+                <img src={src} alt="" decoding="async" />
+              </div>
+            ))}
+          </div>
+          <div className="about-collage__veil" />
         </div>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-3xl">
-            <div>
+        <div className="wrap relative z-10">
+          <div className="max-w-3xl lg:max-w-[calc(50%-2rem)]">
+            <Reveal>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-6">
                 <i className="fas fa-hand-holding-heart" />О нас
               </div>
-              <h1 className="text-4xl sm:text-5xl font-heading font-extrabold text-gray-900 leading-tight mb-6">
+              <h1 className="vol-h1 mb-6">
                 Мы — <span className="text-primary">ВолонтёрыПМР</span>
               </h1>
-              <p className="text-xl text-gray-600 leading-relaxed mb-6 whitespace-pre-line">{heroLead}</p>
-              <p className="text-xl text-gray-600 leading-relaxed mb-6 whitespace-pre-line">{heroMission}</p>
+              <p className="vol-lead mb-6 whitespace-pre-line">{heroLead}</p>
+              <p className="vol-lead mb-6 whitespace-pre-line">{heroMission}</p>
               <div className="flex flex-wrap gap-4">
-                <Link to="/register" className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg no-underline">
-                  <i className="fas fa-user-plus mr-2" />Присоединиться
+                <Link to="/register" className="group inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark hover:-translate-y-0.5 hover:shadow-xl transition duration-300 shadow-lg no-underline">
+                  <i className="fas fa-user-plus mr-2 transition-transform duration-300 group-hover:scale-110" />Присоединиться
                 </Link>
-                <Link to="/events" className="inline-flex items-center px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border border-gray-300 hover:border-primary hover:text-primary transition no-underline">
+                <Link to="/events" className="group inline-flex items-center px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border border-gray-300 hover:border-primary hover:text-primary hover:-translate-y-0.5 transition duration-300 no-underline">
                   Наши мероприятия
+                  <i className="fas fa-arrow-right ml-2 text-sm transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
       {/* ABOUT PLATFORM */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-20">
+        <div className="wrap">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">О нас</h2>
-            </div>
+            <Reveal className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="vol-h2 mb-4">О нас</h2>
+            </Reveal>
             <div className="space-y-6">
-              <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-line">{platform1}</p>
-              <p className="text-gray-700 leading-relaxed whitespace-pre-line">{platform2}</p>
-              <p className="text-gray-700 leading-relaxed whitespace-pre-line">{platform3}</p>
+              <Reveal as="p" className="text-lg text-gray-700 leading-relaxed whitespace-pre-line">{platform1}</Reveal>
+              <Reveal as="p" className="text-gray-700 leading-relaxed whitespace-pre-line">{platform2}</Reveal>
+              <Reveal as="p" className="text-gray-700 leading-relaxed whitespace-pre-line">{platform3}</Reveal>
               <div className="mt-10 pt-8 border-t border-gray-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">{effortsTitle}</h3>
+                <Reveal as="h3" className="vol-h3 mb-6">{effortsTitle}</Reveal>
                 <ul className="space-y-4 mb-8">
                   {efforts.map((line, i) => (
-                    <li key={i} className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-3" />
-                      <p className="text-gray-700">{line}</p>
-                    </li>
+                    <Reveal as="li" key={i} delay={i * 70} className="group flex items-start gap-4">
+                      <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-3 transition-transform duration-300 group-hover:scale-150" />
+                      <p className="text-gray-700 transition-transform duration-300 group-hover:translate-x-1">{line}</p>
+                    </Reveal>
                   ))}
                 </ul>
-                <p className="text-lg font-medium text-primary">
+                <Reveal as="p" className="text-lg font-medium text-primary">
                   {tagline}
-                </p>
+                </Reveal>
               </div>
             </div>
           </div>
@@ -91,21 +105,23 @@ export function AboutPage() {
       </section>
 
       {/* MISSION & VALUES */}
-      <section className="py-16 sm:py-20 bg-gray-50 border-y border-gray-100">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">Наши ценности</h2>
+      <section className="py-16 sm:py-20">
+        <div className="wrap">
+          <Reveal className="text-center max-w-3xl mx-auto mb-14">
+            <h2 className="vol-h2 mb-4">Наши ценности</h2>
             <p className="text-gray-600 text-lg">Принципы, которыми мы руководствуемся в каждом проекте</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {VALUES.map(v => (
-              <div key={v.title} className="bg-white border border-gray-100 shadow-sm rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-0.5 transition h-full">
-                <div className={`w-16 h-16 ${v.color} rounded-2xl flex items-center justify-center mx-auto mb-5`}>
-                  <i className={`fas ${v.icon} text-2xl`} />
+          </Reveal>
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+            {VALUES.map((v, i) => (
+              <Reveal key={v.title} delay={i * 90} className="h-full">
+                <div className="lift group h-full rounded-panel border border-vol-line bg-vol-surface p-4 text-center shadow-soft hover:border-primary/20 sm:p-6">
+                  <div className={`w-12 h-12 sm:w-16 sm:h-16 ${v.color} rounded-panel flex items-center justify-center mx-auto mb-3 sm:mb-5 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6`}>
+                    <i className={`fas ${v.icon} text-xl sm:text-2xl`} />
+                  </div>
+                  <h3 className="vol-h3 mb-1.5 max-sm:text-body-sm sm:mb-2">{v.title}</h3>
+                  <p className="text-meta leading-snug text-vol-muted sm:text-ctrl sm:leading-relaxed">{v.desc}</p>
                 </div>
-                <h3 className="font-bold text-gray-900 text-lg mb-2">{v.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{v.desc}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -113,28 +129,32 @@ export function AboutPage() {
 
       {/* FOUNDERS: hidden while the administrator has not added anyone */}
       {TEAM.length > 0 && (
-        <section className="py-16 sm:py-20 bg-white">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-14">
-              <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">{teamTitle}</h2>
+        <section className="py-16 sm:py-20">
+          <div className="wrap">
+            <Reveal className="text-center max-w-3xl mx-auto mb-14">
+              <h2 className="vol-h2 mb-4">{teamTitle}</h2>
               <p className="text-gray-600 text-lg">{teamSubtitle}</p>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            </Reveal>
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
               {TEAM.map((m, i) => {
                 const card = (
                   <>
                     {m.avatar
-                      ? <img src={m.avatar} alt={m.name} className="w-20 h-20 rounded-full object-cover mx-auto mb-4 shadow-md ring-4 ring-primary/10 group-hover:ring-primary/30 transition" />
-                      : <span aria-hidden className="w-20 h-20 rounded-full mx-auto mb-4 grid place-items-center bg-primary/10 text-primary text-xl font-bold">{(m.name || '?').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()}</span>}
+                      ? <img src={m.avatar} alt={m.name} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-3 sm:mb-4 shadow-md ring-4 ring-primary/10 group-hover:ring-primary/30 group-hover:scale-105 transition duration-300" />
+                      : <span aria-hidden className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-3 sm:mb-4 grid place-items-center bg-primary/10 text-primary text-xl font-bold">{(m.name || '?').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()}</span>}
                     <h3 className="font-bold text-gray-900 break-words">{m.name}</h3>
                     {m.role && <p className="text-sm text-primary font-medium mb-3 break-words">{m.role}</p>}
-                    {m.desc && <p className="text-gray-600 text-xs leading-relaxed">{m.desc}</p>}
+                    {m.desc && <p className="text-gray-600 text-[0.8125rem] leading-relaxed">{m.desc}</p>}
                   </>
                 );
-                const cls = 'block bg-gray-50 rounded-2xl p-6 text-center hover:shadow-lg transition group no-underline';
-                return m.profileId
-                  ? <Link key={m.profileId + i} to={`/users/${m.profileId}`} className={cls}>{card}</Link>
-                  : <div key={m.name + i} className={cls}>{card}</div>;
+                const cls = 'lift block h-full rounded-panel border border-vol-line bg-vol-surface p-4 text-center shadow-soft group no-underline sm:p-6';
+                return (
+                  <Reveal key={(m.profileId || m.name) + i} delay={(i % 4) * 90} className="h-full">
+                    {m.profileId
+                      ? <Link to={`/users/${m.profileId}`} className={cls}>{card}</Link>
+                      : <div className={cls}>{card}</div>}
+                  </Reveal>
+                );
               })}
             </div>
           </div>
@@ -143,27 +163,27 @@ export function AboutPage() {
 
       {/* CONTACTS */}
       <section id="contacts" className="py-20 bg-gradient-to-br from-primary to-blue-900">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <div className="wrap max-w-7xl">
 
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-4">
+          <Reveal className="text-center mb-12">
+            <h2 className="vol-h2 !text-white mb-4">
               Контакты
             </h2>
             <p className="text-lg text-blue-100">
               Мы открыты для общения, сотрудничества и новых инициатив
             </p>
-          </div>
+          </Reveal>
 
           <div className="grid lg:grid-cols-2 gap-8">
 
             {/* Левая колонка */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl">
+            <Reveal className="bg-white rounded-3xl p-8 shadow-xl">
 
               <div className="space-y-6">
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <i className="fas fa-envelope text-primary text-xl"/>
+                <div className="group flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-primary">
+                    <i className="fas fa-envelope text-primary text-xl transition-colors duration-300 group-hover:text-white"/>
                   </div>
 
                   <div>
@@ -178,16 +198,16 @@ export function AboutPage() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <i className="fas fa-phone text-primary text-xl"/>
+                <div className="group flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-primary">
+                    <i className="fas fa-phone text-primary text-xl transition-colors duration-300 group-hover:text-white"/>
                   </div>
 
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Телефон</p>
 
                     <a
-                        href={`tel:${phone}`}
+                        href={telHref(phone)}
                         className="font-semibold text-gray-900 hover:text-primary no-underline block"
                     >
                       {phone}
@@ -199,9 +219,9 @@ export function AboutPage() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <i className="fas fa-map-marker-alt text-primary text-xl"/>
+                <div className="group flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-primary">
+                    <i className="fas fa-map-marker-alt text-primary text-xl transition-colors duration-300 group-hover:text-white"/>
                   </div>
 
                   <div>
@@ -220,18 +240,21 @@ export function AboutPage() {
               {/* Кнопки */}
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
 
-                <a
-                    href="mailto:ump@minpros.gospmr.org"
-                    className="flex-1 bg-primary text-white text-center py-3 rounded-xl font-semibold hover:opacity-90 transition no-underline"
+                {/* форма обратной связи сайта: работает без почтового клиента, обращение приходит в админку («Обращения») */}
+                <button
+                    type="button"
+                    onClick={openFeedback}
+                    aria-haspopup="dialog"
+                    className="flex-1 bg-primary text-white text-center py-3 rounded-xl font-semibold hover:bg-primary-dark hover:-translate-y-0.5 transition duration-300"
                 >
-                  Написать Email
-                </a>
+                  <i className="fas fa-envelope mr-2" aria-hidden />Написать нам
+                </button>
 
                 <a
-                    href="tel:0 (533) 2-22-29"
-                    className="flex-1 border border-primary text-primary text-center py-3 rounded-xl font-semibold hover:bg-primary hover:text-white transition no-underline"
+                    href={telHref(phone)}
+                    className="flex-1 border border-primary text-primary text-center py-3 rounded-xl font-semibold hover:bg-primary hover:text-white hover:-translate-y-0.5 transition duration-300 no-underline"
                 >
-                  Позвонить
+                  <i className="fas fa-phone mr-2" aria-hidden />Позвонить
                 </a>
 
               </div>
@@ -246,7 +269,7 @@ export function AboutPage() {
 
                   <a
                       href="https://t.me/volonterPMR"
-                      className="text-gray-500 hover:text-blue-600 transition"
+                      className="inline-block text-gray-500 hover:text-blue-600 hover:-translate-y-1 transition duration-300"
                       aria-label="Telegram"
                   >
                     <i className="fab fa-telegram"/>
@@ -254,7 +277,7 @@ export function AboutPage() {
 
                   <a
                       href="https://www.instagram.com/volonterpmr"
-                      className="text-gray-500 hover:text-pink-600 transition"
+                      className="inline-block text-gray-500 hover:text-pink-600 hover:-translate-y-1 transition duration-300"
                       aria-label="Instagram"
                   >
                     <i className="fab fa-instagram"/>
@@ -263,7 +286,7 @@ export function AboutPage() {
                   <a
                       href="https://vk.com"
                       target="_blank" rel="noopener noreferrer"
-                      className="text-gray-500 hover:text-blue-700 transition"
+                      className="inline-block text-gray-500 hover:text-blue-700 hover:-translate-y-1 transition duration-300"
                       aria-label="VK"
                   >
                     <i className="fab fa-vk"/>
@@ -272,10 +295,10 @@ export function AboutPage() {
                 </div>
               </div>
 
-            </div>
+            </Reveal>
 
             {/* Карта */}
-            <div className="overflow-hidden rounded-3xl shadow-xl bg-white">
+            <Reveal delay={120} className="overflow-hidden rounded-3xl shadow-xl bg-white">
 
               <div className="p-6 border-b">
                 <h3 className="text-xl font-semibold text-gray-900">
@@ -292,7 +315,7 @@ export function AboutPage() {
                 />
               </div>
 
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>

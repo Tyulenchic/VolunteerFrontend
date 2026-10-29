@@ -57,6 +57,7 @@ export interface RecentParticipationDto {
   eventTitle: string;
   status: 'Pending' | 'Approved' | 'Rejected';
   createdAt: string;
+  userAvatarThumbnailUrl?: string | null;
 }
 
 // ==================== USER MANAGEMENT ====================
@@ -145,6 +146,8 @@ export interface AdminParticipationDto {
   status: 'Pending' | 'Approved' | 'Rejected' | 'AttendanceConfirmed' | 'Withdrawn';
   adminComment?: string;
   withdrawalReason?: string | null;
+  /** Миниатюра одобренного аватара участника (админке видна независимо от публичных настроек). */
+  userAvatarThumbnailUrl?: string | null;
 }
 
 // ==================== NEWS MANAGEMENT ====================

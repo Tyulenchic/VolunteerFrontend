@@ -1,3 +1,4 @@
+import { SideArt } from '../../components/afisha/SideArt';
 import { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { authApi } from '../../api/auth';
@@ -37,10 +38,11 @@ export function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center">
+      <div className="vol-page relative overflow-x-clip min-h-dvh flex items-center justify-center p-4">
+        <SideArt />
+        <div className="relative z-10 bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center">
           <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-link-slash text-3xl text-red-600" /></div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Ссылка недействительна</h1>
+          <h1 className="vol-compact mb-2">Ссылка недействительна</h1>
           <p className="text-gray-600 mb-6">В ссылке нет токена сброса пароля. Откройте ссылку из письма целиком или запросите новую.</p>
           <Link to="/forgot-password" className="inline-block px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition no-underline">Запросить новую ссылку</Link>
           <Link to="/login" className="block mt-4 text-sm text-gray-500 hover:text-primary no-underline"><i className="fas fa-arrow-left mr-1" />Назад к входу</Link>
@@ -50,11 +52,12 @@ export function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+    <div className="vol-page relative overflow-x-clip min-h-dvh flex items-center justify-center p-4">
+      <SideArt />
+      <div className="relative z-10 bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-key text-3xl text-primary" /></div>
-          <h1 className="text-2xl font-bold text-gray-900">Новый пароль</h1>
+          <h1 className="vol-compact">Новый пароль</h1>
         </div>
         {(error || validErr) && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm">
           {error || validErr}

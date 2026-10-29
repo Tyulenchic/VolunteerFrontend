@@ -1,5 +1,5 @@
 import logoMark from '../../assets/logo-mark.webp';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -31,6 +31,7 @@ const NAV: NavGroup[] = [
   ]},
   { title: 'Система', items: [
     { to: '/admin/audit-log', icon: 'fa-clock-rotate-left', label: 'Журнал действий' },
+    { to: '/admin/database',  icon: 'fa-database',          label: 'База данных' },
   ]},
 ];
 
@@ -69,6 +70,17 @@ export function AdminLayout({ children, variant = 'admin' }: { children: ReactNo
   const [collapsed, setCollapsed] = useState(readCollapsed); // desktop rail
 
   useEffect(() => { setSideOpen(false); }, [pathname]);
+
+  // На телефоне закрытая панель только сдвинута за экран: без inert клавиатура попадала бы в невидимые ссылки.
+  const [desktop, setDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const on = () => setDesktop(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  const asideRef = useRef<HTMLElement>(null);
+  useEffect(() => { if (sideOpen) asideRef.current?.querySelector<HTMLElement>('a, button')?.focus(); }, [sideOpen]);
   useEffect(() => {
     if (!sideOpen) return;
     const h = (e: KeyboardEvent) => { if (e.key === 'Escape') setSideOpen(false); };
@@ -109,7 +121,7 @@ export function AdminLayout({ children, variant = 'admin' }: { children: ReactNo
   return (
     <AdminScopeContext.Provider value={true}>
       <ConfirmProvider>
-        <div className="admin-shell flex h-screen bg-canvas overflow-hidden">
+        <div className="admin-shell flex h-dvh bg-canvas overflow-hidden">
           <a href="#admin-main" onClick={(e) => { e.preventDefault(); document.getElementById('admin-main')?.focus(); }} className="sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:top-2 focus:left-2 focus:px-3 focus:py-2 focus:rounded-control focus:bg-brand-600 focus:text-white">
             К содержимому
           </a>
@@ -117,7 +129,7 @@ export function AdminLayout({ children, variant = 'admin' }: { children: ReactNo
           {sideOpen && <div className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-40 lg:hidden anim-backdrop" onClick={() => setSideOpen(false)} />}
 
           {/* ── Sidebar ─────────────────────────────────────────── */}
-          <aside
+          <aside ref={asideRef} inert={!desktop && !sideOpen}
             aria-label={organizer ? 'Навигация организатора' : 'Навигация администратора'}
             className={`glass fixed lg:static inset-y-0 left-0 z-50 w-[248px] max-w-[85vw] ${rail} border-r border-line flex flex-col shrink-0
               transition-[transform,width] duration-200 ease-out ${sideOpen ? 'translate-x-0 shadow-pop' : '-translate-x-full lg:translate-x-0'}`}

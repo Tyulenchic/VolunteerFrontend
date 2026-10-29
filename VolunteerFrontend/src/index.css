@@ -15,6 +15,8 @@ html { --fs: 16px; --k: 1; font-size: calc(var(--fs) * var(--k)); }
 /* Page container: one rem-based width (76rem, same as the shared header) on every page and screen.
    → 1216 px at the base size, 1368 px at 1920 (×1.125), 1520 px at 2560 (×1.25). */
 @layer components {
+  /* Контейнер страниц: ширина 76rem (1216px при 16px, растёт вместе с корнем на 1920/2560), поля плавно 16-24px. */
+  .wrap { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: var(--gutter, 1rem); }
   .container { width: 100%; }
   @media (min-width: 640px)  { .container { max-width: 76rem; } }
 }
@@ -48,44 +50,83 @@ body { margin: 0; }
    ═══════════════════════════════════════════════════════════════ */
 :root { --ease: cubic-bezier(.2,.7,.2,1); --dur-fast: 120ms; }
 
-.admin-shell, .admin-modal { font-family: "Inter", system-ui, sans-serif; color: #e6ebf2; color-scheme: dark; }
-.admin-shell ::selection, .admin-modal ::selection { background: rgba(91,140,240,.35); }
+.admin-shell, .admin-modal { font-family: "Inter", system-ui, sans-serif; color: theme('colors.ink.900'); color-scheme: dark; }
+.admin-shell ::selection, .admin-modal ::selection { background: theme('colors.brand.500 / 35%'); }
 
 /* type scale: page title / section / card / body / secondary / meta */
-.page-title { font-family: "Montserrat", "Inter", sans-serif; font-weight: 700; font-size: clamp(1.35rem, 1.15rem + .8vw, 1.7rem); line-height: 1.2; letter-spacing: -.015em; color: #e6ebf2; }
-.page-sub   { margin-top: .3rem; font-size: .875rem; color: #9aa7b8; max-width: 64ch; }
-.section-title { font-family: "Montserrat", "Inter", sans-serif; font-weight: 700; font-size: 1rem; letter-spacing: -.005em; color: #e6ebf2; }
-.card-title { font-size: .875rem; font-weight: 600; color: #e6ebf2; }
-.meta { font-size: .75rem; color: #7a8799; }
-.eyebrow { font-size: .6875rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #7a8799; }
+.page-title { font-family: "Montserrat", "Inter", sans-serif; @apply text-ws-title; color: theme('colors.ink.900'); }
+.page-sub   { margin-top: .3rem; font-size: .875rem; color: theme('colors.ink.500'); max-width: 64ch; }
+.section-title { font-family: "Montserrat", "Inter", sans-serif; @apply text-ws-section; color: theme('colors.ink.900'); }
+.card-title { font-size: .875rem; font-weight: 600; color: theme('colors.ink.900'); }
+.meta { @apply text-ws-meta; color: theme('colors.ink.400'); }
+.eyebrow { font-size: .6875rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: theme('colors.ink.400'); }
 .mono { font-family: ui-monospace, "JetBrains Mono", "Cascadia Mono", Consolas, monospace; font-size: .75rem; }
 
 /* glass: used sparingly (sidebar, topbar, modal, popovers) */
-.glass { background: rgba(14,20,28,.72); -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%); }
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .glass { background: #0e141c; } }
+.glass { background: theme('colors.surface.DEFAULT / 72%'); -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .glass { background: theme('colors.surface.DEFAULT'); } }
 
 /* buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .45rem .95rem; border-radius: 8px; font-size: .8125rem; font-weight: 600; line-height: 1.25rem; border: 1px solid transparent; white-space: nowrap; }
 .btn-sm { padding: .25rem .65rem; font-size: .75rem; }
-.btn-primary { background: #2f6bdb; color: #fff; }
-.btn-primary:hover:not(:disabled) { background: #3b78ea; }
-.btn-secondary { background: #151d27; color: #c3ccd8; border-color: #2c3846; }
-.btn-secondary:hover:not(:disabled) { background: #1b2531; border-color: #3a4859; color: #e6ebf2; }
-.btn-danger { background: #c53a3a; color: #fff; }
-.btn-danger:hover:not(:disabled) { background: #d94b4b; }
-.btn-success { background: #1a8a4a; color: #fff; }
-.btn-success:hover:not(:disabled) { background: #1f9d55; }
-.btn-info { background: #12808f; color: #fff; }
-.btn-info:hover:not(:disabled) { background: #1496a8; }
-.btn-ghost { background: transparent; color: #9aa7b8; }
-.btn-ghost:hover:not(:disabled) { background: #1b2531; color: #e6ebf2; }
+/* крупная кнопка публичных страниц: 44px, Inter 14/600 (бывший VolButton) */
+.btn-lg { height: 2.75rem; padding: 0 1.25rem; font-size: .875rem; }
+@media (min-width: 640px) { .btn-lg { padding: 0 1.5rem; } }
+/* Состояния одни для всех кнопок: hover усиливает контраст (не гасит кнопку), active — видимое нажатие,
+   focus-visible — заметная рамка, disabled — приглушение только когда действие действительно недоступно. */
+.btn { transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), translate var(--dur-fast) var(--ease), scale var(--dur-fast) var(--ease); }
+.btn:not(:disabled) { cursor: pointer; }
+/* Отклик: на публичных страницах кнопка чуть приподнимается при наведении и «вдавливается» при нажатии (короче переход —
+   нажатие читается сразу). В тёмных кабинетах подъём не нужен — там только вдавливание. */
+/* translate/scale — отдельные свойства, а не transform: не сбивают translate-классы Tailwind (центрирование и т.п.). */
+.btn:not(:disabled):active { translate: 0 1px; scale: .97; transition-duration: 60ms; }
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled), .btn-light:hover:not(:disabled), .btn-outline:hover:not(:disabled), .btn-secondary:hover:not(:disabled) { translate: 0 -1px; }
+}
+:is(.admin-shell, .admin-modal) .btn:hover:not(:disabled) { translate: none; }
+:is(.admin-shell, .admin-modal) .btn:active:not(:disabled) { translate: none; scale: .97; }
+.btn:focus-visible { outline: 2px solid var(--btn-ring, theme('colors.pal.brand')); outline-offset: 2px; }
+.btn:disabled { cursor: not-allowed; opacity: .5; box-shadow: none; }
+
+/* Светлая кожа — публичные страницы и их модальные окна (фирменный #2563EB, белый текст 5.2:1). */
+.btn-primary { background: theme('colors.pal.brand'); color: #fff; box-shadow: 0 1px 2px rgba(11, 32, 56, .18); }
+.btn-primary:hover:not(:disabled) { background: theme('colors.primary-dark'); box-shadow: 0 0 0 3px color-mix(in srgb, theme('colors.pal.brand') 22%, transparent); }
+.btn-primary:active:not(:disabled) { background: #1E40AF; }
+.btn-secondary { background: #fff; color: theme('colors.gray.700'); border-color: theme('colors.gray.400'); }
+.btn-secondary:hover:not(:disabled) { background: theme('colors.gray.100'); border-color: theme('colors.gray.600'); color: theme('colors.gray.900'); }
+.btn-danger { background: theme('colors.danger.500'); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: theme('colors.danger.800'); }
+.btn-success { background: theme('colors.success.600'); color: #fff; }
+.btn-success:hover:not(:disabled) { background: theme('colors.success.800'); }
+.btn-info { background: theme('colors.pal.brand'); color: #fff; }
+.btn-info:hover:not(:disabled) { background: theme('colors.primary-dark'); }
+.btn-ghost { background: transparent; color: theme('colors.gray.600'); }
+.btn-ghost:hover:not(:disabled) { background: theme('colors.gray.100'); color: theme('colors.gray.900'); }
+/* outline — синоним secondary; light — светлая кнопка на тёмной/фото-секции */
+.btn-outline { background: #fff; color: theme('colors.gray.900'); border: 1.5px solid theme('colors.gray.400'); }
+.btn-outline:hover:not(:disabled) { border-color: theme('colors.pal.brand'); color: theme('colors.pal.brand'); }
+.btn-light { background: #fff; color: theme('colors.pal.brand'); box-shadow: 0 10px 26px rgba(2,12,32,.3); }
+.btn-light:hover:not(:disabled) { background: color-mix(in srgb, theme('colors.pal.brand') 10%, #fff); }
+
+/* Тёмная кожа — панели администратора и организатора. #494CD1 — только заливка (белый текст 6.5:1);
+   hover осветляет заливку (#5B5FE0, 5.1:1) и добавляет светлую кайму, а не затемняет кнопку на тёмном фоне. */
+:is(.admin-shell, .admin-modal) .btn { --btn-ring: theme('colors.brand.500'); }
+:is(.admin-shell, .admin-modal) .btn-primary { background: theme('colors.brand.600'); color: #fff; box-shadow: 0 0 0 1px theme('colors.brand.300'); }
+:is(.admin-shell, .admin-modal) .btn-primary:hover:not(:disabled) { background: #5B5FE0; box-shadow: 0 0 0 1px theme('colors.brand.500'), 0 0 0 4px theme('colors.brand.500 / 22%'); }
+:is(.admin-shell, .admin-modal) .btn-primary:active:not(:disabled) { background: theme('colors.brand.600'); }
+:is(.admin-shell, .admin-modal) .btn-secondary { background: theme('colors.surface.2'); color: theme('colors.ink.700'); border-color: theme('colors.ctrl'); }
+:is(.admin-shell, .admin-modal) .btn-secondary:hover:not(:disabled) { background: theme('colors.surface.3'); border-color: theme('colors.ink.400'); color: theme('colors.ink.900'); }
+:is(.admin-shell, .admin-modal) .btn-info { background: theme('colors.info.600'); color: theme('colors.canvas'); }
+:is(.admin-shell, .admin-modal) .btn-info:hover:not(:disabled) { background: theme('colors.info.700'); }
+:is(.admin-shell, .admin-modal) .btn-ghost { color: theme('colors.ink.500'); }
+:is(.admin-shell, .admin-modal) .btn-ghost:hover:not(:disabled) { background: theme('colors.surface.3'); color: theme('colors.ink.900'); }
 
 /* tables — separators only, quiet sticky header, subtle hover */
 .admin-shell table { border-collapse: collapse; }
-.admin-shell thead { background: #121a23; border-bottom: 1px solid #1f2935; }
-.admin-shell thead th { font-size: .6875rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #7a8799; padding-top: .7rem; padding-bottom: .7rem; white-space: nowrap; }
+.admin-shell thead { background: theme('colors.surface.2'); border-bottom: 1px solid theme('colors.line.DEFAULT'); }
+.admin-shell thead th { font-size: .6875rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: theme('colors.ink.400'); padding-top: .7rem; padding-bottom: .7rem; white-space: nowrap; }
 .admin-shell tbody tr { transition: background-color var(--dur-fast) var(--ease); }
-.admin-shell tbody tr:hover { background-color: #151d27; }
+.admin-shell tbody tr:hover { background-color: theme('colors.surface.2'); }
 .admin-shell tbody td { vertical-align: middle; }
 
 /* tables that turn into stacked rows on phones (.rtable): every primary action stays on screen, no sideways scrolling */
@@ -102,29 +143,29 @@ body { margin: 0; }
 
 /* form controls */
 :is(.admin-shell, .admin-modal) :is(input:not([type=checkbox]):not([type=radio]):not([type=file]), select, textarea) {
-  background-color: #0e141c; color: #e6ebf2; border: 1px solid #2c3846; border-radius: 8px;
+  background-color: theme('colors.canvas'); color: theme('colors.ink.900'); border: 1px solid theme('colors.ctrl'); border-radius: 8px;
   transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
 }
-:is(.admin-shell, .admin-modal) :is(input, select, textarea)::placeholder { color: #66748a; }
-:is(.admin-shell, .admin-modal) :is(input:not([type=checkbox]):not([type=radio]), select, textarea):hover { border-color: #3a4859; }
+:is(.admin-shell, .admin-modal) :is(input, select, textarea)::placeholder { color: theme('colors.ink.400'); }
+:is(.admin-shell, .admin-modal) :is(input:not([type=checkbox]):not([type=radio]), select, textarea):hover { border-color: theme('colors.ink.400'); }
 :is(.admin-shell, .admin-modal) :is(input:not([type=checkbox]):not([type=radio]), select, textarea):focus {
-  outline: none; border-color: #5a8cf0; box-shadow: 0 0 0 3px rgba(91,140,240,.22);
+  outline: none; border-color: theme('colors.brand.500'); box-shadow: 0 0 0 3px theme('colors.brand.500 / 28%');
 }
-:is(.admin-shell, .admin-modal) :is(input, select, textarea):disabled { background-color: #121a23; color: #66748a; cursor: not-allowed; }
-:is(.admin-shell, .admin-modal) select option { background: #151d27; color: #e6ebf2; }
-:is(.admin-shell, .admin-modal) input[type=checkbox], :is(.admin-shell, .admin-modal) input[type=radio] { accent-color: #5a8cf0; }
-:is(.admin-shell, .admin-modal) label { color: #c3ccd8; }
-:is(.admin-shell, .admin-modal) :is(button, a, [tabindex]):focus-visible { outline: 2px solid #5a8cf0; outline-offset: 2px; }
+:is(.admin-shell, .admin-modal) :is(input, select, textarea):disabled { background-color: theme('colors.surface.2'); color: theme('colors.ink.300'); cursor: not-allowed; }
+:is(.admin-shell, .admin-modal) select option { background: theme('colors.surface.2'); color: theme('colors.ink.900'); }
+:is(.admin-shell, .admin-modal) input[type=checkbox], :is(.admin-shell, .admin-modal) input[type=radio] { accent-color: theme('colors.brand.500'); }
+:is(.admin-shell, .admin-modal) label { color: theme('colors.ink.700'); }
+:is(.admin-shell, .admin-modal) :is(button, a, [tabindex]):focus-visible { outline: 2px solid theme('colors.brand.500'); outline-offset: 2px; }
 :is(.admin-shell, .admin-modal) button:not(:disabled) { cursor: pointer; }
 :is(.admin-shell, .admin-modal) button { transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
 :is(.admin-shell, .admin-modal) button:not(:disabled):active { transform: translateY(1px); }
 :is(.admin-shell, .admin-modal) button:disabled { cursor: not-allowed; opacity: .5; }
 
 /* icon-only actions */
-.icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 8px; color: #9aa7b8; font-size: .8125rem; }
-.icon-btn:hover { background: #1b2531; color: #e6ebf2; }
-.icon-btn.is-danger:hover { background: #2a1416; color: #f08585; }
-.icon-btn.is-success:hover { background: #10241a; color: #6fd09a; }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 8px; color: theme('colors.ink.500'); font-size: .8125rem; }
+.icon-btn:hover { background: theme('colors.surface.3'); color: theme('colors.ink.900'); }
+.icon-btn.is-danger:hover { background: theme('colors.danger.50'); color: theme('colors.danger.700'); }
+.icon-btn.is-success:hover { background: theme('colors.success.50'); color: theme('colors.success.700'); }
 
 /* motion */
 @keyframes pageIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
@@ -133,69 +174,129 @@ body { margin: 0; }
 .anim-backdrop { animation: backdropIn .16s ease-out both; }
 @keyframes popIn { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: none; } }
 .anim-pop { animation: popIn .18s var(--ease) both; }
-.skeleton { background: linear-gradient(90deg, #151d27 25%, #1b2531 50%, #151d27 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
+.skeleton { background: linear-gradient(90deg, theme('colors.surface.2') 25%, theme('colors.surface.3') 50%, theme('colors.surface.2') 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
 @keyframes shimmer { to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) {
   .anim-page, .anim-pop, .anim-backdrop, .skeleton { animation: none; }
   .admin-shell *, .admin-modal * { transition-duration: 0.01ms !important; }
 }
 
-.scroll-soft { scrollbar-width: thin; scrollbar-color: #2c3846 transparent; }
-.admin-shell .spinner, .admin-modal .spinner { color: #5a8cf0; }
+.scroll-soft { scrollbar-width: thin; scrollbar-color: theme('colors.line.strong') transparent; }
+.admin-shell .spinner, .admin-modal .spinner { color: theme('colors.brand.500'); }
 
 /* ═══════════════════════════════════════════════════════════════
    Events page ("afisha"). Values come from docs/design/events-reference.html;
    class names are prefixed vol- so they cannot collide with the rest of the site or the admin panel.
    Light theme only.
    ═══════════════════════════════════════════════════════════════ */
+/* Палитра приходит из tailwind.config.js (theme('colors.pal.*')) — единственный источник фирменных цветов.
+   --vol-* — семантические роли публичного сайта; производные оттенки считаются от палитры, а не задаются заново. */
 :root {
-  --vol-bg: #f3f6fc;
-  --vol-surface: #ffffff;
-  --vol-fg: #0f1b33;
-  --vol-muted: #4a5873;
-  --vol-faint: #5e6a82;
-  --vol-line: #e2e8f2;
-  --vol-rule: #cbd5e4;
-  --vol-accent: #2563eb;
-  --vol-accent-fg: #ffffff;
-  --vol-accent-soft: #eaf1ff;
-  --vol-green: #10b981;
-  --vol-mint: #b6efd6;
-  --vol-warn: #d92d20;
-  --vol-head: #0a2438;
-  --vol-quiet: #7b879d;
-  --vol-green-soft: #e1f6ee;
+  --pal-brand: theme('colors.pal.brand');
+  --pal-bg: theme('colors.pal.bg');
+  --pal-white: theme('colors.pal.white');
+  --pal-ink: theme('colors.pal.ink');
+  --pal-sky: theme('colors.pal.sky');
+  --pal-sky2: theme('colors.pal.sky2');
+  --pal-emerald: theme('colors.pal.emerald');
+  --pal-green: theme('colors.pal.green');
+  --pal-red: theme('colors.pal.red');
+  --pal-gold: theme('colors.pal.gold');
+
+  --vol-bg: var(--pal-bg);
+  --vol-surface: var(--pal-white);
+  --vol-fg: var(--pal-ink);
+  --vol-head: var(--pal-ink);
+  --vol-muted: theme('colors.gray.600');   /* вторичный текст: 6.6:1 на фоне страницы */
+  --vol-faint: theme('colors.gray.500');   /* метаданные: 5.0:1 на фоне страницы */
+  --vol-line: theme('colors.gray.200');    /* разделители и границы карточек (декоративные) */
+  --vol-rule: theme('colors.gray.300');    /* пунктиры и тонкие линии (декоративные) */
+  --vol-ctrl: theme('colors.gray.400');    /* граница полей и кнопок: ≥3:1 к белому и к фону страницы (WCAG 1.4.11) */
+  --vol-accent: var(--pal-brand);
+  --vol-accent-fg: var(--pal-white);
+  --vol-accent-soft: color-mix(in srgb, var(--pal-brand) 10%, var(--pal-white));
+  --vol-green: var(--pal-green);
+  --vol-green-soft: color-mix(in srgb, var(--pal-green) 10%, var(--pal-white));
+  --vol-warn: color-mix(in srgb, var(--pal-red) 72%, black); /* ошибка/«мало мест» как текст: тёмный оттенок #F34045, 6:1 на белом */
+  --vol-sky: var(--pal-sky2);              /* акцент на тёмных поверхностях (контраст с #0B2038 — 7.6:1) */
+  --vol-decor: var(--pal-sky);             /* декор: контуры, маркер, фоновые формы */
+  --vol-emerald: var(--pal-emerald);       /* отдельный тематический контейнер */
+
+  --section-y: clamp(4rem, 2.5rem + 6vw, 8rem);              /* вертикальный интервал крупных секций */
+  --gutter: clamp(1rem, .5rem + 2vw, 1.5rem);                /* горизонтальные поля контейнера */
 }
 /* The prototype is designed on a 15px root (see --fs at the top). Applied only while the events page is mounted, so every other page keeps 16px. */
 
 .vol-page {
   color-scheme: light;
   background-color: var(--vol-bg);
-  background-image: linear-gradient(180deg, #f6f8fd 0%, #eef3fd 45%, #f4f7fd 100%);
   color: var(--vol-fg);
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   font-size: 1rem;
   -webkit-font-smoothing: antialiased;
 }
 .vol-page :focus-visible { outline: 2px solid var(--vol-accent); outline-offset: 2px; }
-.vol-page button, .vol-page a { transition: background-color .15s, color .15s, border-color .15s, opacity .15s; }
+.vol-page button, .vol-page a { transition: background-color .15s, color .15s, border-color .15s, opacity .15s, transform .15s var(--ease), translate .15s var(--ease), scale .15s var(--ease), box-shadow .2s var(--ease); }
+/* Любая кнопка публичных страниц откликается на нажатие лёгким вдавливанием. */
+.vol-page button:not(:disabled):active { scale: .98; }
 .vol-head { color: var(--vol-fg); font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 .vol-head :focus-visible { outline: 2px solid var(--vol-accent); outline-offset: 2px; }
-.vol-head button, .vol-head a { transition: background-color .15s, color .15s, border-color .15s, opacity .15s; }
-.vol-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
-.vol-glass { background: rgba(255, 255, 255, 0.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.vol-head button, .vol-head a { transition: background-color .15s, color .15s, border-color .15s, opacity .15s, transform .15s var(--ease), translate .15s var(--ease), scale .15s var(--ease), box-shadow .2s var(--ease); }
 
-/* section heading: one size, weight and colour for every h2 of the public pages */
-.vol-h2 {
+/* .press — любой кликабельный элемент публичных страниц: подъём на 1px при наведении (только мышь), вдавливание при нажатии.
+   .press-flat — только вдавливание (иконки, вкладки, пункты меню: подъём там выглядит суетливо). */
+@media (hover: hover) { .press:hover:not(:disabled) { translate: 0 -1px; } }
+.press:active:not(:disabled), .press-flat:active:not(:disabled) { translate: none; scale: .96; transition-duration: 60ms; }
+.press-shadow:hover:not(:disabled) { box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--pal-brand) 55%, transparent); }
+@media (prefers-reduced-motion: reduce) {
+  .press:hover, .press:active, .press-flat:active, .btn:hover, .btn:active, .vol-page button:active { translate: none !important; scale: none !important; }
+}
+.vol-label { @apply text-label; text-transform: uppercase; }
+.vol-glass { background: rgba(255, 255, 255, 0.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+/* sticky filter/tab bar of the public pages: page colour, slightly translucent, so the side art is not cut by a white band */
+.vol-bar { background: color-mix(in srgb, var(--vol-bg) 92%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+
+/* ── Типографика публичных страниц ─────────────────────────────────────────
+   Эталон — главная и «О нас». Один набор токенов на все публичные страницы:
+   H1 (страница) · H1 detail (страница записи: новость, мероприятие, организация, профиль) · H2 (секция) ·
+   compact (заголовок в карточке-форме, CTA-блоке, пустом/ошибочном состоянии) · H3 (карточка, подраздел) ·
+   lead (вводный абзац) · text (основной) · text-sm (вторичный) · meta (даты, подписи) · ctrl (кнопки, поля).
+   Мельче 13px текст не опускается и на телефоне. Админка — своя компактная шкала (.page-title и др. выше). */
+/* Размеры и отступы — из шкалы tailwind.config.js (fontSize / spacing); переменные для мест вне Tailwind. */
+:root {
+  --fs-h1: theme('fontSize.h1');
+  --fs-h1-detail: theme('fontSize.h1-detail');
+  --fs-h2: theme('fontSize.h2');
+  --fs-compact: theme('fontSize.compact');
+  --fs-h3: theme('fontSize.h3');
+  --fs-lead: theme('fontSize.lead');                         /* как вводный абзац «О нас» */
+  --fs-text: theme('fontSize.body');
+  --fs-text-sm: theme('fontSize.body-sm');
+  --fs-meta: theme('fontSize.meta');
+  --fs-ctrl: theme('fontSize.ctrl');
+  --space-head: theme('spacing.head');                       /* заголовок → описание */
+  --space-block: theme('spacing.block');                     /* шапка секции → контент */
+  --space-section: theme('spacing.section');                 /* вертикальный отступ секции */
+}
+.vol-h1, .vol-h1-detail, .vol-h2, .vol-compact, .vol-h3 {
   font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
-  font-weight: 800;
-  font-size: clamp(1.6rem, 3.1vw, 2.5rem);
-  line-height: 1.08;
-  letter-spacing: -.022em;
   color: var(--vol-head);
   text-wrap: balance;
+  overflow-wrap: break-word;
 }
-.on-dark .vol-h2 { color: #fff; }
+/* page title (h1) of the public pages: one fluid size, same colour and font as .vol-h2 */
+.vol-h1 { @apply text-h1; overflow-wrap: anywhere; }
+.vol-h1-detail { @apply text-h1-detail; }
+/* section heading: one size, weight and colour for every h2 of the public pages */
+.vol-h2 { @apply text-h2; }
+.vol-compact { @apply text-compact; }
+.vol-h3 { @apply text-h3; }
+.vol-lead { @apply text-lead; color: var(--vol-muted); max-width: 62ch; }
+.vol-text { @apply text-body; color: var(--vol-fg); }
+.vol-text-sm { @apply text-body-sm; color: var(--vol-muted); }
+.vol-meta { @apply text-meta; color: var(--vol-faint); }
+.on-dark :is(.vol-h1, .vol-h1-detail, .vol-h2, .vol-compact, .vol-h3) { color: #fff; }
+.on-dark .vol-lead { color: color-mix(in srgb, #fff 82%, transparent); }
 .on-dark :focus-visible { outline-color: #fff; }
 /* invisible hit-area extension up to 44px without changing the look */
 .vol-tap::after { content: ''; position: absolute; inset: -5px; }
@@ -203,13 +304,13 @@ body { margin: 0; }
 .vol-tap-6::after { content: ''; position: absolute; inset: -7px; }
 /* one glass material for every dark translucent surface: flat layer + blur, no gradients or inner glow */
 .vol-glass-dark {
-  background: rgba(10, 24, 45, .42);
+  background: color-mix(in srgb, var(--pal-ink) 55%, transparent);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   backdrop-filter: blur(24px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, .16);
 }
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .vol-glass-dark { background: rgba(10, 24, 45, .82); } }
-.vol-band-soft { background: linear-gradient(90deg, #24507f, #256b5c); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .vol-glass-dark { background: color-mix(in srgb, var(--pal-ink) 88%, transparent); } }
+.vol-band-soft { background: linear-gradient(90deg, var(--pal-ink), var(--pal-emerald)); }
 .vol-dots { background-image: radial-gradient(circle, var(--vol-accent) 1.6px, transparent 1.9px); background-size: 15px 15px; }
 .vol-grain {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
@@ -219,10 +320,43 @@ body { margin: 0; }
 @keyframes vol-slidein { from { transform: translateX(100%); } to { transform: none; } }
 @keyframes vol-fadein { from { opacity: 0; } to { opacity: 1; } }
 .vol-fade { animation: vol-fadein .2s ease; }
+/* Боковая панель меню (бургер): выезжает справа, затемнение проявляется. */
+.vol-drawer { animation: vol-slidein .28s var(--ease); }
+/* Закрытие: панель уезжает обратно, затемнение гаснет (компонент снимается после окончания, см. SiteHeader). */
+@keyframes vol-slideout { to { transform: translateX(100%); } }
+@keyframes vol-fadeout { to { opacity: 0; } }
+.vol-drawer-out { animation: vol-slideout .2s cubic-bezier(.4,0,1,1) forwards; }
+.vol-fade-out { animation: vol-fadeout .2s ease forwards; }
 
-/* marker: soft mint underline band */
+/* Смена страницы: новая страница проявляется с коротким подъёмом. Только «from» и fill backwards — после анимации
+   у main не остаётся translate, иначе он стал бы контейнером для fixed-потомков. */
+@keyframes vol-enter { from { opacity: 0; translate: 0 8px; } }
+.vol-enter { animation: vol-enter .35s var(--ease) backwards; }
+
+/* Активная вкладка нижней панели: подложка под иконкой «вырастает». */
+@keyframes vol-pill { from { scale: .55; opacity: 0; } }
+.vol-pill { animation: vol-pill .28s cubic-bezier(.34,1.56,.64,1) backwards; }
+
+/* Фото проявляются по мере загрузки, а не «выпрыгивают» построчно (SecureImage ставит data-loaded). */
+img[data-fade] { transition: opacity .45s var(--ease); }
+img[data-fade]:not([data-loaded]) { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vol-drawer, .vol-fade, .vol-drawer-out, .vol-fade-out, .vol-enter, .vol-pill { animation: none; }
+  img[data-fade] { transition: none; }
+}
+
+/* Decorative layers of the dark photo sections (Steps, footer): deep-blue veil, two soft glows, a top hairline.
+   Colours come from the palette tokens; no blend modes, so the sections stay cheap to paint on phones. */
+.vol-veil { background: linear-gradient(var(--veil-angle, 115deg), color-mix(in srgb, var(--pal-ink) 86%, transparent) 0%, color-mix(in srgb, var(--pal-ink) 72%, transparent) 100%); }
+.vol-glow { border-radius: 9999px; background: radial-gradient(closest-side, color-mix(in srgb, var(--glow) var(--glow-a, 20%), transparent), transparent); }
+.vol-glow-sky { --glow: var(--pal-sky2); }
+.vol-glow-brand { --glow: var(--pal-brand); --glow-a: 30%; }
+.vol-hairline { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .5), transparent); }
+
+/* marker: soft underline band in the decorative blue */
 .vol-mark {
-  background: linear-gradient(transparent 60%, var(--vol-mint) 60%, var(--vol-mint) 92%, transparent 92%);
+  background: linear-gradient(transparent 60%, var(--vol-decor) 60%, var(--vol-decor) 92%, transparent 92%);
   padding: 0 .1em;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
@@ -235,7 +369,7 @@ body { margin: 0; }
   position: absolute;
   top: 0; bottom: 0;
   z-index: 0;
-  width: clamp(9rem, calc((100vw - 76rem) / 2), 26rem);
+  width: clamp(9rem, calc((100% - 76rem) / 2), 26rem); /* 100% родителя (.vol-page), а не 100vw: полоса прокрутки не входит в ширину */
   background-size: 100% auto;
   background-repeat: repeat-y;
   pointer-events: none;
@@ -257,8 +391,34 @@ body { margin: 0; }
 @media (min-width: 1520px) { .vol-side-art { display: block; } }
 .vol-footer-art {
   background-image:
-    radial-gradient(55% 80% at 100% 100%, #e4edff 0%, rgba(228, 237, 255, 0) 72%),
-    radial-gradient(30% 50% at 0% 0%, #eef4ff 0%, rgba(238, 244, 255, 0) 70%);
+    radial-gradient(55% 80% at 100% 100%, color-mix(in srgb, var(--pal-sky) 45%, transparent) 0%, transparent 72%),
+    radial-gradient(30% 50% at 0% 0%, color-mix(in srgb, var(--pal-sky) 30%, transparent) 0%, transparent 70%);
+}
+
+/* Запасной аватар (инициал): тёмный фирменный синий #1D4ED8 на мягком голубом (6:1 — #2563EB дал бы лишь 4.49:1);
+   в админке — светлый голубой на индиго-тёмном. */
+.vol-avatar-fallback { background: var(--vol-accent-soft); color: theme('colors.primary-dark'); }
+:is(.admin-shell, .admin-modal) .vol-avatar-fallback { background: theme('colors.brand.100'); color: theme('colors.brand.700'); }
+
+/* Фон вместо отсутствующего фото (MediaPlaceholder): один слой — градиент палитры и два мягких круга. */
+.vol-media-empty {
+  background:
+    radial-gradient(circle at 85% 18%, color-mix(in srgb, var(--pal-sky2) 35%, transparent) 0 18%, transparent 18.5%),
+    radial-gradient(circle at 12% 92%, color-mix(in srgb, var(--pal-white) 70%, transparent) 0 22%, transparent 22.5%),
+    linear-gradient(135deg, var(--pal-sky) 0%, var(--pal-bg) 100%);
+}
+
+/* Обложка публичного профиля: один фон — диагональный градиент палитры, два мягких круга и пунктир-«маршрут».
+   На телефоне остаётся только градиент. Всё внутри блока с overflow-hidden — горизонтальной прокрутки не даёт. */
+.vol-profile-cover {
+  background:
+    radial-gradient(circle at 88% -10%, color-mix(in srgb, var(--pal-white) 55%, transparent) 0 22%, transparent 22.5%),
+    radial-gradient(circle at 70% 120%, color-mix(in srgb, var(--pal-sky2) 55%, transparent) 0 26%, transparent 26.5%),
+    repeating-linear-gradient(-24deg, transparent 0 22px, color-mix(in srgb, var(--pal-white) 22%, transparent) 22px 24px),
+    linear-gradient(120deg, var(--pal-sky) 0%, var(--pal-sky2) 55%, var(--pal-brand) 130%);
+}
+@media (max-width: 639px) {
+  .vol-profile-cover { background: linear-gradient(120deg, var(--pal-sky) 0%, var(--pal-sky2) 100%); }
 }
 
 /* ticket: notches by mask, outline by drop-shadow on the wrapper */
@@ -303,3 +463,116 @@ body { margin: 0; }
     linear-gradient(to bottom, transparent calc(33.33% - .5px), rgba(255,255,255,.55) calc(33.33% - .5px), rgba(255,255,255,.55) calc(33.33% + .5px), transparent calc(33.33% + .5px), transparent calc(66.66% - .5px), rgba(255,255,255,.55) calc(66.66% - .5px), rgba(255,255,255,.55) calc(66.66% + .5px), transparent calc(66.66% + .5px));
 }
 .crop-frame:focus-visible { outline: 3px solid #fff; outline-offset: 0; }
+
+/* ── Лёгкое движение публичных страниц ─────────────────────────────────────────
+   Появление при прокрутке: [data-reveal] — автоматически на всех публичных страницах (useAutoReveal в Layout/AfishaLayout),
+   .reveal — вручную (компонент Reveal). --reveal-delay задаёт очередь у карточек.
+   Сдвиг — свойством translate, а не transform: не сбивает центрирование и hover-сдвиги элементов.
+   Анимация без «to» и с fill-mode backwards: по окончании элемент возвращается к своим стилям (своя прозрачность, сдвиг).
+   Keyframes, а не transition: переходы на .vol-page глушатся при «уменьшить движение», а там остаётся мягкое проявление без сдвига.
+   .lift — подъём карточки при наведении. */
+html { scroll-behavior: smooth; }
+@keyframes revealIn { from { opacity: 0; translate: 0 1.75rem; } }
+:is([data-reveal="hidden"], .reveal:not(.is-visible)) { opacity: 0; }
+:is([data-reveal="shown"], .reveal.is-visible) { animation: revealIn .75s var(--ease) backwards; animation-delay: var(--reveal-delay, 0ms); }
+@media (prefers-reduced-motion: reduce) { @keyframes revealIn { from { opacity: 0; } } }
+@media print { :is([data-reveal], .reveal) { opacity: 1 !important; animation: none !important; } }
+.lift { transition: transform .25s var(--ease), box-shadow .25s var(--ease), border-color .25s var(--ease); }
+.lift:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -18px rgba(11, 32, 56, .28); }
+
+/* Фон-коллаж из фотографий в шапке «О нас»: сетка фото с небольшим наклоном, медленный «дрейф» каждого кадра
+   и градиент цвета страницы слева, чтобы текст оставался читаемым. На узком экране коллаж занимает весь фон под плотной вуалью. */
+.about-collage { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(4, 1fr); gap: .75rem; padding: 1rem; }
+@media (min-width: 1024px) { .about-collage { left: 50%; right: max(0px, calc((100% - 76rem) / 2 - 1rem)); padding: 2rem 2rem 2rem 0; gap: 1rem; } }
+.about-collage__tile { position: relative; overflow: hidden; border-radius: 1.25rem; box-shadow: 0 20px 40px -20px rgba(11, 32, 56, .45); transform: rotate(var(--rot, 0deg)); opacity: 0; animation: collageIn .9s var(--ease) forwards; animation-delay: var(--in, 0ms); }
+.about-collage__tile img { width: 100%; height: 100%; object-fit: cover; animation: collageDrift 18s ease-in-out infinite alternate; animation-delay: var(--drift, 0s); }
+.about-collage__tile:nth-child(1) { grid-area: 1 / 1 / 3 / 4; --rot: -1.5deg; --in: 0ms; }
+.about-collage__tile:nth-child(2) { grid-area: 1 / 4 / 2 / 7; --rot: 1.2deg; --in: 120ms; --drift: -4s; }
+.about-collage__tile:nth-child(3) { grid-area: 2 / 4 / 4 / 7; --rot: -.8deg; --in: 240ms; --drift: -9s; }
+.about-collage__tile:nth-child(4) { grid-area: 3 / 1 / 5 / 4; --rot: 1deg; --in: 360ms; --drift: -13s; }
+.about-collage__tile:nth-child(5) { grid-area: 4 / 4 / 5 / 7; --rot: -1.2deg; --in: 480ms; --drift: -6s; }
+.about-collage__veil { position: absolute; inset: 0; background: color-mix(in srgb, var(--vol-bg) 86%, transparent); }
+@media (min-width: 1024px) {
+  /* только узкая полоса у левого края коллажа (46–60% ширины): сплошная заливка левее закрывала бы боковой декор .vol-side-art */
+  .about-collage__veil { left: 46%; right: auto; width: 14%; background: linear-gradient(90deg, var(--vol-bg) 0%, var(--vol-bg) 7%, color-mix(in srgb, var(--vol-bg) 40%, transparent) 50%, transparent 100%); }
+}
+@keyframes collageIn { from { opacity: 0; transform: translateY(14px) rotate(var(--rot, 0deg)) scale(.97); } to { opacity: 1; transform: rotate(var(--rot, 0deg)); } }
+@keyframes collageDrift { from { transform: scale(1.04) translate(0, 0); } to { transform: scale(1.12) translate(-2%, -1.5%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lift, .lift:hover { transition: none; transform: none; }
+  .about-collage__tile { animation: none; opacity: 1; }
+  .about-collage__tile img { animation: none; }
+}
+
+/* Анимированный фон шапки (AnimatedBackdrop): «гуляющий свет» и плавающие капли.
+   Гамма — родственные синему цвета: синий, фиолетовый, бирюзовый, розовый (заданы здесь, только для этого декора).
+   Под каплями ходят два мягких пятна света; капли (градиент + стеклянный блик) плывут по своим маршрутам и плавно меняют форму;
+   маленькие капли всплывают снизу; раз в ~11 с проходит светлый блик; иконки всплывают и покачиваются.
+   Движение медленное, без вспышек и резких смен яркости, поэтому фон работает и при «уменьшить движение»:
+   это осознанное решение для декоративного фона шапок волонтёров и организаторов. */
+.hero-backdrop {
+  --drop-blue: #3B82F6; --drop-violet: #8B5CF6; --drop-teal: #14B8A6; --drop-pink: #EC4899;
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  -webkit-mask-image: linear-gradient(#000 60%, transparent); mask-image: linear-gradient(#000 60%, transparent);
+}
+
+/* мягкий свет под каплями */
+.hero-backdrop__light { position: absolute; left: 0; top: 0; border-radius: 50%; mix-blend-mode: multiply; will-change: transform; animation: 26s ease-in-out infinite alternate; }
+.hero-backdrop__light--1 { width: 38rem; height: 38rem; background: radial-gradient(circle, color-mix(in srgb, var(--drop-violet) 26%, transparent) 0%, transparent 68%); animation-name: heroWander1; }
+.hero-backdrop__light--2 { width: 34rem; height: 34rem; background: radial-gradient(circle, color-mix(in srgb, var(--drop-teal) 24%, transparent) 0%, transparent 68%); animation-name: heroWander2; animation-duration: 31s; }
+
+/* капли */
+.hero-backdrop__drop {
+  position: absolute; left: 0; top: 0; will-change: transform, border-radius;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .9) 0 7%, rgba(255, 255, 255, 0) 22%),
+    linear-gradient(135deg, var(--c1), var(--c2));
+  box-shadow: inset -.9rem -1.1rem 2rem rgba(255, 255, 255, .35), inset .5rem .7rem 1.4rem rgba(255, 255, 255, .25), 0 1.5rem 3rem -1.5rem var(--c2);
+  opacity: .5;
+  animation: var(--path) var(--dur, 26s) ease-in-out infinite alternate, heroMorph 9s ease-in-out infinite alternate;
+}
+.hero-backdrop__drop--1 { width: 11rem; height: 11rem; --c1: var(--drop-blue); --c2: var(--drop-violet); --path: heroWander1; --dur: 27s; }
+.hero-backdrop__drop--2 { width: 9rem; height: 9rem; --c1: var(--drop-teal); --c2: var(--drop-blue); --path: heroWander2; --dur: 32s; animation-delay: -6s, -3s; }
+.hero-backdrop__drop--3 { width: 7.5rem; height: 7.5rem; --c1: var(--drop-pink); --c2: var(--drop-violet); --path: heroWander3; --dur: 24s; animation-delay: -10s, -5s; }
+.hero-backdrop__drop--4 { width: 6rem; height: 6rem; --c1: var(--drop-violet); --c2: var(--drop-pink); --path: heroWander4; --dur: 36s; animation-delay: -4s, -7s; }
+/* маленькие капли всплывают снизу и тают */
+.hero-backdrop__drop--rise { top: auto; bottom: -3rem; opacity: 0; animation: heroRise var(--dur) ease-in infinite, heroMorph 6s ease-in-out infinite alternate; }
+.hero-backdrop__drop--5 { width: 2.6rem; height: 2.6rem; left: 22%; --c1: var(--drop-teal); --c2: var(--drop-violet); --dur: 13s; }
+.hero-backdrop__drop--6 { width: 1.8rem; height: 1.8rem; left: 68%; --c1: var(--drop-pink); --c2: var(--drop-blue); --dur: 16s; animation-delay: -7s, -2s; }
+.hero-backdrop__drop--7 { width: 2.2rem; height: 2.2rem; left: 88%; --c1: var(--drop-blue); --c2: var(--drop-teal); --dur: 11s; animation-delay: -3s, -4s; }
+
+@keyframes heroMorph {
+  0%   { border-radius: 58% 42% 55% 45% / 52% 60% 40% 48%; }
+  50%  { border-radius: 45% 55% 40% 60% / 60% 42% 58% 40%; }
+  100% { border-radius: 62% 38% 48% 52% / 44% 56% 44% 56%; }
+}
+@keyframes heroWander1 { 0% { transform: translate(-6rem, -4rem) rotate(0deg); } 30% { transform: translate(34vw, 2rem) rotate(40deg); } 60% { transform: translate(16vw, 14rem) rotate(80deg); } 100% { transform: translate(60vw, 4rem) rotate(120deg); } }
+@keyframes heroWander2 { 0% { transform: translate(82vw, 6rem) rotate(0deg); } 35% { transform: translate(52vw, -2rem) rotate(-45deg); } 70% { transform: translate(70vw, 16rem) rotate(-90deg); } 100% { transform: translate(10vw, 8rem) rotate(-130deg); } }
+@keyframes heroWander3 { 0% { transform: translate(28vw, 18rem) rotate(0deg); } 40% { transform: translate(4vw, 6rem) rotate(50deg); } 75% { transform: translate(46vw, 0) rotate(100deg); } 100% { transform: translate(78vw, 14rem) rotate(150deg); } }
+@keyframes heroWander4 { 0% { transform: translate(62vw, 1rem) rotate(0deg); } 50% { transform: translate(12vw, 16rem) rotate(-70deg); } 100% { transform: translate(40vw, 4rem) rotate(-140deg); } }
+@keyframes heroRise {
+  0%   { opacity: 0; transform: translate(0, 0); }
+  15%  { opacity: .55; }
+  50%  { transform: translate(1.2rem, -14rem); }
+  85%  { opacity: .45; }
+  100% { opacity: 0; transform: translate(-.8rem, -28rem); }
+}
+
+/* светлый блик */
+.hero-backdrop__beam { position: absolute; top: -50%; left: 0; width: 22rem; height: 200%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .7) 50%, transparent); transform: translateX(-30rem) rotate(18deg); animation: heroBeam 11s ease-in-out infinite; }
+@keyframes heroBeam { 0% { transform: translateX(-30rem) rotate(18deg); } 45%, 100% { transform: translateX(calc(100vw + 10rem)) rotate(18deg); } }
+
+/* иконки */
+.hero-backdrop__icon { position: absolute; opacity: 0; animation: heroFloat 14s ease-in-out infinite; }
+.hero-backdrop__icon--blue { color: var(--drop-blue); }
+.hero-backdrop__icon--violet { color: var(--drop-violet); }
+.hero-backdrop__icon--teal { color: var(--drop-teal); }
+.hero-backdrop__icon--pink { color: var(--drop-pink); }
+@keyframes heroFloat {
+  0%   { opacity: 0; transform: translate(0, 2rem) rotate(-10deg); }
+  20%  { opacity: .55; }
+  50%  { transform: translate(.9rem, -1.5rem) rotate(6deg); }
+  80%  { opacity: .55; }
+  100% { opacity: 0; transform: translate(-.6rem, -5rem) rotate(12deg); }
+}

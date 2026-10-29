@@ -18,10 +18,10 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   render() {
     if (!this.state.error) return this.props.children;
     return (
-      <div role="alert" className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div role="alert" className="min-h-dvh flex items-center justify-center bg-gray-50 px-4">
         <div className="max-w-md text-center bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
           <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-red-50 text-red-600 flex items-center justify-center text-2xl">!</div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Что-то пошло не так</h1>
+          <h1 className="vol-h3 mb-2">Что-то пошло не так</h1>
           <p className="text-gray-600 mb-6">Страница не смогла отобразиться. Попробуйте обновить её — если ошибка повторится, сообщите нам, что вы делали перед этим.</p>
           <div className="flex gap-3 justify-center">
             <button onClick={() => window.location.reload()} className="px-5 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition">Обновить</button>

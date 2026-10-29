@@ -1,3 +1,4 @@
+import { SideArt } from '../../components/afisha/SideArt';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { authApi } from '../../api/auth';
@@ -18,19 +19,20 @@ export function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center">
+    <div className="vol-page relative overflow-x-clip min-h-dvh flex items-center justify-center p-4">
+      <SideArt />
+      <div className="relative z-10 bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center">
         {sent ? (
           <>
             <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-envelope text-3xl text-green-600" /></div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Проверьте почту</h1>
+            <h1 className="vol-compact mb-2">Проверьте почту</h1>
             <p className="text-gray-600 mb-6">Если аккаунт с таким адресом существует, мы отправили письмо с инструкциями.</p>
             <Link to="/login" className="inline-flex items-center text-primary hover:underline font-medium no-underline"><i className="fas fa-arrow-left mr-2" />Вернуться к входу</Link>
           </>
         ) : (
           <>
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-lock text-3xl text-primary" /></div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Забыли пароль?</h1>
+            <h1 className="vol-compact mb-2">Забыли пароль?</h1>
             <p className="text-gray-600 mb-6">Введите email, и мы отправим ссылку для сброса пароля.</p>
             {error && <div className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm">{error}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">

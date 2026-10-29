@@ -69,5 +69,13 @@ export function useSecureSrc(src: string | null | undefined): { src: string | nu
 export function SecureImage({ src, alt, fallback, ...rest }: Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> & { src?: string | null; fallback?: React.ReactNode }) {
   const resolved = useSecureSrc(src);
   if (!resolved.src || resolved.failed) return <>{fallback ?? null}</>;
-  return <img {...rest} src={resolved.src} alt={alt ?? ''} onError={resolved.onError} />;
+  // data-fade/data-loaded: фото проявляется по загрузке (index.css). Атрибут ставится напрямую в DOM — без перерисовки;
+  // уже загруженное из кэша фото (complete) отмечается сразу, чтобы не мигало.
+  const mark = (img: HTMLImageElement) => { img.dataset.loaded = ''; };
+  return (
+    <img {...rest} src={resolved.src} alt={alt ?? ''} data-fade=""
+      ref={img => { if (img?.complete && img.naturalWidth) mark(img); }}
+      onLoad={e => { mark(e.currentTarget); rest.onLoad?.(e); }}
+      onError={resolved.onError} />
+  );
 }

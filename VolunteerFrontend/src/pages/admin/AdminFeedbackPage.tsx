@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { feedbackApi, type FeedbackItem } from '../../api/feedback';
+import { REPLY_FROM_EMAIL } from '../../config';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { useConfirm } from '../../components/ui/ConfirmDialog';
@@ -19,9 +20,22 @@ type Filter = 'unread' | 'all';
 
 const fmt = (iso: string) => new Date(iso).toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
+const REPLY_SUBJECT = 'Ответ на ваше обращение — ВолонтёрыПМР';
+// Текст письма: приветствие, место для ответа и цитата обращения (обрезана, чтобы ссылка не вышла за предел длины URL)
+const replyBody = (item: FeedbackItem) => {
+  const quote = item.message.length > 1500 ? `${item.message.slice(0, 1500)}…` : item.message;
+  const quoted = quote.split('\n').map(l => `> ${l}`).join('\n');
+  return `Здравствуйте, ${item.name}!\n\n\n\n— — —\nВаше обращение от ${fmt(item.createdAt)}:\n${quoted}`;
+};
+// Окно нового письма Gmail в аккаунте REPLY_FROM_EMAIL (работает в браузере, почтовый клиент не нужен)
+const gmailReplyUrl = (item: FeedbackItem) => {
+  const q = new URLSearchParams({ authuser: REPLY_FROM_EMAIL, view: 'cm', fs: '1', to: item.email, su: REPLY_SUBJECT, body: replyBody(item) });
+  return `https://mail.google.com/mail/?${q}`;
+};
+
 /**
  * Обращения с формы «Написать нам». Новое обращение приходит в колокольчик и (если задан App:AdminEmail) на почту;
- * здесь их читают, отвечают (кнопка открывает почтовый клиент с адресом отправителя), отмечают прочитанными и удаляют.
+ * здесь их читают, отвечают (окно письма Gmail с ящика REPLY_FROM_EMAIL; адрес автора можно скопировать), отмечают прочитанными и удаляют.
  * Ссылка из письма открывает страницу с нужным обращением (?open=…).
  */
 export function AdminFeedbackPage() {
@@ -60,6 +74,10 @@ export function AdminFeedbackPage() {
   }, [skip, filter, openId]);
   useEffect(() => { void load(); }, [load]);
 
+  const copyEmail = async (email: string) => {
+    try { await navigator.clipboard.writeText(email); notify(`Адрес ${email} скопирован`); }
+    catch { notify(`Не удалось скопировать. Адрес: ${email}`, 'error'); }
+  };
   const patch = (id: string, change: Partial<FeedbackItem>) => setItems(list => list.map(i => (i.id === id ? { ...i, ...change } : i)));
 
   const markRead = async (item: FeedbackItem) => {
@@ -126,10 +144,14 @@ export function AdminFeedbackPage() {
                     </button>
                     {open && (
                       <div className="flex flex-wrap gap-2 mt-3 pl-5">
-                        <a className="btn btn-primary btn-sm no-underline"
-                          href={`mailto:${item.email}?subject=${encodeURIComponent('Ответ на ваше обращение — ВолонтёрыПМР')}`}>
-                          <i className="fas fa-reply" aria-hidden /> Ответить по почте
+                        <a className="btn btn-primary btn-sm no-underline" href={gmailReplyUrl(item)} target="_blank" rel="noopener noreferrer"
+                          title={`Откроется письмо в Gmail от ${REPLY_FROM_EMAIL}`}>
+                          <i className="fas fa-reply" aria-hidden /> Ответить в Gmail
                         </a>
+                        {/* вместо mailto: без назначенного в системе почтового приложения ссылка не открывается */}
+                        <Button size="sm" variant="secondary" onClick={() => copyEmail(item.email)}>
+                          <i className="fas fa-copy" aria-hidden /> Скопировать адрес
+                        </Button>
                         {!item.isRead && <Button size="sm" variant="secondary" loading={busy === item.id} onClick={() => markRead(item)}>Отметить прочитанным</Button>}
                         <Button size="sm" variant="ghost" loading={busy === item.id} onClick={() => remove(item)}><i className="fas fa-trash" aria-hidden /> Удалить</Button>
                       </div>

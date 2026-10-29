@@ -26,9 +26,11 @@ async function unwrapBlobError(err: unknown): Promise<never> {
 }
 
 /** Скачивает файл с авторизованного эндпоинта и отдаёт его браузеру как загрузку. */
-export async function downloadFile(url: string, params: Record<string, string>, fallbackName: string): Promise<void> {
+export async function downloadFile(
+  url: string, params: Record<string, string>, fallbackName: string, headers?: Record<string, string>,
+): Promise<void> {
   const res = await apiClient
-    .get<Blob>(url, { params, responseType: "blob", timeout: 120_000 })
+    .get<Blob>(url, { params, headers, responseType: "blob", timeout: 120_000 })
     .catch(unwrapBlobError);
   const link = document.createElement("a");
   link.href = URL.createObjectURL(res.data);

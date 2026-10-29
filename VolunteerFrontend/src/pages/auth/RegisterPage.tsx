@@ -1,3 +1,4 @@
+import { SideArt } from '../../components/afisha/SideArt';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -43,8 +44,9 @@ export function RegisterPage() {
 
   if (registeredEmail) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4 py-12">
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+      <div className="vol-page relative overflow-x-clip min-h-dvh flex items-center justify-center p-4 py-12">
+        <SideArt />
+        <div className="relative z-10 bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
           <RegistrationSuccess email={registeredEmail} />
           <Link to="/login" className="block mt-6 text-sm text-gray-500 hover:text-primary no-underline"><i className="fas fa-arrow-left mr-1" />К входу</Link>
         </div>
@@ -53,13 +55,14 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4 py-12">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+    <div className="vol-page relative overflow-x-clip min-h-dvh flex items-center justify-center p-4 py-12">
+      <SideArt />
+      <div className="relative z-10 bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4">
             <i className="fas fa-user-plus text-3xl text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Регистрация волонтёра</h1>
+          <h1 className="vol-compact">Регистрация волонтёра</h1>
           <p className="text-gray-600 mt-1">Присоединяйтесь к движению!</p>
         </div>
         {error && <div className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm">{error}</div>}
@@ -71,24 +74,24 @@ export function RegisterPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
             <input type="email" value={form.email} onChange={e => set('email', e.target.value)} required className={inp(fieldErr.email)} placeholder="your@email.com" />
-            {fieldErr.email && <p className="text-red-500 text-xs mt-1">{fieldErr.email}</p>}
+            {fieldErr.email && <p className="text-red-500 text-[0.8125rem] mt-1">{fieldErr.email}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Пароль * <span className="text-gray-400 font-normal">(мин. 8 символов)</span></label>
             <input type="password" value={form.password} onChange={e => set('password', e.target.value)} required autoComplete="new-password" className={inp(fieldErr.password)} placeholder="••••••••" />
-            {fieldErr.password && <p className="text-red-500 text-xs mt-1">{fieldErr.password}</p>}
+            {fieldErr.password && <p className="text-red-500 text-[0.8125rem] mt-1">{fieldErr.password}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Повтор пароля *</label>
             <input type="password" value={form.confirm} onChange={e => set('confirm', e.target.value)} required autoComplete="new-password" className={inp(fieldErr.confirm)} placeholder="••••••••" />
-            {fieldErr.confirm && <p className="text-red-500 text-xs mt-1">{fieldErr.confirm}</p>}
+            {fieldErr.confirm && <p className="text-red-500 text-[0.8125rem] mt-1">{fieldErr.confirm}</p>}
           </div>
           <div>
             <label className="flex items-start gap-2 cursor-pointer">
               <input type="checkbox" checked={form.consent} onChange={e => set('consent', e.target.checked)} className="w-4 h-4 mt-0.5 accent-primary" />
               <span className="text-sm text-gray-600">Согласен(а) с <span className="text-primary hover:underline cursor-pointer">политикой конфиденциальности</span></span>
             </label>
-            {fieldErr.consent && <p className="text-red-500 text-xs mt-1">{fieldErr.consent}</p>}
+            {fieldErr.consent && <p className="text-red-500 text-[0.8125rem] mt-1">{fieldErr.consent}</p>}
           </div>
           <button type="submit" disabled={loading}
             className="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition shadow-lg disabled:opacity-60 flex items-center justify-center gap-2">

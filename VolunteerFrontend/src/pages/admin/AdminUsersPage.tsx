@@ -77,13 +77,7 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
 
         {/* Avatar + name */}
         <div className="flex items-center gap-4 p-4 bg-surface-2 rounded-xl">
-          {user.avatarUrl ? (
-              <img src={user.avatarUrl} alt={name} className="w-16 h-16 rounded-2xl object-cover border-2 border-line-strong" />
-          ) : (
-              <div className="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center text-brand-700 text-2xl font-bold">
-                {name.charAt(0).toUpperCase()}
-              </div>
-          )}
+          <Avatar name={name} src={user.avatarUrl} size="lg" square className="border-2 border-line-strong" />
           <div>
             <p className="text-ink-900 text-lg font-bold">{name}</p>
             <p className="text-ink-500 text-sm">{user.email}</p>

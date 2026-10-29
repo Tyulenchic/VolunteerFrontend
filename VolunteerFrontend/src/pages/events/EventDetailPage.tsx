@@ -5,6 +5,10 @@ import { publicEventsApi } from '../../api/publicEvents';
 import type { EventResponseDto } from '../../types/event';
 import { getCategoryLabel } from '../../types/event';
 import { Spinner } from '../../components/Spinner';
+import { Button } from '../../components/ui/Button';
+import { Heading } from '../../components/ui/Heading';
+import { Breadcrumbs } from '../../components/afisha/Breadcrumbs';
+import { NotFoundState } from '../../components/afisha/NotFoundState';
 import { EventImage } from '../../components/EventImage';
 import { Modal } from '../../components/Modal';
 import { useAuth } from '../../context/AuthContext';
@@ -55,7 +59,7 @@ function ApplyModal({ event, onClose, onApplied }: { event: EventResponseDto; on
     try {
       const created = await eventsApi.apply(event.id);
       onApplied(created);
-      notify('Заявка подана! Ожидайте подтверждения 🎫');
+      notify('Заявка подана. Организатор рассмотрит её и пришлёт ответ.');
       onClose();
     } catch (err) {
       notify(mapApiError(err), 'error');
@@ -66,14 +70,14 @@ function ApplyModal({ event, onClose, onApplied }: { event: EventResponseDto; on
 
   return (
       <form onSubmit={submit} className="space-y-4">
-        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-          <h4 className="font-bold text-gray-900 text-base">{event.title}</h4>
+        <div className="rounded-card border border-vol-line bg-vol-bg p-4">
+          <p className="font-display text-body font-bold text-vol-head">{event.title}</p>
           <div className="mt-2 space-y-1">
-            <p className="text-sm text-gray-600 flex items-center gap-2">
+            <p className="flex items-center gap-2 text-ctrl text-vol-muted">
               <i className="fas fa-map-marker-alt text-primary w-4" />
               {event.location}
             </p>
-            <p className="text-sm text-gray-600 flex items-center gap-2">
+            <p className="flex items-center gap-2 text-ctrl text-vol-muted">
               <i className="far fa-calendar text-primary w-4" />
               {fmtDateTime(event.startsAt)}
             </p>
@@ -87,17 +91,13 @@ function ApplyModal({ event, onClose, onApplied }: { event: EventResponseDto; on
               required
               className="w-4 h-4 mt-0.5 accent-primary flex-shrink-0"
           />
-          <span className="text-sm text-gray-700">
+          <span className="text-ctrl text-vol-fg">
           Я подтверждаю участие и обязуюсь прийти вовремя
         </span>
         </label>
-        <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-60 flex items-center justify-center gap-2"
-        >
-          {loading ? <><Spinner /> Отправка...</> : <><i className="fas fa-paper-plane" />Подать заявку</>}
-        </button>
+        <Button type="submit" size="lg" full loading={loading}>
+          {loading ? 'Отправка…' : <><i className="fas fa-paper-plane" aria-hidden />Подать заявку</>}
+        </Button>
       </form>
   );
 }
@@ -159,18 +159,7 @@ export function EventDetailPage() {
   }
 
   if (!event) {
-    return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-          <div className="text-6xl sm:text-8xl font-bold text-primary/20 mb-4">404</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">Мероприятие не найдено</h1>
-          <Link
-              to="/events"
-              className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition no-underline"
-          >
-            ← Все мероприятия
-          </Link>
-        </div>
-    );
+    return <NotFoundState title="Мероприятие не найдено" hint="Возможно, его удалили или ссылка устарела." to="/events" action="Все мероприятия" />;
   }
 
   // ── Derived state ───────────────────────────────────────────────────────────
@@ -191,13 +180,13 @@ export function EventDetailPage() {
 
   // Статус: текст + цвет (смысл всегда передаётся словами, цвет — вторичен)
   const statusBadge: Record<string, { label: string; cls: string }> = {
-    Draft:     { label: 'Черновик',            cls: 'bg-gray-100 text-gray-700' },
-    Published: { label: 'Открыта регистрация', cls: 'bg-green-100 text-green-800' },
-    Cancelled: { label: 'Отменено',            cls: 'bg-red-100 text-red-800' },
-    Archived:  { label: 'В архиве',            cls: 'bg-gray-100 text-gray-700' },
-    Completed: { label: 'Завершено',           cls: 'bg-blue-100 text-blue-800' },
+    Draft:     { label: 'Черновик',            cls: 'bg-vol-bg text-vol-muted' },
+    Published: { label: 'Открыта регистрация', cls: 'bg-vol-green-soft text-vol-green' },
+    Cancelled: { label: 'Отменено',            cls: 'bg-red-50 text-vol-warn' },
+    Archived:  { label: 'В архиве',            cls: 'bg-vol-bg text-vol-muted' },
+    Completed: { label: 'Завершено',           cls: 'bg-vol-accent-soft text-primary-dark' },
   };
-  const badge = statusBadge[event.status] ?? { label: event.status, cls: 'bg-gray-100 text-gray-700' };
+  const badge = statusBadge[event.status] ?? { label: event.status, cls: 'bg-vol-bg text-vol-muted' };
 
   // Почему нельзя подать заявку (показываем вместо кнопки)
   const applyBlockReason = expired
@@ -212,75 +201,72 @@ export function EventDetailPage() {
 
   return (
       <>
-        {/* ── BREADCRUMB ─────────────────────────────────────────────────────── */}
-        <div className="bg-gray-50 border-b border-gray-200 py-2.5">
-          <div className="max-w-[72rem] 2xl:max-w-[80rem] mx-auto px-4 sm:px-6 lg:px-8">
-            <nav aria-label="Навигация" className="flex items-center gap-2 text-sm text-gray-500 min-w-0">
-              <Link to="/" className="hover:text-primary transition no-underline text-gray-500 shrink-0">Главная</Link>
-              <i className="fas fa-chevron-right text-xs shrink-0" aria-hidden />
-              <Link to="/events" className="hover:text-primary transition no-underline text-gray-500 shrink-0">Мероприятия</Link>
-              <i className="fas fa-chevron-right text-xs shrink-0" aria-hidden />
-              <span className="text-gray-900 font-medium truncate" aria-current="page">{event.title}</span>
-            </nav>
-          </div>
-        </div>
+        <Breadcrumbs items={[{ to: '/', label: 'Главная' }, { to: '/events', label: 'Мероприятия' }]} current={event.title} />
 
-        <div className="bg-white">
-          {/* Content width is capped: on large monitors the free space grows, the elements do not. */}
-          <div className="max-w-[72rem] 2xl:max-w-[80rem] mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 lg:py-8">
+        <div>
+          {/* Same container as the header and every other page (.wrap, 76rem). */}
+          <div className="wrap py-5 sm:py-6 lg:py-8">
 
-            {/* Mobile: photo → title → facts & action → description.
-                Desktop: photo + facts card on one row, then title, then description. */}
+            {/* Mobile: title → photo → description → facts & action.
+                Desktop: title across the page, then photo with the description under it, facts card on the right. */}
             <div className="grid gap-x-8 gap-y-5 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_19rem] xl:gap-x-10">
 
-              {/* Photo: whole, proportions kept; its height cap depends on orientation and viewport height (see EventImage) */}
-              <div className="min-w-0 lg:col-start-1 lg:row-start-1">
-                <EventImage src={event.imageUrl} alt={event.title} variant="hero" />
-              </div>
-
               {/* Title */}
-              <header className="min-w-0 lg:col-span-2 lg:row-start-2">
-                <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className={`px-2.5 py-0.5 rounded-full font-medium ${badge.cls}`}>{badge.label}</span>
-                  {event.category && <span className="text-gray-600">{getCategoryLabel(event.category)}</span>}
+              <header className="min-w-0 lg:col-span-2 lg:row-start-1">
+                <Heading level={1} look="h1-detail" className="max-w-[48ch]">{event.title}</Heading>
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-meta">
+                  <span className={`rounded-full px-2.5 py-0.5 font-semibold ${badge.cls}`}>{badge.label}</span>
+                  {event.category && <span className="text-vol-muted">{getCategoryLabel(event.category)}</span>}
                 </div>
                 <OrganizationBadge organization={event.organization} size="md" className="mt-2" />
                 {!!event.tags?.length && (
                   <ul className="mt-2 flex flex-wrap gap-2" aria-label="Теги">
-                    {event.tags.map(t => <li key={t} className="rounded-full bg-blue-50 px-2.5 py-0.5 text-sm font-medium text-blue-700">#{t}</li>)}
+                    {event.tags.map(t => <li key={t} className="rounded-full bg-vol-accent-soft px-2.5 py-0.5 text-meta font-medium text-primary-dark">#{t}</li>)}
                   </ul>
                 )}
-                <h1 className="mt-2 text-[clamp(1.375rem,1.1rem+1vw,1.875rem)] font-heading font-bold text-gray-900 leading-tight break-words max-w-[40ch] sm:max-w-[48ch] xl:max-w-[56ch]">
-                  {event.title}
-                </h1>
               </header>
 
+              {/* Photo: whole, proportions kept; its height cap depends on orientation and viewport height (see EventImage) */}
+              <div className="min-w-0 lg:col-start-1 lg:row-start-2">
+                <EventImage src={event.imageUrl} alt={event.title} variant="hero" />
+              </div>
+
+              {/* Description: right under the photo, plain text without a visible heading */}
+              <section aria-labelledby="event-description" className="min-w-0 lg:col-start-1 lg:row-start-3">
+                <h2 id="event-description" className="sr-only">Описание</h2>
+                <div className="vol-text max-w-[68ch] space-y-3 break-words">
+                  {event.description.split('\n').filter(Boolean).map((line, i) => (
+                      <p key={i}>{line}</p>
+                  ))}
+                </div>
+              </section>
+
               {/* Facts + action: compact, sticky only when there is room */}
-              <aside aria-label="Сведения и участие" className="min-w-0 self-start lg:col-start-2 lg:row-start-1 lg:sticky lg:top-4">
-                <div className="border border-gray-200 rounded-2xl p-4 space-y-4">
-                  <dl className="space-y-3 text-sm">
+              <aside aria-label="Сведения и участие" className="min-w-0 self-start lg:col-start-2 lg:row-start-2 lg:row-span-2 lg:sticky lg:top-[calc(3.75rem+1rem)]">
+                <div className="space-y-4 rounded-panel border border-vol-line bg-vol-surface p-4 shadow-soft">
+                  <dl className="space-y-3 text-ctrl">
                     <div className="flex gap-3">
                       <dt className="w-4 text-center text-primary pt-0.5"><i className="far fa-calendar" aria-hidden /><span className="sr-only">Дата и время</span></dt>
                       <dd className="min-w-0">
-                        <p className="font-semibold text-gray-900">{fmtDateOnly(event.startsAt)}</p>
-                        <p className="text-gray-600">{fmtTime(event.startsAt)} – {fmtTime(event.endsAt)}</p>
+                        <p className="font-semibold text-vol-fg">{fmtDateOnly(event.startsAt)}</p>
+                        <p className="text-vol-muted">{fmtTime(event.startsAt)} – {fmtTime(event.endsAt)}</p>
                       </dd>
                     </div>
                     <div className="flex gap-3">
                       <dt className="w-4 text-center text-primary pt-0.5"><i className="fas fa-map-marker-alt" aria-hidden /><span className="sr-only">Место</span></dt>
-                      <dd className="min-w-0 font-semibold text-gray-900 break-words">{event.location}</dd>
+                      <dd className="min-w-0 font-semibold text-vol-fg break-words">{event.location}</dd>
                     </div>
                     {event.maxParticipants != null && (
                       <div className="flex gap-3">
                         <dt className="w-4 text-center text-primary pt-0.5"><i className="fas fa-users" aria-hidden /><span className="sr-only">Места</span></dt>
                         <dd className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900">
+                          <p className="font-semibold text-vol-fg">
                             {event.approvedCount} из {event.maxParticipants} мест занято
-                            {spotsLeft !== null && spotsLeft > 0 && <span className="font-normal text-gray-600"> · осталось {spotsLeft}</span>}
+                            {spotsLeft !== null && spotsLeft > 0 && <span className="font-normal text-vol-muted"> · осталось {spotsLeft}</span>}
                           </p>
                           {progressPercent !== null && (
-                            <div className="mt-1.5 h-1.5 bg-gray-100 rounded-full overflow-hidden" role="progressbar" aria-valuenow={progressPercent} aria-valuemin={0} aria-valuemax={100} aria-label="Заполненность">
-                              <div className={`h-full rounded-full ${progressPercent >= 100 ? 'bg-red-500' : 'bg-primary'}`} style={{ width: `${progressPercent}%` }} />
+                            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-vol-bg" role="progressbar" aria-valuenow={progressPercent} aria-valuemin={0} aria-valuemax={100} aria-label="Заполненность">
+                              <div className={`h-full rounded-full ${progressPercent >= 100 ? 'bg-pal-red' : 'bg-primary'}`} style={{ width: `${progressPercent}%` }} />
                             </div>
                           )}
                         </dd>
@@ -289,64 +275,46 @@ export function EventDetailPage() {
                     <div className="flex gap-3">
                       <dt className="w-4 text-center text-primary pt-0.5"><i className="fas fa-hourglass-half" aria-hidden /><span className="sr-only">Приём заявок</span></dt>
                       <dd className="min-w-0">
-                        <span className="text-gray-600">Приём заявок до </span>
-                        <span className={`font-semibold ${expired ? 'text-red-700' : 'text-gray-900'}`}>{fmtDateTime(event.endsAt)}</span>
+                        <span className="text-vol-muted">Приём заявок до </span>
+                        <span className={`font-semibold ${expired ? 'text-vol-warn' : 'text-vol-fg'}`}>{fmtDateTime(event.endsAt)}</span>
                       </dd>
                     </div>
                   </dl>
 
                   {mine ? (
                     <div className="space-y-2">
-                      <p className={`w-full min-h-[44px] flex items-center justify-center rounded-xl text-sm font-medium text-center px-3 ${
-                        mine.status === 'Rejected' ? 'bg-red-50 text-red-800' : 'bg-blue-50 text-blue-800'}`}>
+                      <p className={`flex min-h-11 w-full items-center justify-center rounded-control px-3 text-center text-ctrl font-medium ${
+                        mine.status === 'Rejected' ? 'bg-red-50 text-vol-warn' : 'bg-vol-accent-soft text-primary-dark'}`}>
                         {mine.status === 'Pending' && 'Заявка на рассмотрении'}
                         {mine.status === 'Approved' && 'Вы участвуете'}
                         {mine.status === 'AttendanceConfirmed' && 'Вы участвовали'}
                         {mine.status === 'Rejected' && 'Заявка отклонена'}
                       </p>
-                      {mine.adminComment && <p className="text-sm text-gray-600 break-words">Комментарий: {mine.adminComment}</p>}
+                      {mine.adminComment && <p className="break-words text-meta text-vol-muted">Комментарий: {mine.adminComment}</p>}
                       {mine.status === 'Pending' && (
-                        <button type="button" onClick={() => setCancelOpen(true)} disabled={busy}
-                          className="w-full min-h-[44px] rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-800 hover:border-primary hover:text-primary disabled:opacity-60">
+                        <Button variant="outline" size="lg" full onClick={() => setCancelOpen(true)} disabled={busy}>
                           Отозвать заявку
-                        </button>
+                        </Button>
                       )}
                       {mine.status === 'Approved' && event.status === 'Published' && (
-                        <button type="button" onClick={() => setCancelOpen(true)} disabled={busy}
-                          className="w-full min-h-[44px] rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-800 hover:border-primary hover:text-primary disabled:opacity-60">
+                        <Button variant="outline" size="lg" full onClick={() => setCancelOpen(true)} disabled={busy}>
                           Отказаться от участия
-                        </button>
+                        </Button>
                       )}
                     </div>
                   ) : canApply && !isFull ? (
-                    <button
-                        type="button"
-                        onClick={() => setApplyOpen(true)}
-                        className="w-full min-h-[44px] bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition"
-                    >
-                      Подать заявку
-                    </button>
+                    <Button size="lg" full onClick={() => setApplyOpen(true)} aria-haspopup="dialog">Подать заявку</Button>
                   ) : (
-                    <p className="w-full min-h-[44px] flex items-center justify-center rounded-xl bg-gray-100 text-gray-700 font-medium text-sm text-center px-3">
+                    <p className="flex min-h-11 w-full items-center justify-center rounded-control bg-vol-bg px-3 text-center text-ctrl font-medium text-vol-muted">
                       {applyBlockReason}
                     </p>
                   )}
                 </div>
               </aside>
-
-              {/* Description */}
-              <section aria-labelledby="event-description" className="min-w-0 lg:col-span-2 lg:row-start-3">
-                <h2 id="event-description" className="text-base font-heading font-bold text-gray-900 mb-2">Описание</h2>
-                <div className="text-gray-700 text-base leading-relaxed space-y-3 max-w-[68ch] break-words">
-                  {event.description.split('\n').filter(Boolean).map((line, i) => (
-                      <p key={i}>{line}</p>
-                  ))}
-                </div>
-              </section>
             </div>
 
             <div className="mt-6 pb-2">
-              <Link to="/events" className="inline-flex items-center gap-2 min-h-[44px] text-primary font-semibold hover:text-primary-dark transition no-underline">
+              <Link to="/events" className="press-flat inline-flex min-h-11 items-center gap-2 font-semibold text-vol-accent no-underline hover:text-primary-dark">
                 <i className="fas fa-arrow-left" aria-hidden />
                 Все мероприятия
               </Link>

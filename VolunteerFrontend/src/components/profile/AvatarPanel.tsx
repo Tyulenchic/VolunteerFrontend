@@ -3,6 +3,7 @@ import axios from 'axios';
 import { usersApi } from '../../api/users';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
+import { Button } from '../ui/Button';
 import { PhotoField, type PhotoSelection } from '../PhotoField';
 import { useAuthBlobUrl } from '../SecureImage';
 
@@ -47,22 +48,20 @@ export function AvatarPanel() {
   };
 
   return (
-    <div className="border-t border-gray-100 pt-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Аватар</h2>
+    <div className="border-t border-vol-line pt-6">
+      <h2 className="vol-h3 mb-4">Аватар</h2>
       <PhotoField purpose="avatar" selection={selection} onChange={setSelection}
         existingUrl={hasOwn ? own : null} existingCrop={user?.avatarCrop ?? null} disabled={busy}
         hint="Выберите квадратную область — её увидят другие пользователи" />
       {user?.avatarStatus === 'Pending' && !selection && (
-        <p className="mt-3 text-sm bg-amber-50 text-amber-800 border border-amber-200 rounded-xl px-3 py-2">
+        <p className="mt-3 rounded-control border border-amber-200 bg-amber-50 px-3 py-2 text-ctrl text-amber-800">
           <i className="fas fa-hourglass-half mr-1.5" aria-hidden />Фото на проверке у модератора — другим пользователям оно пока не показывается.
         </p>
       )}
       {dirty && (
-        <div className="mt-4 flex gap-2">
-          <button onClick={save} disabled={busy} className="px-5 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-60">
-            {busy ? 'Сохранение…' : 'Сохранить'}
-          </button>
-          <button onClick={() => setSelection(null)} disabled={busy} className="px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition">Отмена</button>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Button size="lg" onClick={save} loading={busy}>{busy ? 'Сохранение…' : 'Сохранить фото'}</Button>
+          <Button size="lg" variant="secondary" onClick={() => setSelection(null)} disabled={busy}>Отмена</Button>
         </div>
       )}
     </div>

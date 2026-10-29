@@ -209,3 +209,37 @@ describe("session helpers", () => {
     expect([getAccessToken(), getRefreshToken()]).toEqual([null, null]);
   });
 });
+
+describe("proactive refresh of an expired JWT", () => {
+  /** JWT-подобный токен с заданным exp (секунды): подпись клиент не проверяет, читает только полезную нагрузку. */
+  const jwt = (expSec: number) => `h.${btoa(JSON.stringify({ exp: expSec })).replace(/=+$/, "")}.s`;
+  const now = () => Math.floor(Date.now() / 1000);
+
+  it("refreshes before sending, so the request is not rejected with 401 first", async () => {
+    setTokens(jwt(now() - 60), "R1");
+    const res = await apiClient.post("/api/feedback", { message: "hi" });
+
+    expect(res.status).toBe(200);
+    expect(server.refreshCalls).toEqual(["R1"]);
+    expect(server.protectedCalls).toBe(1); // один запрос: без 401 и повтора
+    expect(getAccessToken()).toBe("A2");
+  });
+
+  it("concurrent requests with an expired token share one refresh", async () => {
+    setTokens(jwt(now() - 60), "R1");
+    await Promise.all(["/api/a", "/api/b", "/api/c"].map(u => apiClient.get(u)));
+
+    expect(server.refreshCalls).toEqual(["R1"]);
+    expect(server.protectedCalls).toBe(3);
+  });
+
+  it("does not refresh a token that is still valid for long", async () => {
+    const fresh = jwt(now() + 3600);
+    setTokens(fresh, "R1");
+    server.validAccess = fresh;
+    await apiClient.get("/api/a");
+
+    expect(server.refreshCalls).toEqual([]);
+    expect(server.protectedCalls).toBe(1);
+  });
+});

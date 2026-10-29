@@ -4,13 +4,14 @@ import { newsApi, type NewsResponseDto } from '../../api/news';
 import { Spinner } from '../../components/Spinner';
 import PhoneNewsImage from '../../assets/PhoneNews.webp';
 import { IMAGE_POSITIONS } from '../../constants/imagePositions';
-import { SecureImage } from '../../components/SecureImage';
+import { CroppedImage } from '../../components/ImageCropper';
+import { MediaPlaceholder } from '../../components/ui/MediaPlaceholder';
 
 const fmtDate = (s: string) => new Date(s).toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
 
 // Категория новости — свободный текст, который вводит администратор, поэтому список фильтров
 // строится из загруженных новостей, а цвет метки берётся по хешу названия.
-const CAT_PALETTE = ['bg-blue-100 text-blue-700', 'bg-purple-100 text-purple-700', 'bg-teal-100 text-teal-700', 'bg-amber-100 text-amber-700', 'bg-rose-100 text-rose-700'];
+const CAT_PALETTE = ['bg-blue-100 text-blue-700', 'bg-purple-100 text-purple-700', 'bg-blue-100 text-blue-700', 'bg-amber-100 text-amber-700', 'bg-rose-100 text-rose-700'];
 const catColor = (name: string) => CAT_PALETTE[[...name].reduce((h, ch) => h + ch.charCodeAt(0), 0) % CAT_PALETTE.length];
 
 const PER_PAGE = 9;
@@ -64,22 +65,22 @@ export function NewsPage() {
      <>
        {/* HERO */}
        <section className="py-16 sm:py-24 relative overflow-hidden">
-         {/* Background image */}
-         <div className="absolute inset-0">
+         {/* Background image: низ растворяется в фон страницы, чтобы не было шва с боковым декором */}
+         <div className="absolute inset-0 [-webkit-mask-image:linear-gradient(to_bottom,#000_50%,transparent)] [mask-image:linear-gradient(to_bottom,#000_50%,transparent)]">
            <img
              src={PhoneNewsImage} 
              alt="Background" 
              className="w-full h-full object-cover"
              style={{ objectPosition: IMAGE_POSITIONS.news }}
            />
-           <div className="absolute inset-0 bg-gradient-to-br from-teal-50/30 to-blue-50/30"></div>
+           <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-blue-50/30"></div>
          </div>
-         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+         <div className="wrap relative z-10">
            <div className="text-center max-w-3xl mx-auto">
-             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-gray-900 mb-6 leading-tight">
+             <h1 className="vol-h1 mb-6">
                Новости нашего <span className="text-primary">движения</span>
              </h1>
-             <p className="text-lg text-gray-600">
+             <p className="vol-lead mx-auto">
                Будьте в курсе последних событий, акций и историй успеха волонтёров Приднестровья.
              </p>
            </div>
@@ -87,15 +88,17 @@ export function NewsPage() {
        </section>
 
       {/* FILTERS */}
-      <section className="py-5 bg-white border-b border-gray-200 sticky top-[3.75rem] z-20 shadow-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-            <div className="relative w-full md:w-96">
+      {/* без подложки на всю ширину: полоса перекрывала боковой декор страницы */}
+      <section className="relative z-10 -mt-8 sm:-mt-12 pb-5">
+        <div className="wrap">
+          <div className="flex flex-col gap-4 items-center">
+            {/* «стекло»: заходит на зону перехода от шапки и размывает то, что под ним */}
+            <div className="relative w-full max-w-xl">
               <input
                 value={searchRaw}
                 onChange={e => onSearch(e.target.value)}
                 placeholder="Поиск новостей..."
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                className="w-full pl-10 pr-4 py-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-2xl shadow-[0_10px_30px_-12px_rgba(11,32,56,.25)] placeholder:text-gray-500 focus:bg-white/80 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
               />
               <i className="fas fa-search absolute left-3.5 top-3 text-gray-400" />
               {searchRaw && (
@@ -106,7 +109,7 @@ export function NewsPage() {
               )}
             </div>
             {categories.length > 0 && (
-              <div className="flex gap-2 overflow-x-auto md:flex-wrap md:justify-end w-full md:w-auto pb-1 no-scrollbar">
+              <div className="flex gap-2 overflow-x-auto md:flex-wrap md:justify-center w-full md:w-auto pb-1 no-scrollbar">
                 {[['all', 'Все', items.length] as const, ...categories.map(([c, n]) => [c, c, n] as const)].map(([key, label, count]) => (
                   <button key={key} onClick={() => { setCat(key); setPage(1); }} aria-pressed={cat === key}
                     className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${cat === key ? 'bg-primary text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'}`}>
@@ -120,8 +123,8 @@ export function NewsPage() {
       </section>
 
       {/* GRID */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-20">
+        <div className="wrap">
           {loading ? (
             <div className="flex justify-center py-20"><Spinner /></div>
           ) : paged.length === 0 ? (
@@ -129,33 +132,35 @@ export function NewsPage() {
               <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-200 rounded-full mb-4">
                 <i className="fas fa-search text-3xl text-gray-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Ничего не найдено</h3>
+              <h3 className="vol-h3 mb-2">Ничего не найдено</h3>
               <p className="text-gray-600">Попробуйте изменить параметры поиска или категорию.</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,19rem),1fr))] gap-6">
               {paged.map(n => (
-                <article key={n.id} className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 group">
-                  <Link to={`/news/${n.id}`} className="block no-underline">
-                    {n.imageUrl && (
-                      <div className="relative overflow-hidden">
-                        <SecureImage src={n.imageUrl} alt={n.title} className="w-full h-48 object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
-                        {n.category && (
-                          <div className="absolute top-4 left-4">
-                            <span className={`px-3 py-1 ${catColor(n.category)} rounded-full text-xs font-semibold`}>
-                              {n.category}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    <div className="p-6">
-                      <time className="text-sm text-gray-500 flex items-center gap-2 mb-3">
-                        <i className="far fa-calendar-alt text-primary" />{fmtDate(n.createdAt)}
+                // Карточки одной высоты в ряду (grid stretch + flex-колонка): «Читать далее» всегда внизу,
+                // независимо от длины заголовка/текста и наличия фото.
+                <article key={n.id} className="flex h-full flex-col bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 group">
+                  <Link to={`/news/${n.id}`} className="flex flex-1 flex-col no-underline">
+                    <div className="relative aspect-[16/10] overflow-hidden">
+                      <CroppedImage src={n.imageThumbnailUrl ?? n.imageUrl} crop={n.imageCrop} fill alt={n.title}
+                        className="!rounded-none transition duration-500 group-hover:scale-105"
+                        placeholder={<MediaPlaceholder kind="news" />} />
+                      {n.category && (
+                        <div className="absolute top-4 left-4">
+                          <span className={`px-3 py-1 ${catColor(n.category)} rounded-full text-[0.8125rem] font-semibold`}>
+                            {n.category}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-1 flex-col p-6">
+                      <time className="vol-meta flex items-center gap-2 mb-3">
+                        <i className="far fa-calendar-alt text-primary" aria-hidden />{fmtDate(n.createdAt)}
                       </time>
-                      <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary transition line-clamp-2">{n.title}</h3>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-3">{n.content}</p>
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <h3 className="vol-h3 mb-3 group-hover:text-primary transition line-clamp-2">{n.title}</h3>
+                      <p className="vol-text-sm mb-4 line-clamp-3">{n.summary || n.content}</p>
+                      <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-100">
                         {n.authorName && (
                           <div className="flex items-center gap-2 text-sm text-gray-600">
                             <i className="far fa-user text-primary" />
@@ -177,8 +182,8 @@ export function NewsPage() {
 
       {/* PAGINATION */}
       {totalPages > 1 && (
-        <section className="py-8 bg-gray-50 border-t border-gray-200">
-          <div className="container mx-auto px-4 max-w-7xl">
+        <section className="py-8">
+          <div className="wrap max-w-7xl">
             <div className="flex justify-center items-center gap-2">
               {page > 1 && (
                 <button onClick={() => goPage(page - 1)} className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
