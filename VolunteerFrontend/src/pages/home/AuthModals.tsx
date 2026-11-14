@@ -21,8 +21,8 @@ export function LoginModal({ onClose, onSwitch }: { onClose: () => void; onSwitc
     return (
         <form onSubmit={submit} className="space-y-4">
             {error && <div role="alert" className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm">{error}</div>}
-            {error && <ResendHint email={email} onNavigate={onClose} dark />}
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Email</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="your@email.com" /></div>
+            {error && <ResendHint email={email.includes('@') ? email : ''} onNavigate={onClose} dark />}
+            <div><label htmlFor="modal-login-name" className="block text-sm font-medium text-gray-700 mb-1">Email или логин</label><input id="modal-login-name" type="text" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="username" autoCapitalize="none" spellCheck={false} maxLength={256} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="your@email.com или логин" /></div>
             <div>
                 <div className="flex justify-between mb-1"><label className="block text-sm font-medium text-gray-700">Пароль</label><Link to="/forgot-password" onClick={onClose} className="text-sm text-blue-600 hover:underline">Забыли пароль?</Link></div>
                 <input type="password" value={pw} onChange={e => setPw(e.target.value)} required autoComplete="current-password" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="••••••••" />

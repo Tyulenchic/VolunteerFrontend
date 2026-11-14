@@ -127,6 +127,8 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
           await adminApi.deleteNewsImage(news.id);
         } else if (photo?.crop && currentImageUrl) {
           await adminApi.setNewsImageCrop(news.id, photo.crop);
+        } else if (photo?.cropReset && currentImageUrl) {
+          await adminApi.resetNewsImageCrop(news.id);
         }
         notify('Новость обновлена');
       } else {

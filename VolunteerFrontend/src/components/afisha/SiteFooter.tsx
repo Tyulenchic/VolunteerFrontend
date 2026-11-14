@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { VolIcon, VolLogo, type IconName } from './VolIcon';
 import { SOCIAL_PATHS } from './socialPaths';
 import footerBg from '../../assets/home/footer-bg.webp';
+import { ABOUT_TEXT_DEFAULT as ABOUT, FOOTER_TEXT_DEFAULT as F } from '../../content/defaults';
+import { useSiteText } from '../../context/SiteContentContext';
 
 const SOCIAL = [
   { key: 'vk', name: 'ВКонтакте', href: 'https://vk.com' },
@@ -20,16 +22,21 @@ const COLUMNS = [
   ] },
 ];
 
-const CONTACTS: { icon: IconName; v: string; href?: string }[] = [
-  { icon: 'mail', v: 'ump@minpros.gospmr.org', href: 'mailto:ump@minpros.gospmr.org' },
-  { icon: 'phone', v: '0 (533) 2-22-29', href: 'tel:053322229' },
-  { icon: 'pin', v: 'г. Тирасполь, ул. Мира, 27' },
-  { icon: 'clock', v: 'Пн–Пт: 8:00–17:00' },
-];
-
 const LEGAL = [{ to: '/privacy', label: 'Политика конфиденциальности' }, { to: '/rules', label: 'Правила сайта' }, { to: '/faq', label: 'FAQ' }];
 
 export function SiteFooter() {
+  const about = useSiteText('footer.about', F.about);
+  const address = useSiteText('footer.address', F.address);
+  const hours = useSiteText('footer.hours', F.hours);
+  const copyright = useSiteText('footer.copyright', F.copyright);
+  const email = useSiteText('about.contacts.email', ABOUT.email);
+  const phone = useSiteText('about.contacts.phone', ABOUT.phone);
+  const contacts: { icon: IconName; v: string; href?: string }[] = [
+    { icon: 'mail', v: email, href: `mailto:${email.trim()}` },
+    { icon: 'phone', v: phone, href: `tel:${phone.replace(/[^\d+]/g, '')}` },
+    { icon: 'pin', v: address },
+    { icon: 'clock', v: hours },
+  ];
   return (
     <footer className="on-dark relative isolate z-10 mt-4 overflow-hidden text-white">
       <div className="vol-band vol-band-soft relative z-10" />
@@ -54,7 +61,7 @@ export function SiteFooter() {
                 <VolLogo size={34} onDark />
                 <span className="font-display truncate text-[14.5px] font-bold tracking-tight">Волонтёры Приднестровья</span>
               </Link>
-              <p className="text-[13px] leading-relaxed text-white/80">Официальный портал волонтёрского движения Приднестровья. Делаем мир лучше вместе с 2020 года.</p>
+              <p className="text-[13px] leading-relaxed text-white/80">{about}</p>
               <div className="flex gap-2.5 max-md:justify-center">
                 {SOCIAL.map(s => (
                   <a key={s.key} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name} title={s.name}
@@ -81,8 +88,8 @@ export function SiteFooter() {
             <div className="max-md:text-center">
               <h2 className="vol-label mb-3 text-vol-sky">Контакты</h2>
               <ul className="flex flex-col gap-2.5 text-[13px] max-md:items-center">
-                {CONTACTS.map(c => (
-                  <li key={c.v} className="flex items-start gap-2.5 max-md:justify-center">
+                {contacts.map(c => (
+                  <li key={c.icon} className="flex items-start gap-2.5 max-md:justify-center">
                     <span className="mt-0.5 shrink-0 text-vol-sky"><VolIcon n={c.icon} size={15} /></span>
                     <span className="min-w-0 select-text break-words font-medium text-white/90">
                       {c.href ? <a href={c.href} className="text-white/90 no-underline hover:text-white">{c.v}</a> : c.v}
@@ -95,7 +102,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-7 flex flex-col gap-1 text-center text-[12.5px] text-white/75 md:flex-row md:items-center md:justify-between md:text-left">
-          <p>© 2020–2026 Волонтёры Приднестровья. Все права защищены.</p>
+          <p>{copyright}</p>
           <div className="flex flex-wrap justify-center gap-x-4">
             {LEGAL.map(l => <Link key={l.to} to={l.to} className="inline-block py-1 text-white/75 no-underline hover:text-vol-sky">{l.label}</Link>)}
           </div>

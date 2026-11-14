@@ -58,6 +58,7 @@ export const AUDIT_ACTIONS: Record<string, { label: string; icon: string; tone: 
   DatabaseAccessDenied:      { label: 'Отказ в доступе к базе данных', icon: 'fa-shield-halved', tone: 'error' },
   DatabaseTableViewed:       { label: 'Просмотрена таблица базы данных', icon: 'fa-table', tone: 'neutral' },
   DatabaseTableExported:     { label: 'Выгружена таблица базы данных', icon: 'fa-file-export', tone: 'pending' },
+  UsersImported:             { label: 'Импортированы пользователи', icon: 'fa-file-import', tone: 'brand' },
 };
 
 export const auditAction = (type: string) =>

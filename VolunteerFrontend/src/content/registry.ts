@@ -1,5 +1,6 @@
 import {
-  ABOUT_TEAM_DEFAULT, ABOUT_TEXT_DEFAULT as T, ABOUT_VALUES_DEFAULT, FAQ_DEFAULT, PRIVACY_DEFAULT, RULES_DEFAULT,
+  ABOUT_TEAM_DEFAULT, ABOUT_TEXT_DEFAULT as T, ABOUT_VALUES_DEFAULT, FAQ_DEFAULT, FOOTER_TEXT_DEFAULT as F, HOME_FEATURES_DEFAULT,
+  HOME_PERKS_DEFAULT, HOME_STEPS_DEFAULT, HOME_TEXT_DEFAULT as H, PRIVACY_DEFAULT, RULES_DEFAULT,
 } from './defaults';
 
 /**
@@ -34,7 +35,51 @@ export interface ContentGroup {
   entries: ContentEntry[];
 }
 
+const TITLED_FIELDS: FieldSchema[] = [
+  { key: 't', label: 'Название', type: 'text' },
+  { key: 'd', label: 'Описание', type: 'text' },
+];
+
 export const CONTENT_GROUPS: ContentGroup[] = [
+  {
+    id: 'home', title: 'Главная', icon: 'fa-house', path: '/',
+    entries: [
+      { key: 'home.hero.title', label: 'Первый экран — заголовок', type: 'text', default: H.heroTitle },
+      { key: 'home.hero.accent', label: 'Первый экран — выделенное окончание заголовка', type: 'text', default: H.heroAccent, hint: 'Показывается синим цветом после заголовка.' },
+      { key: 'home.hero.lead', label: 'Первый экран — абзац под заголовком', type: 'textarea', default: H.heroLead },
+      { key: 'home.features.title', label: 'Возможности портала — заголовок', type: 'text', default: H.featuresTitle },
+      { key: 'home.features.sub', label: 'Возможности портала — подзаголовок', type: 'text', default: H.featuresSub },
+      {
+        key: 'home.features.items', label: 'Возможности портала — карточки', type: 'list', itemLabel: 'карточка', default: HOME_FEATURES_DEFAULT,
+        hint: 'Показываются первые четыре карточки по порядку. Ссылки и цвета карточек заданы в коде и от текста не зависят.',
+        fields: TITLED_FIELDS,
+      },
+      { key: 'home.community.title', label: 'Сообщество — заголовок', type: 'text', default: H.communityTitle },
+      { key: 'home.community.lead', label: 'Сообщество — абзац', type: 'textarea', default: H.communityLead },
+      {
+        key: 'home.community.perks', label: 'Сообщество — преимущества', type: 'list', itemLabel: 'преимущество', default: HOME_PERKS_DEFAULT,
+        fields: TITLED_FIELDS,
+      },
+      { key: 'home.steps.title', label: 'Как начать путь — заголовок', type: 'text', default: H.stepsTitle },
+      { key: 'home.steps.sub', label: 'Как начать путь — подзаголовок', type: 'text', default: H.stepsSub },
+      {
+        key: 'home.steps.items', label: 'Как начать путь — шаги', type: 'list', itemLabel: 'шаг', default: HOME_STEPS_DEFAULT,
+        hint: 'Показываются первые четыре шага: нумерация и сетка рассчитаны на четыре.',
+        fields: TITLED_FIELDS,
+      },
+      { key: 'home.feedback.title', label: 'Обратная связь — заголовок', type: 'text', default: H.feedbackTitle },
+      { key: 'home.feedback.text', label: 'Обратная связь — абзац', type: 'textarea', default: H.feedbackText },
+    ],
+  },
+  {
+    id: 'footer', title: 'Подвал сайта', icon: 'fa-table-columns', path: '/',
+    entries: [
+      { key: 'footer.about', label: 'Описание портала', type: 'textarea', default: F.about },
+      { key: 'footer.address', label: 'Адрес', type: 'text', default: F.address, hint: 'Почта и телефон в подвале берутся из «О нас → Контакты»: меняйте их там.' },
+      { key: 'footer.hours', label: 'Часы работы', type: 'text', default: F.hours },
+      { key: 'footer.copyright', label: 'Строка об авторских правах', type: 'text', default: F.copyright },
+    ],
+  },
   {
     id: 'faq', title: 'Вопросы и ответы (FAQ)', icon: 'fa-circle-question', path: '/faq',
     entries: [{

@@ -40,13 +40,14 @@ export function LoginPage() {
           <p className="text-gray-600 mt-1">Добро пожаловать обратно!</p>
         </div>
         {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm">{error}</div>}
-        {error && <ResendHint email={email} />}
+        {error && <ResendHint email={email.includes('@') ? email : ''} />}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email"
+            <label htmlFor="login-name" className="block text-sm font-medium text-gray-700 mb-1">Email или логин</label>
+            <input id="login-name" type="text" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="username"
+              autoCapitalize="none" spellCheck={false} maxLength={256}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
-              placeholder="your@email.com" />
+              placeholder="your@email.com или логин" />
           </div>
           <div>
             <div className="flex justify-between mb-1">

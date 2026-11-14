@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { useApiError } from '../../hooks/useApiError';
 import { usersApi } from '../../api/users';
+import { authApi } from '../../api/auth';
 import { eventsApi } from '../../api/events';
 import { publicUsersApi } from '../../api/publicUsers';
 import { Spinner } from '../../components/Spinner';
@@ -81,6 +82,8 @@ export function ProfilePage() {
 
   const [deleteInput, setDeleteInput] = useState('');
   const [deleting,    setDeleting]    = useState(false);
+  const [revoking,    setRevoking]    = useState(false);
+  const [confirmRevoke, setConfirmRevoke] = useState(false);
   const CONFIRM_WORD = 'УДАЛИТЬ';
 
   const [withdrawingId, setWithdrawingId] = useState<string | null>(null);
@@ -190,6 +193,15 @@ export function ProfilePage() {
       setCurPw(''); setNewPw(''); setConfPw('');
     } catch(err) { capture(err); }
     finally { setPwLoading(false); }
+  };
+
+  const revokeAll = async () => {
+    setRevoking(true);
+    try {
+      await authApi.revokeAll();
+      notify('Вы вышли на всех устройствах', 'info');
+      navigate('/login');
+    } catch(err) { capture(err); setRevoking(false); }
   };
 
   const deleteAccount = async () => {
@@ -489,6 +501,26 @@ export function ProfilePage() {
                     {pwLoading ? 'Сохранение…' : <><i className="fas fa-key" aria-hidden />Изменить пароль</>}
                   </Button>
                 </form>
+              </div>
+            )}
+
+            {tab === 'security' && (
+              <div className="mt-8 border-t border-vol-line pt-6">
+                <h2 className="vol-h3 mb-2">Выход на всех устройствах</h2>
+                <p className="vol-text-sm mb-4">
+                  Если вы входили с чужого компьютера или потеряли телефон — завершите все сеансы. Войти заново придётся и на этом устройстве.
+                </p>
+                {!confirmRevoke ? (
+                  <Button variant="secondary" size="lg" onClick={() => setConfirmRevoke(true)}>
+                    <i className="fas fa-right-from-bracket" aria-hidden />Выйти на всех устройствах
+                  </Button>
+                ) : (
+                  <div role="alertdialog" aria-label="Подтверждение выхода на всех устройствах" className="flex flex-wrap items-center gap-3">
+                    <span className="vol-text-sm">Завершить все сеансы, включая этот?</span>
+                    <Button variant="danger" size="lg" onClick={revokeAll} loading={revoking}>Выйти везде</Button>
+                    <Button variant="secondary" size="lg" onClick={() => setConfirmRevoke(false)} disabled={revoking}>Отмена</Button>
+                  </div>
+                )}
               </div>
             )}
 

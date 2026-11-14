@@ -10,6 +10,8 @@ import type {
   AdminAnalyticsDto,
   UnreadNotificationsResponseDto,
   AdminNotificationDto,
+  AdminEventStatisticsDto,
+  UserDossierDto,
 } from '../types/admin';
 import type { AuditLogEntryDto } from '../types/audit';
 import type { EventResponseDto } from '../types/event';
@@ -49,6 +51,12 @@ export const adminApi = {
 
   async getUserDetail(userId: string) {
     const res = await apiClient.get<AdminUserDetailDto>(`${API_BASE}/users/${userId}`);
+    return res.data;
+  },
+
+  /** Досье одним ответом; просмотр записывается в журнал действий. */
+  async getUserDossier(userId: string): Promise<UserDossierDto> {
+    const res = await apiClient.get<UserDossierDto>(`${API_BASE}/users/${userId}/dossier`);
     return res.data;
   },
 
@@ -168,12 +176,28 @@ export const adminApi = {
     return res.data;
   },
 
+  /** Сбросить кадр: фото показывается целиком. */
+  async resetEventImageCrop(eventId: string): Promise<EventResponseDto> {
+    const res = await apiClient.delete<EventResponseDto>(`/api/events/${eventId}/image/crop`);
+    return res.data;
+  },
+
+  async resetNewsImageCrop(newsId: string): Promise<NewsResponseDto> {
+    const res = await apiClient.delete<NewsResponseDto>(`/api/news/${newsId}/image/crop`);
+    return res.data;
+  },
+
   async deleteNewsImage(newsId: string) {
     await apiClient.delete(`/api/news/${newsId}/image`);
   },
 
   async deleteEventImage(eventId: string) {
     await apiClient.delete(`/api/events/${eventId}/image`);
+  },
+
+  async getEventStatistics(eventId: string): Promise<AdminEventStatisticsDto> {
+    const res = await apiClient.get<AdminEventStatisticsDto>(`${API_BASE}/events/${eventId}/statistics`);
+    return res.data;
   },
 
   async publishEvent(eventId: string) {
@@ -326,6 +350,12 @@ export const adminApi = {
     return res.data;
   },
 
+  /** Лёгкий запрос для значка на колокольчике: только число непрочитанных. */
+  async getUnreadNotificationCount(): Promise<number> {
+    const res = await apiClient.get<{ unreadCount: number }>(`${API_BASE}/notifications/unread-count`);
+    return res.data.unreadCount;
+  },
+
   async markNotificationAsRead(notificationId: string) {
     await apiClient.post(`${API_BASE}/notifications/${notificationId}/read`);
   },
@@ -355,4 +385,45 @@ export const adminApi = {
     );
     return res.data;
   },
+
+  // ==================== IMPORT ====================
+
+  /** Одна порция CSV-выгрузки пользователей WordPress. dryRun — только проверка, без записи. */
+  async importWordPressUsers(csv: string, firstLine: number, dryRun: boolean) {
+    const form = new FormData();
+    form.append('file', new Blob([csv], { type: 'text/csv' }), 'users.csv');
+    form.append('firstLine', String(firstLine));
+    form.append('dryRun', String(dryRun));
+    const res = await apiClient.post<ImportReportDto>(`${API_BASE}/import/wordpress-users`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+
+  /** Одна порция пользователей из таблиц WordPress в этой же базе (по ID, начиная после afterId). dryRun — только проверка. */
+  async importWordPressDatabase(prefix: string, afterId: number, dryRun: boolean) {
+    const res = await apiClient.post<ImportDatabaseReportDto>(`${API_BASE}/import/wordpress-database`, { prefix, afterId, dryRun });
+    return res.data;
+  },
 };
+
+export interface ImportIssueDto {
+  line: number;
+  wpId: number | null;
+  reason: string;
+}
+
+export interface ImportReportDto {
+  created: number;
+  updated: number;
+  skipped: ImportIssueDto[];
+  warnings: ImportIssueDto[];
+}
+
+export interface ImportDatabaseReportDto extends ImportReportDto {
+  /** Сколько пользователей в таблице WordPress всего. */
+  total: number;
+  /** ID последнего обработанного пользователя: с него начинается следующая порция. */
+  lastId: number;
+  done: boolean;
+}

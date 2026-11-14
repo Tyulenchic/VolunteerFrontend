@@ -239,6 +239,8 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
           await adminApi.deleteEventImage(event.id);
         } else if (photo?.crop && currentImageUrl) {
           await adminApi.setEventImageCrop(event.id, photo.crop);
+        } else if (photo?.cropReset && currentImageUrl) {
+          await adminApi.resetEventImageCrop(event.id);
         }
         notify('Мероприятие обновлено');
       } else {

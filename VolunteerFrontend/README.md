@@ -7,14 +7,14 @@
 ```bash
 npm install
 cp .env.example .env      # VITE_API_URL — публичный адрес API (не секрет, попадает в сборку)
-npm run dev               # http://localhost:3000, прокси /api -> https://localhost:7227 (vite.config.ts)
+npm run dev               # http://localhost:3000, прокси /api -> http://127.0.0.1:8000 (vite.config.ts), локальный PHP-API
 npm run typecheck         # tsc без emit
 npm run lint              # eslint (eslint.config.js); ошибок нет, предупреждения — на доработку
 npm test                  # vitest (jsdom)
 npm run build             # tsc -b && vite build -> dist/
 ```
 
-В production-сборке `VITE_API_URL` обязателен (`src/config.ts` падает при его отсутствии). Деплой — GitHub Pages (`.github/workflows/deploy.yml`: тесты → проверка `VITE_API_URL` → сборка). Роутер — `HashRouter`, поэтому ссылки вида `/#/events/...` работают на статическом хостинге.
+В production-сборке `VITE_API_URL` должен быть задан (`src/config.ts` падает, если переменной нет совсем). Пустое значение — API на том же домене, что и сайт (так и выкладывается на хостинг по FTP: папка `dist/` кладётся в корень сайта). Роутер — `HashRouter`, поэтому ссылки вида `/#/events/...` работают на статическом хостинге.
 
 ## Структура `src/`
 

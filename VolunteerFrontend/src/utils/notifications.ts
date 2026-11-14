@@ -17,7 +17,7 @@ export function parseNotificationData(data: string | null): TargetIds {
 const STAFF_ROUTES: Record<string, { admin?: string; organizer?: string }> = {
   AvatarPendingModeration: { admin: '/admin/moderation' },
   FeedbackReceived: { admin: '/admin/feedback' },
-  UserComplaintReceived: { admin: '/admin/moderation' },
+  UserComplaintReceived: { admin: '/admin/moderation?tab=reports' },
   NewOrganizationApplication: { admin: '/admin/organizations', organizer: '/organizer/applications' },
   NewParticipationApplication: { admin: '/admin/participations', organizer: '/organizer/participations' },
 };

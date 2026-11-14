@@ -17,6 +17,7 @@ import { Segmented } from '../../components/ui/Segmented';
 import { CardGridSkeleton, ListSkeleton } from '../../components/ui/Skeleton';
 import { STATUS_TONE, StatusBadge } from '../../components/ui/StatusBadge';
 import { EventFormModal } from './EventFormModal';
+import { EventStatisticsModal } from '../../components/admin/EventStatisticsModal';
 import type { AdminEventListDto } from '../../types/admin';
 
 const TAKE = 20;
@@ -51,6 +52,7 @@ export function AdminEventsPage() {
   const beginRequest = useLatestRequest();
   const [view, setView] = useState<View>(readView);
   const [selectedEvent, setSelectedEvent] = useState<AdminEventListDto | null>(null);
+  const [statsFor, setStatsFor] = useState<AdminEventListDto | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   const setStatus = (s: string) => { setParams(s ? { status: s } : {}, { replace: true }); };
@@ -110,6 +112,7 @@ export function AdminEventsPage() {
 
   const menuFor = (ev: AdminEventListDto): MenuAction[] => [
     { label: 'Редактировать', icon: 'fa-pen', onSelect: () => edit(ev) },
+    { label: 'Статистика', icon: 'fa-chart-simple', onSelect: () => setStatsFor(ev) },
     { label: 'Опубликовать', icon: 'fa-upload', onSelect: () => publish(ev), hidden: ev.status !== 'Draft' },
     { label: 'Завершить', icon: 'fa-flag-checkered', onSelect: () => complete(ev), hidden: ev.status !== 'Published' },
     { label: 'В архив', icon: 'fa-box-archive', onSelect: () => archive(ev), hidden: ev.status !== 'Completed' },
@@ -177,6 +180,7 @@ export function AdminEventsPage() {
         onSuccess={() => { load(); setSelectedEvent(null); }}
         event={selectedEvent}
       />
+      {statsFor && <EventStatisticsModal eventId={statsFor.id} title={statsFor.title} onClose={() => setStatsFor(null)} />}
     </div>
   );
 }

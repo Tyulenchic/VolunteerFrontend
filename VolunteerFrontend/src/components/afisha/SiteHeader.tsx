@@ -6,6 +6,7 @@ import { useNotification } from '../../context/NotificationContext';
 import { UserNotificationBell } from '../notifications/UserNotificationBell';
 import { VolIcon, VolLogo } from './VolIcon';
 import { Avatar } from '../ui/Avatar';
+import { useOwnAvatarThumb } from '../../hooks/useOwnAvatarThumb';
 
 const NAV = [
   { to: '/', label: 'Главная' },
@@ -33,6 +34,7 @@ const headBtn = 'press-flat vol-tap-2 relative hidden h-9 items-center rounded-c
 
 export function SiteHeader() {
   const { user, logout, isAdmin, isOrganizer } = useAuth();
+  const avatarThumb = useOwnAvatarThumb();
   const { notify } = useNotification();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -122,7 +124,7 @@ export function SiteHeader() {
             <>
               <UserNotificationBell />
               <Link to="/profile" className="press-flat vol-tap-2 relative flex items-center gap-2 no-underline text-vol-fg" aria-label="Профиль">
-                <Avatar name={displayName || '?'} thumb={user.avatarThumbnailUrl} src={user.avatarUrl} crop={user.avatarCrop} size="sm" />
+                <Avatar name={displayName || '?'} thumb={avatarThumb} src={user.avatarUrl} crop={user.avatarCrop} size="sm" />
                 <span className="hidden max-w-[10rem] truncate text-meta font-medium sm:inline lg:hidden 2xl:inline">{displayName}</span>
               </Link>
               <button type="button" onClick={handleLogout}
@@ -159,6 +161,7 @@ function MobileMenu({ closing, pathname, displayName, onClose, onContacts, onLog
   closing: boolean; pathname: string; displayName: string; onClose: () => void; onContacts: () => void; onLogout: () => void;
 }) {
   const { user, isAdmin, isOrganizer } = useAuth();
+  const avatarThumb = useOwnAvatarThumb();
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -189,7 +192,7 @@ function MobileMenu({ closing, pathname, displayName, onClose, onContacts, onLog
         <div className="flex h-[3.75rem] shrink-0 items-center justify-between gap-3 border-b border-vol-line px-4">
           {user ? (
             <Link to="/profile" className="press-flat flex min-w-0 items-center gap-2.5 no-underline text-vol-fg">
-              <Avatar name={displayName || '?'} thumb={user.avatarThumbnailUrl} src={user.avatarUrl} crop={user.avatarCrop} size="sm" />
+              <Avatar name={displayName || '?'} thumb={avatarThumb} src={user.avatarUrl} crop={user.avatarCrop} size="sm" />
               <span className="min-w-0">
                 <span className="block truncate text-ctrl font-semibold">{displayName}</span>
                 <span className="block text-meta text-vol-faint">Мой профиль</span>

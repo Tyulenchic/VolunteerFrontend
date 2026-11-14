@@ -14,7 +14,7 @@ import { CONTENT_GROUPS, parseStored, serialize, type ContentEntry } from '../..
 import { adminErrorMessage } from '../../utils/adminErrors';
 
 /**
- * «Тексты сайта»: администратор правит содержимое статических страниц (FAQ, «О нас», правила, политика) без обращения к коду.
+ * «Тексты сайта»: администратор правит содержимое главной, подвала и статических страниц (FAQ, «О нас», правила, политика) без обращения к коду.
  * Сохранённое тут показывается на сайте вместо исходного текста; «Вернуть исходный» удаляет изменение.
  */
 export function AdminContentPage() {
@@ -27,7 +27,7 @@ export function AdminContentPage() {
   return (
     <div className="space-y-5">
       <PageHeader title="Тексты сайта"
-        description="Правьте тексты страниц «О нас», FAQ, правил и политики конфиденциальности. Изменения сразу видны посетителям; исходный текст всегда можно вернуть." />
+        description="Правьте тексты главной страницы, подвала, «О нас», FAQ, правил и политики конфиденциальности. Изменения сразу видны посетителям; исходный текст всегда можно вернуть." />
 
       <Segmented label="Страница" value={groupId} onChange={setGroupId}
         options={CONTENT_GROUPS.map(g => ({ value: g.id, label: g.title, icon: g.icon }))} />

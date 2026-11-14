@@ -15,6 +15,7 @@ const ORGANIZER_LINKS: Record<string, string> = {
 /** Куда вести по нажатию на уведомление администратора. */
 const ADMIN_LINKS: Record<string, string> = {
   AvatarPendingModeration: '/admin/moderation',
+  UserComplaintReceived: '/admin/moderation?tab=reports',
   FeedbackReceived: '/admin/feedback',
 };
 
@@ -36,19 +37,25 @@ export function NotificationBell({ source = 'admin' }: { source?: 'admin' | 'org
         setItems(list.items as AdminNotificationDto[]);
         setCount(unread);
       } else {
-        const r = await adminApi.getUnreadNotifications();
+        const [r, unread] = await Promise.all([adminApi.getUnreadNotifications(), adminApi.getUnreadNotificationCount()]);
         setItems(r.notifications ?? []);
-        setCount(r.unreadCount ?? 0);
+        setCount(unread);
       }
     } catch { /* bell stays quiet if notifications are unavailable */ }
   }, [source]);
 
-  useEffect(() => { load(); }, [load]);
-  // Новые заявки приходят, пока организатор сидит в кабинете, — опрашиваем раз в минуту (без WebSocket на сервере).
+  // Фоновый опрос: администратору хватает лёгкого счётчика, список загружается при открытии колокольчика.
+  const poll = useCallback(async () => {
+    if (source === 'organizer') { await load(); return; }
+    try { setCount(await adminApi.getUnreadNotificationCount()); } catch { /* bell stays quiet */ }
+  }, [source, load]);
+
+  useEffect(() => { void poll(); }, [poll]);
+  // Новые события приходят, пока пользователь сидит в кабинете, — опрашиваем раз в минуту (без WebSocket на сервере).
   useEffect(() => {
-    const t = setInterval(() => { if (!document.hidden) void load(); }, 60_000);
+    const t = setInterval(() => { if (!document.hidden) void poll(); }, 60_000);
     return () => clearInterval(t);
-  }, [load]);
+  }, [poll]);
 
   useEffect(() => {
     if (!open) return;

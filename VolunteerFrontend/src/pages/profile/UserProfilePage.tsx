@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { publicUsersApi } from '../../api/publicUsers';
 import { Spinner } from '../../components/Spinner';
 import { PublicProfileView, publicName } from '../../components/profile/PublicProfileView';
+import { ReportUserButton } from '../../components/profile/ReportUserDialog';
 import { ProfilePage } from './ProfilePage';
 import { useAuth } from '../../context/AuthContext';
 import type { PublicUserDto } from '../../types/user';
@@ -20,6 +21,7 @@ export function UserProfilePage() {
 
 function OtherUserProfile({ id }: { id?: string }) {
   const location = useLocation();
+  const { user: me } = useAuth();
   const [user, setUser] = useState<PublicUserDto | null>(null);
   const [loading, setLoading] = useState(true);
   const from: { path: string; label: string } = location.state?.from ?? { path: '/volunteers', label: 'Волонтёры' };
@@ -53,6 +55,11 @@ function OtherUserProfile({ id }: { id?: string }) {
           <span className="text-gray-700">{publicName(user)}</span>
         </div>
         <PublicProfileView user={user} />
+        {me && (
+          <div className="mt-6 flex justify-end">
+            <ReportUserButton userId={user.id} userName={publicName(user)} />
+          </div>
+        )}
       </div>
     </div>
   );

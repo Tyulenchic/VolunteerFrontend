@@ -58,6 +58,7 @@ const AdminParticipationsPage = lazy(() => import('./pages/admin/AdminParticipat
 const AdminNewsPage = lazy(() => import('./pages/admin/AdminNewsPage').then(m => ({ default: m.AdminNewsPage })));
 const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage').then(m => ({ default: m.AdminAnalyticsPage })));
 const AdminDatabasePage = lazy(() => import('./pages/admin/AdminDatabasePage').then(m => ({ default: m.AdminDatabasePage })));
+const AdminImportPage = lazy(() => import('./pages/admin/AdminImportPage').then(m => ({ default: m.AdminImportPage })));
 const AdminAuditLogPage = lazy(() => import('./pages/admin/AdminAuditLogPage').then(m => ({ default: m.AdminAuditLogPage })));
 const MyFeedPage = lazy(() => import('./pages/feed/MyFeedPage').then(m => ({ default: m.MyFeedPage })));
 const AdminVideoLinksPage = lazy(() => import('./pages/admin/AdminVideoLinksPage').then(m => ({ default: m.AdminVideoLinksPage })));
@@ -166,6 +167,7 @@ export default function App() {
               <Route path="/admin/analytics"       element={<WAL><AdminAnalyticsPage /></WAL>} />
               <Route path="/admin/audit-log"       element={<WAL><AdminAuditLogPage /></WAL>} />
               <Route path="/admin/database"        element={<WAL><AdminDatabasePage /></WAL>} />
+              <Route path="/admin/import"          element={<WAL><AdminImportPage /></WAL>} />
             </Route>
 
             {/* ── 404 ─────────────────────────────────────────── */}

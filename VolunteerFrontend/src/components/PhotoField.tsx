@@ -25,6 +25,8 @@ export interface PhotoSelection {
   previewSrc: string | null;
   /** Пользователь убрал существующее фото. */
   removed?: boolean;
+  /** Кадр сохранённого фото сброшен: показывать целиком (DELETE …/image/crop). */
+  cropReset?: boolean;
 }
 
 /** Отправляет выбранный файл «черновой» загрузкой и возвращает imageId + кадр для создания сущности. */
@@ -75,6 +77,12 @@ export function PhotoField({ purpose, label, selection, onChange, existingUrl, e
           {has && (
             <Button type="button" variant="ghost" size="sm" disabled={disabled} onClick={() => setEditing('crop')}>
               <i className="fas fa-crop-simple" aria-hidden /> Изменить кадр
+            </Button>
+          )}
+          {has && crop && (
+            <Button type="button" variant="ghost" size="sm" disabled={disabled}
+              onClick={() => onChange({ file: selection?.file ?? null, crop: null, previewSrc: selection?.previewSrc ?? null, removed: false, cropReset: !selection?.file })}>
+              <i className="fas fa-expand" aria-hidden /> Сбросить кадр
             </Button>
           )}
           {has && (

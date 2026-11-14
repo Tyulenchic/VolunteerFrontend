@@ -4,6 +4,9 @@ import { downloadFile, type DossierFormat } from '../utils/downloadFile';
 import type { ImageCropDto } from '../types/organization';
 import type { UserResponseDto, UpdateProfileDto, ChangePasswordDto } from '../types/user';
 
+/** Миниатюра собственного аватара независимо от модерации; отдаётся только с токеном. */
+export const OWN_AVATAR_THUMBNAIL_URL = '/api/users/me/avatar/thumbnail';
+
 export const usersApi = {
   // ── Self ──────────────────────────────────────────────────────────────────
   getMe: async (): Promise<UserResponseDto> => {
@@ -28,6 +31,10 @@ export const usersApi = {
   // Только кадр — без повторной загрузки файла и без повторной проверки модератором.
   setAvatarCrop: async (crop: ImageCropDto): Promise<void> => {
     await apiClient.put('/api/users/me/avatar/crop', crop);
+  },
+  // Сбросить кадр: показывать центральный квадрат.
+  resetAvatarCrop: async (): Promise<void> => {
+    await apiClient.delete('/api/users/me/avatar/crop');
   },
   deleteAvatar: async (): Promise<void> => {
     await apiClient.delete('/api/users/me/avatar');

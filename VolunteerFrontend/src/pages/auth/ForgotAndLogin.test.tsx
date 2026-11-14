@@ -49,7 +49,7 @@ describe("LoginPage", () => {
     { path: "/profile", element: <div>PROFILE</div> },
   ];
   const login = (email = "user@example.test", password = "wrong-password") => {
-    fireEvent.change(screen.getByPlaceholderText("your@email.com"), { target: { value: email } });
+    fireEvent.change(screen.getByLabelText("Email или логин"), { target: { value: email } });
     fireEvent.change(screen.getByPlaceholderText("••••••••"), { target: { value: password } });
     fireEvent.click(screen.getByRole("button", { name: "Войти" }));
   };
@@ -83,6 +83,17 @@ describe("LoginPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /Отправить письмо ещё раз/ }));
     await waitFor(() => expect(server.publicCalls.some(c => c.url === "/api/auth/resend-confirmation")).toBe(true));
     expect(server.publicCalls.at(-1)).toMatchObject({ body: { email: "me@example.test" } });
+  });
+
+  it("accepts a WordPress login instead of an email and does not prefill the resend form with it", async () => {
+    renderRoutes(routes, ["/login"]);
+    login("  wp_user_01 ");
+
+    await waitFor(() => expect(server.publicCalls.some(c => c.url === "/api/auth/login")).toBe(true));
+    expect(server.publicCalls.find(c => c.url === "/api/auth/login")).toMatchObject({ body: { email: "wp_user_01" } });
+    fireEvent.click(await screen.findByRole("link", { name: "Отправить ещё раз" }));
+    const input = (await screen.findByPlaceholderText("your@email.com")) as HTMLInputElement;
+    expect(input.value).toBe("");
   });
 
   it.each([

@@ -26,12 +26,13 @@ const NAV: NavGroup[] = [
   { title: 'Контент', items: [
     { to: '/admin/news',   icon: 'fa-newspaper', label: 'Новости' },
     { to: '/admin/videos', icon: 'fa-video',     label: 'Видеоотчёты' },
-    { to: '/admin/moderation', icon: 'fa-user-check', label: 'Модерация аватаров' },
+    { to: '/admin/moderation', icon: 'fa-user-check', label: 'Модерация' },
     { to: '/admin/content', icon: 'fa-pen-to-square', label: 'Тексты сайта' },
   ]},
   { title: 'Система', items: [
     { to: '/admin/audit-log', icon: 'fa-clock-rotate-left', label: 'Журнал действий' },
     { to: '/admin/database',  icon: 'fa-database',          label: 'База данных' },
+    { to: '/admin/import',    icon: 'fa-file-import',       label: 'Импорт пользователей' },
   ]},
 ];
 

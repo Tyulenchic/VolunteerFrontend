@@ -1,13 +1,7 @@
 import { VolButton } from '../../../components/afisha/VolButton';
 import people from '../../../assets/home/community.webp';
-
-// Static content: there is no API for these blocks.
-const PERKS = [
-  { t: 'Общение', d: 'С единомышленниками из разных городов' },
-  { t: 'Обмен опытом', d: 'Делимся знаниями и идеями' },
-  { t: 'Совместные проекты', d: 'Запускаем инициативы вместе' },
-  { t: 'Поддержка', d: 'Мотивируем друг друга' },
-] as const;
+import { HOME_PERKS_DEFAULT, HOME_TEXT_DEFAULT as H } from '../../../content/defaults';
+import { useSiteJson, useSiteText } from '../../../context/SiteContentContext';
 
 interface Props {
   isAuthenticated: boolean;
@@ -19,18 +13,21 @@ interface Props {
  * единственный тёмный (изумрудный) контейнер — список преимуществ. Декор скрыт на телефоне, фото уходит под текст.
  */
 export function Community({ isAuthenticated, onRegister }: Props) {
+  const title = useSiteText('home.community.title', H.communityTitle);
+  const lead = useSiteText('home.community.lead', H.communityLead);
+  const perks = useSiteJson('home.community.perks', HOME_PERKS_DEFAULT);
   return (
     <section className="wrap relative z-10 pb-[var(--section-y)]" aria-labelledby="community-title">
       <div className="grid items-center gap-10 sm:gap-12 lg:grid-cols-[1.1fr_.9fr] lg:gap-16">
         <div className="min-w-0 max-lg:text-center">
-          <h2 id="community-title" className="vol-h2">Наше сообщество</h2>
+          <h2 id="community-title" className="vol-h2">{title}</h2>
           <p className="mt-3 max-w-[34rem] text-body-sm text-vol-muted max-lg:mx-auto">
-            Волонтёры Приднестровья — это большая команда неравнодушных людей, которые меняют Приднестровье к лучшему каждый день.
+            {lead}
           </p>
 
           <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-4 rounded-sheet bg-vol-emerald p-4 text-left text-white shadow-float sm:gap-x-8 sm:gap-y-5 sm:p-8">
-            {PERKS.map(p => (
-              <li key={p.t} className="min-w-0">
+            {perks.map((p, i) => (
+              <li key={i} className="min-w-0">
                 <span className="flex items-center gap-2.5">
                   <span className="h-2 w-2 shrink-0 rounded-full bg-vol-sky" aria-hidden="true" />
                   <span className="font-display text-body-sm font-bold leading-tight sm:text-h3">{p.t}</span>

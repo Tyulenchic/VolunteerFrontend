@@ -6,6 +6,7 @@ import { adminErrorMessage } from '../../utils/adminErrors';
 import { useApiError } from '../../hooks/useApiError';
 import { Modal } from '../../components/Modal';
 import { DossierExportButtons } from '../../components/DossierExportButtons';
+import { DossierModal } from '../../components/admin/DossierModal';
 import { useConfirm } from '../../components/ui/ConfirmDialog';
 import { ActionMenu } from '../../components/ui/ActionMenu';
 import { Avatar } from '../../components/ui/Avatar';
@@ -52,6 +53,7 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
   const { error, setError } = useApiError();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDossier, setShowDossier] = useState(false);
 
   const name = `${user.firstName} ${user.lastName}`.trim() || user.email.split('@')[0];
 
@@ -127,10 +129,14 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
         </div>
 
         {/* Досье */}
-        <div className="border-t border-line-strong pt-4">
+        <div className="border-t border-line-strong pt-4 space-y-3">
+          <Button variant="secondary" onClick={() => setShowDossier(true)}>
+            <i className="fas fa-id-card" aria-hidden /> Открыть досье
+          </Button>
           <p className="text-ink-500 text-xs mb-2">Скачать досье пользователя</p>
           <DossierExportButtons onExport={(f) => adminApi.exportUserDossier(user.id, f)} />
         </div>
+        {showDossier && <DossierModal userId={user.id} onClose={() => setShowDossier(false)} />}
 
         {/* Actions */}
         <div className="border-t border-line-strong pt-4 space-y-2 flex flex-col">

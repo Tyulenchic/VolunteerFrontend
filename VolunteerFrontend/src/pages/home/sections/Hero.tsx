@@ -1,5 +1,7 @@
 import { VolButton } from '../../../components/afisha/VolButton';
 import heroImage from '../../../assets/home/hero.webp';
+import { HOME_TEXT_DEFAULT as H } from '../../../content/defaults';
+import { useSiteText } from '../../../context/SiteContentContext';
 
 interface Props {
   isAuthenticated: boolean;
@@ -7,6 +9,9 @@ interface Props {
 }
 
 export function Hero({ isAuthenticated, onRegister }: Props) {
+  const title = useSiteText('home.hero.title', H.heroTitle);
+  const accent = useSiteText('home.hero.accent', H.heroAccent);
+  const lead = useSiteText('home.hero.lead', H.heroLead);
   return (
     <section className="relative">
       <div className="wrap relative z-10 grid items-center lg:grid-cols-[.92fr_1.4fr] lg:gap-6 lg:pb-24 lg:pt-12">
@@ -15,10 +20,10 @@ export function Hero({ isAuthenticated, onRegister }: Props) {
             className="font-display text-[clamp(1.55rem,6.7vw,2.6rem)] font-extrabold leading-[1.1] tracking-tight text-vol-head sm:text-[clamp(2rem,5.6vw,3rem)] sm:leading-[1.08] lg:text-[clamp(2.2rem,3.4vw,3.2rem)]"
             style={{ textWrap: 'balance' }}
           >
-            Присоединяйся к добрым делам <span className="text-vol-accent">в Приднестровье</span>
+            {title} <span className="text-vol-accent">{accent}</span>
           </h1>
           <p className="mt-4 max-w-[30rem] text-[13.5px] leading-relaxed text-vol-muted max-lg:mx-auto sm:mt-5 sm:text-[14.5px] lg:mt-6 lg:max-w-[26rem]">
-            Находите мероприятия, становитесь волонтёром, помогайте и меняйте мир вокруг себя к лучшему вместе с нами.
+            {lead}
           </p>
           <div className="mt-6 grid grid-cols-[1.5fr_1fr] gap-2.5 sm:mt-8 sm:flex sm:justify-center sm:gap-3 lg:mt-9 lg:justify-start">
             <VolButton kind="primary" icon="arrow" to="/events" className="min-w-0 max-sm:px-3">

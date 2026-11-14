@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { moderationApi, type PendingAvatar } from '../../api/moderation';
+import { BlockedTermsPanel } from '../../components/admin/BlockedTermsPanel';
+import { ReportsQueue } from '../../components/admin/ReportsQueue';
 import { Modal } from '../../components/Modal';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Pagination } from '../../components/ui/Pagination';
+import { Segmented } from '../../components/ui/Segmented';
 import { EmptyState, ErrorState } from '../../components/ui/PageStates';
 import { ListSkeleton } from '../../components/ui/Skeleton';
 import { useNotification } from '../../context/NotificationContext';
@@ -25,8 +29,40 @@ function PendingPhoto({ url, name }: { url: string; name: string }) {
   );
 }
 
-/** Модерация: очередь новых аватаров. До одобрения аватар виден только своему владельцу. */
+type Tab = 'avatars' | 'reports' | 'terms';
+const TABS: Tab[] = ['avatars', 'reports', 'terms'];
+
+const DESCRIPTIONS: Record<Tab, string> = {
+  avatars: 'Новые фото профиля сначала видит только их владелец. Одобрите фото, чтобы его увидели остальные, или отклоните с причиной — пользователь получит письмо.',
+  reports: 'Жалобы пользователей на чужие профили. Выберите меру — пользователь получит письмо, решение попадёт в журнал действий.',
+  terms: 'Выражения, которые нельзя использовать в имени, «О себе» и других текстах профиля. Проверка учитывает регистр, похожие буквы и повторы.',
+};
+
+/** Модерация: очередь аватаров, жалобы на профили и словарь запрещённых выражений. Вкладка хранится в адресе (?tab=). */
 export function AdminModerationPage() {
+  const [params, setParams] = useSearchParams();
+  const requested = params.get('tab') as Tab | null;
+  const tab: Tab = requested && TABS.includes(requested) ? requested : 'avatars';
+  const [openReports, setOpenReports] = useState<number | undefined>(undefined);
+  const select = (t: Tab) => setParams(t === 'avatars' ? {} : { tab: t }, { replace: true });
+
+  return (
+    <div className="space-y-5">
+      <PageHeader title="Модерация" description={DESCRIPTIONS[tab]} />
+      <Segmented label="Раздел модерации" value={tab} onChange={select} options={[
+        { value: 'avatars', label: 'Аватары', icon: 'fa-image' },
+        { value: 'reports', label: 'Жалобы', icon: 'fa-flag', count: openReports },
+        { value: 'terms', label: 'Запрещённые выражения', icon: 'fa-ban' },
+      ]} />
+      {tab === 'avatars' && <AvatarQueue />}
+      {tab === 'reports' && <ReportsQueue onOpenCountChange={setOpenReports} />}
+      {tab === 'terms' && <BlockedTermsPanel />}
+    </div>
+  );
+}
+
+/** Очередь новых аватаров. До одобрения аватар виден только своему владельцу. */
+function AvatarQueue() {
   const { notify } = useNotification();
   const [skip, setSkip] = useState(0);
   const [items, setItems] = useState<PendingAvatar[]>([]);
@@ -69,9 +105,6 @@ export function AdminModerationPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Модерация аватаров"
-        description="Новые фото профиля сначала видит только их владелец. Одобрите фото, чтобы его увидели остальные, или отклоните с причиной — пользователь получит письмо." />
-
       {error ? <ErrorState message={error} onRetry={load} />
         : loading && items.length === 0 ? <ListSkeleton />
         : items.length === 0 ? <EmptyState icon="fa-circle-check" title="Очередь пуста" hint="Новые аватары появятся здесь и в уведомлениях." />

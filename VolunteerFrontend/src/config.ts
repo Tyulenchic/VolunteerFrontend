@@ -1,11 +1,14 @@
 // Единственный источник базового URL API. Значение берётся из VITE_API_URL на этапе сборки
-// (публичный URL, не секрет). В dev допускается пустое значение — тогда запросы идут на тот же origin
-// (прокси Vite, см. vite.config.ts); в production сборке значение обязательно.
-const raw = (import.meta.env.VITE_API_URL ?? '').trim();
+// (публичный URL, не секрет). Пустое значение означает «API на том же адресе, что и сайт»: запросы идут на тот же origin
+// (в dev — через прокси Vite, см. vite.config.ts, в production — когда сайт и API лежат на одном домене).
+// Забытая переменная (её нет в окружении сборки совсем) в production — ошибка, чтобы не выложить сайт с неверным адресом.
+const configured = import.meta.env.VITE_API_URL as string | undefined;
 
-if (!raw && import.meta.env.PROD) {
-  throw new Error('VITE_API_URL не задан: укажите публичный URL API при сборке (например, https://api.example.org).');
+if (configured === undefined && import.meta.env.PROD) {
+  throw new Error('VITE_API_URL не задан: укажите публичный URL API при сборке (например, https://api.example.org) или пустое значение, если API на том же домене.');
 }
+
+const raw = (configured ?? '').trim();
 
 export const API_BASE_URL = raw.replace(/\/+$/, '');
 

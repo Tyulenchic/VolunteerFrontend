@@ -28,6 +28,12 @@ export const authApi = {
     }
   },
 
+  // Отзывает на сервере все refresh-токены пользователя (все устройства, включая это) — локальная сессия завершается.
+  revokeAll: async (): Promise<void> => {
+    await apiClient.post("/api/auth/revoke-all");
+    clearSession();
+  },
+
   forgotPassword: async (dto: ForgotPasswordDto) => {
     await apiClient.post("/api/auth/forgot-password", dto);
   },

@@ -24,7 +24,7 @@ export function AvatarPanel() {
   const own = useAuthBlobUrl(user?.avatarPreviewUrl, user?.avatarStatus);
   const hasOwn = !!user?.avatarPreviewUrl;
 
-  const dirty = !!selection && (!!selection.file || !!selection.removed || !!selection.crop);
+  const dirty = !!selection && (!!selection.file || !!selection.removed || !!selection.crop || !!selection.cropReset);
 
   const save = async () => {
     if (!selection) return;

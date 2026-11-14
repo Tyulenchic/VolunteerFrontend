@@ -1,13 +1,9 @@
 import { BlockAction, VolButton } from '../../../components/afisha/VolButton';
 import stepsBg from '../../../assets/home/steps-bg.webp';
+import { HOME_STEPS_DEFAULT, HOME_TEXT_DEFAULT as H } from '../../../content/defaults';
+import { useSiteJson, useSiteText } from '../../../context/SiteContentContext';
 
-// Static content: there is no API for these blocks.
-const STEPS = [
-  { t: 'Зарегистрируйтесь', d: 'Заполните простую форму за 5 минут' },
-  { t: 'Заполните профиль', d: 'Расскажите о себе и своих интересах' },
-  { t: 'Выберите мероприятие', d: 'Просмотрите календарь событий' },
-  { t: 'Примите участие', d: 'Приходите и делайте мир лучше!' },
-] as const;
+const STEP_COUNT = 4;
 
 interface Props {
   isAuthenticated: boolean;
@@ -15,6 +11,9 @@ interface Props {
 }
 
 export function Steps({ isAuthenticated, onRegister }: Props) {
+  const title = useSiteText('home.steps.title', H.stepsTitle);
+  const sub = useSiteText('home.steps.sub', H.stepsSub);
+  const steps = useSiteJson('home.steps.items', HOME_STEPS_DEFAULT).slice(0, STEP_COUNT);
   return (
     <section className="on-dark relative z-10 isolate overflow-hidden py-[var(--section-y)] text-white">
       <div className="absolute inset-0 -z-10 bg-vol-head" aria-hidden="true">
@@ -35,15 +34,15 @@ export function Steps({ isAuthenticated, onRegister }: Props) {
 
       <div className="wrap">
         <div className="mb-8 max-w-2xl max-md:mx-auto max-md:text-center md:mb-14">
-          <h2 className="vol-h2">Как начать путь волонтёра</h2>
-          <p className="mt-3 text-ctrl leading-relaxed text-white/90">Всего четыре простых шага</p>
+          <h2 className="vol-h2">{title}</h2>
+          <p className="mt-3 text-ctrl leading-relaxed text-white/90">{sub}</p>
         </div>
         {/* Четыре шага всегда в одну строку. На телефоне — компактная шкала: номер на линии, под ним короткое название
             (описание остаётся для экранных чтецов); от 768px — карточки с описанием. */}
         <ol className="relative grid grid-cols-4 gap-2 sm:gap-4 md:gap-8">
           <span className="absolute inset-x-[12.5%] top-[1.125rem] h-px bg-white/35 md:hidden" aria-hidden="true" />
-          {STEPS.map((s, k) => (
-            <li key={s.t} className="group relative min-w-0 text-center md:pt-10 md:text-left">
+          {steps.map((s, k) => (
+            <li key={k} className="group relative min-w-0 text-center md:pt-10 md:text-left">
               <span className="absolute left-0 top-0 hidden h-2.5 w-2.5 rounded-full bg-vol-sky ring-[1.5px] ring-white md:block" aria-hidden="true" />
               <span className="absolute -right-8 left-5 top-[4.5px] hidden h-px bg-white/35 group-last:hidden md:block" aria-hidden="true" />
               <span className="font-display relative mx-auto grid h-9 w-9 place-items-center rounded-full bg-vol-sky text-body-sm font-extrabold tabular-nums text-vol-head ring-4 ring-[color-mix(in_srgb,var(--pal-ink)_80%,transparent)] md:hidden" aria-hidden="true">{k + 1}</span>
