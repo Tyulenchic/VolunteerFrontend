@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
-import { useSiteJson } from '../../context/SiteContentContext';
-import { PRIVACY_DEFAULT } from '../../content/defaults';
+import { useSiteJson, useSiteText } from '../../context/SiteContentContext';
+import { ABOUT_TEXT_DEFAULT, PRIVACY_DEFAULT } from '../../content/defaults';
 
 
 export function PrivacyPolicyPage() {
   const SECTIONS = useSiteJson('privacy.sections', PRIVACY_DEFAULT);
+  const contactEmail = useSiteText('about.contacts.email', ABOUT_TEXT_DEFAULT.email);
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -84,7 +85,7 @@ export function PrivacyPolicyPage() {
                 <section className="pt-8 border-t border-gray-200">
                   <p className="text-gray-500 text-sm">
                     По вопросам, связанным с данной Политикой, обращайтесь:{' '}
-                    <a href="mailto:info@volunteerspmr.org" className="text-primary hover:underline no-underline">info@volunteerspmr.org</a>
+                    <a href={`mailto:${contactEmail}`} className="text-primary hover:underline no-underline">{contactEmail}</a>
                   </p>
                 </section>
               </div>

@@ -17,6 +17,6 @@ export const API_TIMEOUT_MS = 20_000;
 
 /**
  * Ящик, с которого администратор отвечает на обращения «Написать нам» (кнопка «Ответить в Gmail» открывает
- * окно письма Gmail с этим аккаунтом). Задаётся VITE_REPLY_FROM_EMAIL; пока не задан — временная заглушка.
+ * окно письма Gmail с этим аккаунтом). Задаётся VITE_REPLY_FROM_EMAIL; пока не задан — письмо открывается в аккаунте Gmail, в котором администратор уже вошёл.
  */
-export const REPLY_FROM_EMAIL = (import.meta.env.VITE_REPLY_FROM_EMAIL ?? '').trim() || 'aenvirel@gmail.com';
+export const REPLY_FROM_EMAIL = (import.meta.env.VITE_REPLY_FROM_EMAIL ?? '').trim();

@@ -401,8 +401,8 @@ export const adminApi = {
   },
 
   /** Одна порция пользователей из таблиц WordPress в этой же базе (по ID, начиная после afterId). dryRun — только проверка. */
-  async importWordPressDatabase(prefix: string, afterId: number, dryRun: boolean) {
-    const res = await apiClient.post<ImportDatabaseReportDto>(`${API_BASE}/import/wordpress-database`, { prefix, afterId, dryRun });
+  async importWordPressDatabase(prefix: string, afterId: number, limit: number, dryRun: boolean) {
+    const res = await apiClient.post<ImportDatabaseReportDto>(`${API_BASE}/import/wordpress-database`, { prefix, afterId, limit, dryRun });
     return res.data;
   },
 };

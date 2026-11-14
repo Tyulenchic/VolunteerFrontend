@@ -6,7 +6,6 @@ import { ABOUT_TEXT_DEFAULT as ABOUT, FOOTER_TEXT_DEFAULT as F } from '../../con
 import { useSiteText } from '../../context/SiteContentContext';
 
 const SOCIAL = [
-  { key: 'vk', name: 'ВКонтакте', href: 'https://vk.com' },
   { key: 'tg', name: 'Telegram', href: 'https://t.me/volonterPMR' },
   { key: 'ig', name: 'Instagram', href: 'https://www.instagram.com/volonterpmr' },
 ] as const;

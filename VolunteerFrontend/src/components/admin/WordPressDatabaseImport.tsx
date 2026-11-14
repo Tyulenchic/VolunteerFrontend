@@ -22,6 +22,8 @@ interface Totals {
 }
 
 const PREFIX_PATTERN = /^[A-Za-z0-9_]{1,40}$/;
+/** Пользователей в одной порции: сервер оборачивает каждый пароль в bcrypt, порция должна уложиться в лимит времени хостинга. */
+const CHUNK_SIZE = 25;
 
 /**
  * Импорт пользователей прямо из таблиц WordPress, которые лежат в той же базе данных, что и сайт: выгружать CSV не нужно.
@@ -59,7 +61,7 @@ export function WordPressDatabaseImport() {
     for (;;) {
       if (cancelled.current) { acc = { ...acc, stoppedAt: `Остановлено после пользователя с ID ${afterId}.` }; break; }
       try {
-        const report = await adminApi.importWordPressDatabase(prefix, afterId, mode === 'check');
+        const report = await adminApi.importWordPressDatabase(prefix, afterId, CHUNK_SIZE, mode === 'check');
         acc = {
           ...acc,
           created: acc.created + report.created,

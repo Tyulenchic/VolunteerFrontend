@@ -29,7 +29,7 @@ const replyBody = (item: FeedbackItem) => {
 };
 // Окно нового письма Gmail в аккаунте REPLY_FROM_EMAIL (работает в браузере, почтовый клиент не нужен)
 const gmailReplyUrl = (item: FeedbackItem) => {
-  const q = new URLSearchParams({ authuser: REPLY_FROM_EMAIL, view: 'cm', fs: '1', to: item.email, su: REPLY_SUBJECT, body: replyBody(item) });
+  const q = new URLSearchParams({ ...(REPLY_FROM_EMAIL ? { authuser: REPLY_FROM_EMAIL } : {}), view: 'cm', fs: '1', to: item.email, su: REPLY_SUBJECT, body: replyBody(item) });
   return `https://mail.google.com/mail/?${q}`;
 };
 
@@ -145,7 +145,7 @@ export function AdminFeedbackPage() {
                     {open && (
                       <div className="flex flex-wrap gap-2 mt-3 pl-5">
                         <a className="btn btn-primary btn-sm no-underline" href={gmailReplyUrl(item)} target="_blank" rel="noopener noreferrer"
-                          title={`Откроется письмо в Gmail от ${REPLY_FROM_EMAIL}`}>
+                          title={REPLY_FROM_EMAIL ? `Откроется письмо в Gmail от ${REPLY_FROM_EMAIL}` : 'Откроется письмо в Gmail'}>
                           <i className="fas fa-reply" aria-hidden /> Ответить в Gmail
                         </a>
                         {/* вместо mailto: без назначенного в системе почтового приложения ссылка не открывается */}
