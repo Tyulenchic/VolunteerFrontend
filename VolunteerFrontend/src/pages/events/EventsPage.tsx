@@ -1,3 +1,5 @@
+import { PAGE_TEXT_DEFAULT as PG } from '../../content/defaults';
+import { useSiteText } from '../../context/SiteContentContext';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { publicEventsApi } from '../../api/publicEvents';
@@ -31,6 +33,9 @@ function PeopleArt() {
 }
 
 export function EventsPage() {
+  const heroTitle = useSiteText('pages.events.title', PG.eventsTitle);
+  const heroAccent = useSiteText('pages.events.accent', PG.eventsAccent);
+  const heroLead = useSiteText('pages.events.lead', PG.eventsLead);
   const { user } = useAuth();
   const { notify } = useNotification();
   const navigate = useNavigate();
@@ -175,11 +180,11 @@ export function EventsPage() {
         <div className="wrap relative z-10 grid items-end gap-8 pb-12 pt-14 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pb-16 md:pt-20">
           <div className="min-w-0">
             <h1 className="vol-h1" style={{ textWrap: 'balance' }}>
-              Волонтёрские <span className="text-vol-accent">мероприятия</span>
+              {heroTitle} <span className="text-vol-accent">{heroAccent}</span>
             </h1>
           </div>
           <div className="min-w-0">
-            <p className="text-[14.5px] leading-relaxed text-vol-muted">Находите события, регистрируйтесь и участвуйте в жизни Приднестровья.</p>
+            <p className="text-[14.5px] leading-relaxed text-vol-muted">{heroLead}</p>
             <form className="mt-6 flex items-center gap-2 border-b-2 border-vol-fg pb-2" onSubmit={ev => ev.preventDefault()} role="search">
               <label htmlFor="event-search" className="sr-only">Поиск мероприятий</label>
               <span className="text-vol-fg"><VolIcon n="search" size={18} /></span>

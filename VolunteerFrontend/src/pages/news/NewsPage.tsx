@@ -1,3 +1,5 @@
+import { PAGE_TEXT_DEFAULT as PG } from '../../content/defaults';
+import { useSiteText } from '../../context/SiteContentContext';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { newsApi, type NewsResponseDto } from '../../api/news';
@@ -18,6 +20,9 @@ const PER_PAGE = 9;
 
 
 export function NewsPage() {
+  const heroTitle = useSiteText('pages.news.title', PG.newsTitle);
+  const heroAccent = useSiteText('pages.news.accent', PG.newsAccent);
+  const heroLead = useSiteText('pages.news.lead', PG.newsLead);
   const [items, setItems] = useState<NewsResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [cat, setCat] = useState('all');
@@ -78,10 +83,10 @@ export function NewsPage() {
          <div className="wrap relative z-10">
            <div className="text-center max-w-3xl mx-auto">
              <h1 className="vol-h1 mb-6">
-               Новости нашего <span className="text-primary">движения</span>
+               {heroTitle} <span className="text-primary">{heroAccent}</span>
              </h1>
              <p className="vol-lead mx-auto">
-               Будьте в курсе последних событий, акций и историй успеха волонтёров Приднестровья.
+               {heroLead}
              </p>
            </div>
          </div>

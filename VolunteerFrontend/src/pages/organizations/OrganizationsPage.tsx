@@ -1,3 +1,5 @@
+import { PAGE_TEXT_DEFAULT as PG } from '../../content/defaults';
+import { useSiteText } from '../../context/SiteContentContext';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { organizationsApi } from '../../api/organizations';
@@ -14,6 +16,9 @@ const CITIES = ['Тирасполь', 'Бендеры', 'Рыбница', 'Ду�
 
 /** Каталог организаций. Данные приходят с сервера: поиск, тип, направление и город фильтруются на стороне API. */
 export function OrganizationsPage() {
+  const heroTitle = useSiteText('pages.organizations.title', PG.organizationsTitle);
+  const heroAccent = useSiteText('pages.organizations.accent', PG.organizationsAccent);
+  const heroLead = useSiteText('pages.organizations.lead', PG.organizationsLead);
   const { openFeedback } = useFeedback();
   const [items, setItems] = useState<OrganizationListItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -65,11 +70,10 @@ export function OrganizationsPage() {
         <div className="wrap">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="vol-h1 mb-6">
-              Волонтёрские организации <span className="text-primary">Приднестровья</span>
+              {heroTitle} <span className="text-primary">{heroAccent}</span>
             </h1>
             <p className="vol-lead mx-auto mb-8">
-              Познакомьтесь с командами, которые ежедневно делают мир вокруг нас лучше. Загляните на страницу организации,
-              посмотрите её мероприятия и фотографии, подайте заявку и становитесь волонтёром.
+              {heroLead}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               {['Мероприятия и фото организаций', 'Заявка в один клик'].map(b => (

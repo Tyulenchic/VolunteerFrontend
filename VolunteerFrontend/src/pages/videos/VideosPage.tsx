@@ -1,3 +1,5 @@
+import { PAGE_TEXT_DEFAULT as PG } from '../../content/defaults';
+import { useSiteText } from '../../context/SiteContentContext';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { videoLinksApi } from '../../api/VideoLink';
 import type { VideoLinkResponseDto } from '../../types/VideoLink';
@@ -18,6 +20,9 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('ru-RU', { day
  * Отбор по автору — «Все», «Администрация» или конкретная организация. Нажатие открывает плеер.
  */
 export function VideosPage() {
+  const heroTitle = useSiteText('pages.videos.title', PG.videosTitle);
+  const heroAccent = useSiteText('pages.videos.accent', PG.videosAccent);
+  const heroLead = useSiteText('pages.videos.lead', PG.videosLead);
   const [items, setItems] = useState<VideoLinkResponseDto[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -61,10 +66,10 @@ export function VideosPage() {
       <section className="relative">
         <div className="wrap relative z-10 grid items-end gap-8 pb-10 pt-14 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pb-12 md:pt-20 max-md:text-center">
           <h1 className="vol-h1" style={{ textWrap: 'balance' }}>
-            Видео <span className="text-vol-accent">волонтёров</span>
+            {heroTitle} <span className="text-vol-accent">{heroAccent}</span>
           </h1>
           <p className="vol-lead">
-            Ролики с событий и акций: их загружают администраторы портала и организации Приднестровья.
+            {heroLead}
           </p>
         </div>
       </section>

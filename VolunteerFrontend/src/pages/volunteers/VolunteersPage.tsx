@@ -1,3 +1,5 @@
+import { PAGE_TEXT_DEFAULT as PG } from '../../content/defaults';
+import { useSiteText } from '../../context/SiteContentContext';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { publicUsersApi } from '../../api/publicUsers';
@@ -8,6 +10,13 @@ import { AnimatedBackdrop } from '../../components/ui/AnimatedBackdrop';
 
 
 export function VolunteersPage() {
+  const badge = useSiteText('pages.volunteers.badge', PG.volunteersBadge);
+  const heroTitle = useSiteText('pages.volunteers.title', PG.volunteersTitle);
+  const heroAccent = useSiteText('pages.volunteers.accent', PG.volunteersAccent);
+  const heroTail = useSiteText('pages.volunteers.tail', PG.volunteersTail);
+  const heroLead = useSiteText('pages.volunteers.lead', PG.volunteersLead);
+  const statActions = useSiteText('pages.volunteers.stat.actions', PG.volunteersStatActions);
+  const statYears = useSiteText('pages.volunteers.stat.years', PG.volunteersStatYears);
   const [volunteers, setVolunteers] = useState<PublicUserDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -41,16 +50,16 @@ export function VolunteersPage() {
         <AnimatedBackdrop variant="volunteers" />
         <div className="wrap relative z-10 text-center max-w-3xl">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-6">
-            <i className="fas fa-heart" />Наши волонтёры
+            <i className="fas fa-heart" />{badge}
           </div>
           <h1 className="vol-h1 mb-6">
-            Люди с <span className="text-primary">добрым</span> сердцем
+            {heroTitle} <span className="text-primary">{heroAccent}</span> {heroTail}
           </h1>
           <p className="vol-lead mx-auto">
-            Каждый волонтёр — это история доброты. Знакомьтесь с теми, кто делает Приднестровье лучше каждый день.
+            {heroLead}
           </p>
           <div className="flex justify-center gap-8 mt-8">
-            {[{ v: `${volunteers.length || '50+'}`, l: 'Волонтёров' }, { v: '200+', l: 'Акций' }, { v: '5 лет', l: 'Движению' }].map(s => (
+            {[{ v: `${volunteers.length || '50+'}`, l: 'Волонтёров' }, { v: statActions, l: 'Акций' }, { v: statYears, l: 'Движению' }].map(s => (
               <div key={s.l} className="text-center">
                 <div className="text-3xl font-bold text-primary">{s.v}</div>
                 <div className="text-sm text-gray-500">{s.l}</div>

@@ -1,3 +1,5 @@
+import { HOME_TEXT_DEFAULT as H } from '../../../content/defaults';
+import { useSiteText } from '../../../context/SiteContentContext';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { newsApi, type NewsResponseDto } from '../../../api/news';
@@ -14,6 +16,9 @@ const fmtDate = (s: string) => new Date(s).toLocaleDateString('ru-RU', { day: 'n
 const lead = (n: NewsResponseDto) => (n.summary || n.content || '').replace(/\s+/g, ' ').trim();
 
 export function News() {
+  const title = useSiteText('home.news.title', H.newsTitle);
+  const empty = useSiteText('home.news.empty', H.newsEmpty);
+  const all = useSiteText('home.news.all', H.newsAll);
   const [items, setItems] = useState<NewsResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,11 +35,11 @@ export function News() {
 
   return (
     <section className="wrap relative z-10 pb-[var(--section-y)]">
-      <VolSectionHead title="Последние новости" />
+      <VolSectionHead title={title} />
       {loading ? (
         <div className="flex justify-center py-10 text-vol-accent"><Spinner /></div>
       ) : !first ? (
-        <p className="py-6 text-center text-[14px] text-vol-muted">Новостей пока нет</p>
+        <p className="py-6 text-center text-[14px] text-vol-muted">{empty}</p>
       ) : (
         <div className="grid gap-5 lg:grid-cols-[1.1fr_1fr] lg:gap-x-16 lg:gap-y-5">
           <article className="group lg:contents">
@@ -77,7 +82,7 @@ export function News() {
           )}
         </div>
       )}
-      <BlockAction className="mt-10"><VolButton kind="outline" icon="arrow" to="/news">Все новости</VolButton></BlockAction>
+      <BlockAction className="mt-10"><VolButton kind="outline" icon="arrow" to="/news">{all}</VolButton></BlockAction>
     </section>
   );
 }

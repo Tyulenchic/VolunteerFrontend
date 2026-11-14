@@ -281,6 +281,41 @@ export const HOME_TEXT_DEFAULT = {
   stepsSub: 'Всего четыре простых шага',
   feedbackTitle: 'Обратная связь',
   feedbackText: 'Есть вопросы или предложения? Мы всегда рады ответить.',
+  galleryTitle: 'Как это было',
+  gallerySub: 'Фото и видео с прошедших событий',
+  galleryEmpty: 'Материалы пока не добавлены',
+  galleryAll: 'Смотреть все',
+  newsTitle: 'Последние новости',
+  newsEmpty: 'Новостей пока нет',
+  newsAll: 'Все новости',
+};
+
+/** Шапки публичных страниц: заголовок, выделенное слово (оно подсвечивается цветом) и вступление. */
+export const PAGE_TEXT_DEFAULT = {
+  eventsTitle: 'Волонтёрские',
+  eventsAccent: 'мероприятия',
+  eventsLead: 'Находите события, регистрируйтесь и участвуйте в жизни Приднестровья.',
+  videosTitle: 'Видео',
+  videosAccent: 'волонтёров',
+  videosLead: 'Ролики с событий и акций: их загружают администраторы портала и организации Приднестровья.',
+  newsTitle: 'Новости нашего',
+  newsAccent: 'движения',
+  newsLead: 'Будьте в курсе последних событий, акций и историй успеха волонтёров Приднестровья.',
+  organizationsTitle: 'Волонтёрские организации',
+  organizationsAccent: 'Приднестровья',
+  organizationsLead: 'Познакомьтесь с командами, которые ежедневно делают мир вокруг нас лучше. Загляните на страницу организации, посмотрите её мероприятия и фотографии, подайте заявку и становитесь волонтёром.',
+  organizersBadge: 'Команда организаторов',
+  organizersTitle: 'Люди, которые',
+  organizersAccent: 'создают',
+  organizersTail: 'добрые дела',
+  organizersLead: 'Наши организаторы координируют волонтёрские проекты и помогают каждому найти своё место в движении.',
+  volunteersBadge: 'Наши волонтёры',
+  volunteersTitle: 'Люди с',
+  volunteersAccent: 'добрым',
+  volunteersTail: 'сердцем',
+  volunteersLead: 'Каждый волонтёр — это история доброты. Знакомьтесь с теми, кто делает Приднестровье лучше каждый день.',
+  volunteersStatActions: '200+',
+  volunteersStatYears: '5 лет',
 };
 
 export interface TitledText { t: string; d: string }

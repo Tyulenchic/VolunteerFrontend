@@ -1,6 +1,6 @@
 import {
   ABOUT_TEAM_DEFAULT, ABOUT_TEXT_DEFAULT as T, ABOUT_VALUES_DEFAULT, FAQ_DEFAULT, FOOTER_TEXT_DEFAULT as F, HOME_FEATURES_DEFAULT,
-  HOME_PERKS_DEFAULT, HOME_STEPS_DEFAULT, HOME_TEXT_DEFAULT as H, PRIVACY_DEFAULT, RULES_DEFAULT,
+  HOME_PERKS_DEFAULT, HOME_STEPS_DEFAULT, HOME_TEXT_DEFAULT as H, PAGE_TEXT_DEFAULT as PG, PRIVACY_DEFAULT, RULES_DEFAULT,
 } from './defaults';
 
 /**
@@ -69,6 +69,13 @@ export const CONTENT_GROUPS: ContentGroup[] = [
       },
       { key: 'home.feedback.title', label: 'Обратная связь — заголовок', type: 'text', default: H.feedbackTitle },
       { key: 'home.feedback.text', label: 'Обратная связь — абзац', type: 'textarea', default: H.feedbackText },
+      { key: 'home.gallery.title', label: 'Как это было — заголовок', type: 'text', default: H.galleryTitle },
+      { key: 'home.gallery.sub', label: 'Как это было — подзаголовок', type: 'text', default: H.gallerySub },
+      { key: 'home.gallery.empty', label: 'Как это было — надпись, когда материалов нет', type: 'text', default: H.galleryEmpty },
+      { key: 'home.gallery.all', label: 'Как это было — кнопка перехода к видео', type: 'text', default: H.galleryAll },
+      { key: 'home.news.title', label: 'Последние новости — заголовок', type: 'text', default: H.newsTitle },
+      { key: 'home.news.empty', label: 'Последние новости — надпись, когда новостей нет', type: 'text', default: H.newsEmpty },
+      { key: 'home.news.all', label: 'Последние новости — кнопка перехода ко всем новостям', type: 'text', default: H.newsAll },
     ],
   },
   {
@@ -78,6 +85,35 @@ export const CONTENT_GROUPS: ContentGroup[] = [
       { key: 'footer.address', label: 'Адрес', type: 'text', default: F.address, hint: 'Почта и телефон в подвале берутся из «О нас → Контакты»: меняйте их там.' },
       { key: 'footer.hours', label: 'Часы работы', type: 'text', default: F.hours },
       { key: 'footer.copyright', label: 'Строка об авторских правах', type: 'text', default: F.copyright },
+    ],
+  },
+  {
+    id: 'pages', title: 'Заголовки страниц', icon: 'fa-heading', path: '/events',
+    entries: [
+      { key: 'pages.events.title', label: 'Мероприятия — заголовок', type: 'text', default: PG.eventsTitle },
+      { key: 'pages.events.accent', label: 'Мероприятия — выделенное слово заголовка', type: 'text', default: PG.eventsAccent, hint: 'Показывается цветом после заголовка.' },
+      { key: 'pages.events.lead', label: 'Мероприятия — вступление', type: 'textarea', default: PG.eventsLead },
+      { key: 'pages.videos.title', label: 'Видео — заголовок', type: 'text', default: PG.videosTitle },
+      { key: 'pages.videos.accent', label: 'Видео — выделенное слово заголовка', type: 'text', default: PG.videosAccent },
+      { key: 'pages.videos.lead', label: 'Видео — вступление', type: 'textarea', default: PG.videosLead },
+      { key: 'pages.news.title', label: 'Новости — заголовок', type: 'text', default: PG.newsTitle },
+      { key: 'pages.news.accent', label: 'Новости — выделенное слово заголовка', type: 'text', default: PG.newsAccent },
+      { key: 'pages.news.lead', label: 'Новости — вступление', type: 'textarea', default: PG.newsLead },
+      { key: 'pages.organizations.title', label: 'Организации — заголовок', type: 'text', default: PG.organizationsTitle },
+      { key: 'pages.organizations.accent', label: 'Организации — выделенное слово заголовка', type: 'text', default: PG.organizationsAccent },
+      { key: 'pages.organizations.lead', label: 'Организации — вступление', type: 'textarea', default: PG.organizationsLead },
+      { key: 'pages.organizers.badge', label: 'Организаторы — плашка над заголовком', type: 'text', default: PG.organizersBadge },
+      { key: 'pages.organizers.title', label: 'Организаторы — начало заголовка', type: 'text', default: PG.organizersTitle },
+      { key: 'pages.organizers.accent', label: 'Организаторы — выделенное слово заголовка', type: 'text', default: PG.organizersAccent },
+      { key: 'pages.organizers.tail', label: 'Организаторы — конец заголовка', type: 'text', default: PG.organizersTail },
+      { key: 'pages.organizers.lead', label: 'Организаторы — вступление', type: 'textarea', default: PG.organizersLead },
+      { key: 'pages.volunteers.badge', label: 'Волонтёры — плашка над заголовком', type: 'text', default: PG.volunteersBadge },
+      { key: 'pages.volunteers.title', label: 'Волонтёры — начало заголовка', type: 'text', default: PG.volunteersTitle },
+      { key: 'pages.volunteers.accent', label: 'Волонтёры — выделенное слово заголовка', type: 'text', default: PG.volunteersAccent },
+      { key: 'pages.volunteers.tail', label: 'Волонтёры — конец заголовка', type: 'text', default: PG.volunteersTail },
+      { key: 'pages.volunteers.lead', label: 'Волонтёры — вступление', type: 'textarea', default: PG.volunteersLead },
+      { key: 'pages.volunteers.stat.actions', label: 'Волонтёры — число акций в счётчике', type: 'text', default: PG.volunteersStatActions, hint: 'Это число вписывается вручную, сайт его не считает: держите его актуальным.' },
+      { key: 'pages.volunteers.stat.years', label: 'Волонтёры — срок движения в счётчике', type: 'text', default: PG.volunteersStatYears, hint: 'Это значение вписывается вручную, сайт его не считает: держите его актуальным.' },
     ],
   },
   {

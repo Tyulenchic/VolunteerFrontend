@@ -1,3 +1,5 @@
+import { HOME_TEXT_DEFAULT as H } from '../../../content/defaults';
+import { useSiteText } from '../../../context/SiteContentContext';
 import { useEffect, useState } from 'react';
 import { videoLinksApi } from '../../../api/VideoLink';
 import type { VideoLinkResponseDto } from '../../../types/VideoLink';
@@ -35,6 +37,10 @@ const COLS: Record<number, string> = {
 };
 
 export function Gallery() {
+  const title = useSiteText('home.gallery.title', H.galleryTitle);
+  const sub = useSiteText('home.gallery.sub', H.gallerySub);
+  const empty = useSiteText('home.gallery.empty', H.galleryEmpty);
+  const all = useSiteText('home.gallery.all', H.galleryAll);
   const [items, setItems] = useState<VideoLinkResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
@@ -56,12 +62,12 @@ export function Gallery() {
 
   return (
     <section className="wrap relative z-10 pb-[var(--section-y)]">
-      <VolSectionHead title="Как это было" sub="Фото и видео с прошедших событий" />
+      <VolSectionHead title={title} sub={sub} />
 
       {loading ? (
         <div className="flex justify-center py-10 text-vol-accent"><Spinner /></div>
       ) : shown.length === 0 ? (
-        <p className="py-6 text-center text-[14px] text-vol-muted">Материалы пока не добавлены</p>
+        <p className="py-6 text-center text-[14px] text-vol-muted">{empty}</p>
       ) : (
         <>
           <ul className={`grid grid-cols-2 gap-3 sm:gap-4 lg:h-[27rem] lg:grid-rows-2 ${COLS[shown.length]}`}
@@ -102,7 +108,7 @@ export function Gallery() {
                 </div>
               </div>
             )}
-            <BlockAction className="flex-1"><VolButton kind="outline" icon="arrow" to="/videos">Смотреть все</VolButton></BlockAction>
+            <BlockAction className="flex-1"><VolButton kind="outline" icon="arrow" to="/videos">{all}</VolButton></BlockAction>
           </div>
         </>
       )}

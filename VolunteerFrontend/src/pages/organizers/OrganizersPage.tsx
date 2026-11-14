@@ -1,3 +1,5 @@
+import { PAGE_TEXT_DEFAULT as PG } from '../../content/defaults';
+import { useSiteText } from '../../context/SiteContentContext';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { publicUsersApi } from '../../api/publicUsers';
@@ -8,6 +10,11 @@ import { AnimatedBackdrop } from '../../components/ui/AnimatedBackdrop';
 import { useFeedback } from '../../context/FeedbackContext';
 
 export function OrganizersPage() {
+  const badge = useSiteText('pages.organizers.badge', PG.organizersBadge);
+  const heroTitle = useSiteText('pages.organizers.title', PG.organizersTitle);
+  const heroAccent = useSiteText('pages.organizers.accent', PG.organizersAccent);
+  const heroTail = useSiteText('pages.organizers.tail', PG.organizersTail);
+  const heroLead = useSiteText('pages.organizers.lead', PG.organizersLead);
   const [organizers, setOrganizers] = useState<PublicUserDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -42,13 +49,13 @@ export function OrganizersPage() {
         <AnimatedBackdrop variant="organizers" />
         <div className="wrap relative z-10 text-center max-w-3xl">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-6">
-            <i className="fas fa-star" />Команда организаторов
+            <i className="fas fa-star" />{badge}
           </div>
           <h1 className="vol-h1 mb-6">
-            Люди, которые <span className="text-primary">создают</span> добрые дела
+            {heroTitle} <span className="text-primary">{heroAccent}</span> {heroTail}
           </h1>
           <p className="vol-lead mx-auto">
-            Наши организаторы координируют волонтёрские проекты и помогают каждому найти своё место в движении.
+            {heroLead}
           </p>
         </div>
       </section>
