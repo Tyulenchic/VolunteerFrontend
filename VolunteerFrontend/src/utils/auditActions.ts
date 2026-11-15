@@ -9,6 +9,8 @@ export const AUDIT_ACTIONS: Record<string, { label: string; icon: string; tone: 
   UserUnblocked:             { label: 'Пользователь разблокирован', icon: 'fa-user-check', tone: 'success' },
   UserRoleChanged:           { label: 'Изменена роль', icon: 'fa-user-gear', tone: 'brand' },
   UserDeleted:               { label: 'Пользователь удалён', icon: 'fa-user-xmark', tone: 'error' },
+  UserPasswordResetSent:     { label: 'Отправлена ссылка сброса пароля', icon: 'fa-key', tone: 'pending' },
+  UserEmailChanged:          { label: 'Изменён email пользователя', icon: 'fa-at', tone: 'pending' },
   NewsCreated:               { label: 'Новость создана', icon: 'fa-plus', tone: 'brand' },
   NewsUpdated:               { label: 'Новость изменена', icon: 'fa-pen', tone: 'neutral' },
   NewsPublished:             { label: 'Новость опубликована', icon: 'fa-globe', tone: 'success' },

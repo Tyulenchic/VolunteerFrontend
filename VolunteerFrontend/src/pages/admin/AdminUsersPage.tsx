@@ -7,6 +7,8 @@ import { useApiError } from '../../hooks/useApiError';
 import { Modal } from '../../components/Modal';
 import { DossierExportButtons } from '../../components/DossierExportButtons';
 import { DossierModal } from '../../components/admin/DossierModal';
+import { AccountRecoveryPanel } from '../../components/admin/AccountRecoveryPanel';
+import { useAuth } from '../../context/AuthContext';
 import { useConfirm } from '../../components/ui/ConfirmDialog';
 import { ActionMenu } from '../../components/ui/ActionMenu';
 import { Avatar } from '../../components/ui/Avatar';
@@ -51,13 +53,17 @@ interface UserDetailModalProps {
 function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
   const { notify } = useNotification();
   const { error, setError } = useApiError();
+  const { user: me } = useAuth();
+  const confirm = useConfirm();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDossier, setShowDossier] = useState(false);
 
   const name = `${user.firstName} ${user.lastName}`.trim() || user.email.split('@')[0];
 
-  const do_ = async (key: string, fn: () => Promise<void>, msg: string) => {
+  const do_ = async (key: string, fn: () => Promise<void>, msg: string, ask?: { title: string; message: string; confirmLabel: string; danger?: boolean }) => {
+    if (actionLoading) return;
+    if (ask && !(await confirm(ask))) return;
     setActionLoading(key);
     try {
       await fn();
@@ -138,6 +144,10 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
         </div>
         {showDossier && <DossierModal userId={user.id} onClose={() => setShowDossier(false)} />}
 
+        {!user.isDeleted && user.id !== me?.id && (
+          <AccountRecoveryPanel userId={user.id} email={user.email} isActive={user.isActive} onDone={() => { onRefresh(); onClose(); }} />
+        )}
+
         {/* Actions */}
         <div className="border-t border-line-strong pt-4 space-y-2 flex flex-col">
           <Link to={`/users/${user.id}`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary no-underline">
@@ -149,7 +159,8 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
                       do_(
                           'block',
                           () => adminApi.blockUser(user.id, 'Заблокирован администратором'),
-                          'Пользователь заблокирован'
+                          'Пользователь заблокирован',
+                          { title: 'Заблокировать пользователя?', message: `${name} не сможет войти, все его входы завершатся. Разблокировать можно здесь же.`, confirmLabel: 'Заблокировать' }
                       )
                   }
                   disabled={actionLoading !== null}
@@ -184,7 +195,8 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
                          do_(
                              'role-admin',
                              () => adminApi.changeUserRole(user.id, 'Admin'),
-                             'Роль изменена на Администратор'
+                             'Роль изменена на Администратор',
+                             { title: 'Сделать администратором?', message: `${name} получит полный доступ к админ-панели: пользователям, базе данных и журналу.`, confirmLabel: 'Сделать администратором' }
                          )
                      }
                      disabled={actionLoading !== null}

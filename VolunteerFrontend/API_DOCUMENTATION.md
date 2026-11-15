@@ -413,6 +413,8 @@ Base route: `/api/admin` — класс `AdminController` помечен `[Autho
 5) POST /api/admin/users/{userId}/block — BlockUserRequestDto `{ reason: string }`
 6) POST /api/admin/users/{userId}/unblock — UnblockUserRequestDto `{ reason?: string }`
 7) POST /api/admin/users/{userId}/change-role — ChangeUserRoleRequestDto `{ newRole: string }`
+7а) POST /api/admin/users/{userId}/send-password-reset — `{ reason: string }`: ссылка сброса уходит на почту аккаунта (только PHP-бэкенд)
+7б) POST /api/admin/users/{userId}/change-email — `{ newEmail: string, reason: string }`: смена почты по обращению, входы завершаются, новый адрес нужно подтвердить (только PHP-бэкенд)
 8) GET /api/admin/participations — список заявок с фильтрами
 9) POST /api/admin/participations/{id}/approve, /reject — Approve/RejectParticipationRequestDto `{ comment?: string }`
 10) POST /api/admin/participations/bulk-approve, /bulk-reject — body с `participationIds: string[]`

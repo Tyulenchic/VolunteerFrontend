@@ -72,6 +72,16 @@ export const adminApi = {
     await apiClient.post(`${API_BASE}/users/${userId}/change-role`, { newRole });
   },
 
+  /** Ссылка сброса пароля уходит на почту аккаунта; основание обращения пишется в журнал. */
+  async sendPasswordReset(userId: string, reason: string) {
+    await apiClient.post(`${API_BASE}/users/${userId}/send-password-reset`, { reason });
+  },
+
+  /** Смена почты по обращению: входы завершаются, новый адрес нужно подтвердить. */
+  async changeUserEmail(userId: string, newEmail: string, reason: string) {
+    await apiClient.post(`${API_BASE}/users/${userId}/change-email`, { newEmail, reason });
+  },
+
   /** Скачать досье пользователя файлом (Excel / PDF / Word); выгрузка фиксируется в журнале аудита. */
   exportUserDossier(userId: string, format: DossierFormat): Promise<void> {
     return downloadFile(`${API_BASE}/users/${userId}/dossier/export`, { format }, `dossier-${userId}.${format}`);
