@@ -48,6 +48,7 @@ export function OrganizerPostsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<OrganizationPost | null>(null);
+  const [postBusy, setPostBusy] = useState<string | null>(null);
 
   useEffect(() => {
     organizerApi.summary().then(s => {
@@ -105,14 +106,20 @@ export function OrganizerPostsPage() {
   };
 
   const remove = async (p: OrganizationPost) => {
-    if (!(await confirm({ message: 'Удалить публикацию вместе с фотографиями? Это нельзя отменить.', confirmLabel: 'Удалить', danger: true }))) return;
+    if (postBusy || !(await confirm({ message: 'Удалить публикацию вместе с фотографиями? Это нельзя отменить.', confirmLabel: 'Удалить', danger: true }))) return;
+    setPostBusy(p.id);
     try { await organizationsApi.deletePost(p.id); notify('Публикация удалена'); await loadPosts(0); }
     catch (err) { notify(adminErrorMessage(err, 'Не удалось удалить публикацию.'), 'error'); }
+    finally { setPostBusy(null); }
   };
 
   const toggleHidden = async (p: OrganizationPost) => {
-    try { await organizationsApi.setPostHidden(p.id, !p.isHidden); await loadPosts(0); }
+    if (postBusy) return;
+    if (!p.isHidden && !(await confirm({ message: 'Скрыть публикацию? Её перестанут видеть на странице организации, пока вы не покажете её снова.', confirmLabel: 'Скрыть', danger: false }))) return;
+    setPostBusy(p.id);
+    try { await organizationsApi.setPostHidden(p.id, !p.isHidden); notify(p.isHidden ? 'Публикация снова видна' : 'Публикация скрыта'); await loadPosts(0); }
     catch (err) { notify(adminErrorMessage(err, 'Не удалось изменить видимость.'), 'error'); }
+    finally { setPostBusy(null); }
   };
 
   if (orgs === null) return <ListSkeleton />;
@@ -163,8 +170,8 @@ export function OrganizerPostsPage() {
                 actions={
                   <div className="flex gap-1">
                     <Button size="sm" variant="ghost" onClick={() => setEditing(p)} aria-label="Изменить публикацию"><i className="fas fa-pen" aria-hidden /></Button>
-                    {isAdmin && <Button size="sm" variant="ghost" onClick={() => toggleHidden(p)} aria-label={p.isHidden ? 'Показать публикацию' : 'Скрыть публикацию'}><i className={`fas ${p.isHidden ? 'fa-eye' : 'fa-eye-slash'}`} aria-hidden /></Button>}
-                    <Button size="sm" variant="ghost" onClick={() => remove(p)} aria-label="Удалить публикацию"><i className="fas fa-trash" aria-hidden /></Button>
+                    {isAdmin && <Button size="sm" variant="ghost" loading={postBusy === p.id} disabled={postBusy !== null} onClick={() => toggleHidden(p)} aria-label={p.isHidden ? 'Показать публикацию' : 'Скрыть публикацию'}><i className={`fas ${p.isHidden ? 'fa-eye' : 'fa-eye-slash'}`} aria-hidden /></Button>}
+                    <Button size="sm" variant="ghost" loading={postBusy === p.id} disabled={postBusy !== null} onClick={() => remove(p)} aria-label="Удалить публикацию"><i className="fas fa-trash" aria-hidden /></Button>
                   </div>
                 } />
             ))}

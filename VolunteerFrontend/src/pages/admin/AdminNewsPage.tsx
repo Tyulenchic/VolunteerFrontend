@@ -42,6 +42,7 @@ export function AdminNewsPage() {
   const written = useRef(search);
   const [selectedNews, setSelectedNews] = useState<AdminNewsListDto | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   const skip = parseInt(searchParams.get('skip') || '0', 10);
   const take = 20;
@@ -101,43 +102,35 @@ export function AdminNewsPage() {
     updateParams(search || undefined, status);
   };
 
-  const handlePublish = async (newsId: string) => {
-    try {
-      await adminApi.publishNews(newsId);
-      setNews(news.map(n => n.id === newsId ? { ...n, status: 'Published' as const } : n));
-    } catch (e) {
-      console.error(e);
-      notify(adminErrorMessage(e, 'Не удалось опубликовать новость'), 'error');
-    }
+  type StatusAction = 'publish' | 'unpublish' | 'archive' | 'restore';
+  const STATUS_ACTIONS: Record<StatusAction, { run: (id: string) => Promise<unknown>; next: NewsStatus; done: string; failed: string; confirm?: { title: string; message: string; label: string } }> = {
+    publish: { run: adminApi.publishNews, next: 'Published', done: 'Новость опубликована', failed: 'Не удалось опубликовать новость' },
+    unpublish: {
+      run: adminApi.unpublishNews, next: 'Draft', done: 'Новость снята с публикации', failed: 'Не удалось снять новость с публикации',
+      confirm: { title: 'Снять с публикации?', message: 'Новость исчезнет с сайта и станет черновиком.', label: 'Снять' },
+    },
+    archive: {
+      run: adminApi.archiveNews, next: 'Archived', done: 'Новость отправлена в архив', failed: 'Не удалось отправить новость в архив',
+      confirm: { title: 'Отправить в архив?', message: 'Новость исчезнет с сайта. Её можно будет восстановить как черновик.', label: 'В архив' },
+    },
+    restore: { run: adminApi.restoreNews, next: 'Draft', done: 'Новость восстановлена как черновик', failed: 'Не удалось восстановить новость' },
   };
 
-  const handleUnpublish = async (newsId: string) => {
+  // Одно действие за раз: повторное нажатие, пока запрос идёт, ничего не отправляет.
+  const changeStatus = async (item: AdminNewsListDto, action: StatusAction) => {
+    if (busyId) return;
+    const a = STATUS_ACTIONS[action];
+    if (a.confirm && !(await confirm({ title: a.confirm.title, message: `«${item.title}». ${a.confirm.message}`, confirmLabel: a.confirm.label }))) return;
+    setBusyId(item.id);
     try {
-      await adminApi.unpublishNews(newsId);
-      setNews(news.map(n => n.id === newsId ? { ...n, status: 'Draft' as const } : n));
+      await a.run(item.id);
+      setNews(list => list.map(n => (n.id === item.id ? { ...n, status: a.next } : n)));
+      notify(a.done);
     } catch (e) {
       console.error(e);
-      notify(adminErrorMessage(e, 'Не удалось снять новость с публикации'), 'error');
-    }
-  };
-
-  const handleArchive = async (newsId: string) => {
-    try {
-      await adminApi.archiveNews(newsId);
-      setNews(news.map(n => n.id === newsId ? { ...n, status: 'Archived' as const } : n));
-    } catch (e) {
-      console.error(e);
-      notify(adminErrorMessage(e, 'Не удалось отправить новость в архив'), 'error');
-    }
-  };
-
-  const handleRestore = async (newsId: string) => {
-    try {
-      await adminApi.restoreNews(newsId);
-      setNews(news.map(n => n.id === newsId ? { ...n, status: 'Draft' as const } : n));
-    } catch (e) {
-      console.error(e);
-      notify(adminErrorMessage(e, 'Не удалось восстановить новость'), 'error');
+      notify(adminErrorMessage(e, a.failed), 'error');
+    } finally {
+      setBusyId(null);
     }
   };
 
@@ -156,7 +149,9 @@ export function AdminNewsPage() {
   };
 
   const remove = async (item: AdminNewsListDto) => {
+    if (busyId) return;
     if (!(await confirm({ title: 'Удалить новость?', message: `«${item.title}» будет удалена без возможности восстановления.`, confirmLabel: 'Удалить' }))) return;
+    setBusyId(item.id);
     try {
       await adminApi.deleteNews(item.id);
       notify('Новость удалена');
@@ -164,15 +159,17 @@ export function AdminNewsPage() {
     } catch (e) {
       console.error(e);
       notify(adminErrorMessage(e, 'Не удалось удалить новость'), 'error');
+    } finally {
+      setBusyId(null);
     }
   };
 
   const menuFor = (item: AdminNewsListDto): MenuAction[] => [
     { label: 'Редактировать', icon: 'fa-pen', onSelect: () => { setSelectedNews(item); setIsFormOpen(true); }, hidden: item.status === 'Archived' },
-    { label: 'Опубликовать', icon: 'fa-upload', onSelect: () => handlePublish(item.id), hidden: item.status !== 'Draft' },
-    { label: 'Снять с публикации', icon: 'fa-eye-slash', onSelect: () => handleUnpublish(item.id), hidden: item.status !== 'Published' },
-    { label: 'В архив', icon: 'fa-box-archive', onSelect: () => handleArchive(item.id), hidden: item.status !== 'Published' },
-    { label: 'Восстановить', icon: 'fa-rotate-left', onSelect: () => handleRestore(item.id), hidden: item.status !== 'Archived' },
+    { label: 'Опубликовать', icon: 'fa-upload', onSelect: () => changeStatus(item, 'publish'), hidden: item.status !== 'Draft' },
+    { label: 'Снять с публикации', icon: 'fa-eye-slash', onSelect: () => changeStatus(item, 'unpublish'), hidden: item.status !== 'Published' },
+    { label: 'В архив', icon: 'fa-box-archive', onSelect: () => changeStatus(item, 'archive'), hidden: item.status !== 'Published' },
+    { label: 'Восстановить', icon: 'fa-rotate-left', onSelect: () => changeStatus(item, 'restore'), hidden: item.status !== 'Archived' },
     { label: 'Удалить', icon: 'fa-trash', onSelect: () => remove(item), danger: true },
   ];
 
@@ -220,7 +217,7 @@ export function AdminNewsPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1 ml-auto">
-                  {item.status === 'Draft' && <Button size="sm" onClick={() => handlePublish(item.id)}><i className="fas fa-upload" />Опубликовать</Button>}
+                  {item.status === 'Draft' && <Button size="sm" loading={busyId === item.id} onClick={() => changeStatus(item, 'publish')}><i className="fas fa-upload" />Опубликовать</Button>}
                   <ActionMenu actions={menuFor(item)} label={`Действия: ${item.title}`} />
                 </div>
               </li>

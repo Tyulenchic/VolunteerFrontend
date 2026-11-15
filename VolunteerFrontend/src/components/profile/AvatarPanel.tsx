@@ -4,6 +4,7 @@ import { usersApi } from '../../api/users';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { Button } from '../ui/Button';
+import { useConfirm } from '../ui/ConfirmDialog';
 import { PhotoField, type PhotoSelection } from '../PhotoField';
 import { useAuthBlobUrl } from '../SecureImage';
 
@@ -19,6 +20,7 @@ export function AvatarPanel() {
   const { notify } = useNotification();
   const [selection, setSelection] = useState<PhotoSelection | null>(null);
   const [busy, setBusy] = useState(false);
+  const confirm = useConfirm();
 
   // Свой аватар (в том числе ещё не одобренный) отдаётся только с токеном — загружаем его как blob.
   const own = useAuthBlobUrl(user?.avatarPreviewUrl, user?.avatarStatus);
@@ -27,7 +29,8 @@ export function AvatarPanel() {
   const dirty = !!selection && (!!selection.file || !!selection.removed || !!selection.crop || !!selection.cropReset);
 
   const save = async () => {
-    if (!selection) return;
+    if (!selection || busy) return;
+    if (selection.removed && !(await confirm({ message: 'Удалить аватар? Вернуть это фото можно будет только повторной загрузкой, и оно снова пройдёт проверку.', confirmLabel: 'Удалить', danger: true }))) return;
     setBusy(true);
     try {
       if (selection.removed) {

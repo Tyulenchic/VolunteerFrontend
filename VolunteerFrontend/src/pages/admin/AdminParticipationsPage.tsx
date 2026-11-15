@@ -16,6 +16,7 @@ import { ListSkeleton } from '../../components/ui/Skeleton';
 import { STATUS_TONE, StatusBadge } from '../../components/ui/StatusBadge';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { SearchInput } from '../../components/ui/Input';
+import { useConfirm } from '../../components/ui/ConfirmDialog';
 import type { AdminParticipationDto } from '../../types/admin';
 
 const TAKE = 20;
@@ -336,6 +337,8 @@ export function AdminParticipationsPage() {
   const [failed, setFailed] = useState(false);
   const beginRequest = useLatestRequest();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState<'approve' | 'reject' | null>(null);
+  const confirm = useConfirm();
   const [actionModal, setActionModal] = useState<{ participation: AdminParticipationDto; action: ParticipationAction } | null>(null);
   const [commentModal, setCommentModal] = useState<AdminParticipationDto | null>(null);
   const { notify } = useNotification();
@@ -394,11 +397,14 @@ export function AdminParticipationsPage() {
   }, [participations]);
 
   const handleBulkApprove = async () => {
+    if (bulkBusy) return;
     if (selectedIds.size === 0) {
       notify('Выберите заявки', 'error');
       return;
     }
+    if (!(await confirm({ title: 'Одобрить заявки?', message: `Будет одобрено заявок: ${selectedIds.size}. Волонтёры получат уведомления.`, confirmLabel: 'Одобрить', danger: false }))) return;
 
+    setBulkBusy('approve');
     try {
       const res = await adminApi.bulkApproveParticipations(Array.from(selectedIds));
       notify(`${res.ApprovedCount} заявок одобрено`);
@@ -407,15 +413,20 @@ export function AdminParticipationsPage() {
     } catch (e) {
       console.error('Error bulk approving:', e);
       notify(adminErrorMessage(e, 'Не удалось одобрить заявки'), 'error');
+    } finally {
+      setBulkBusy(null);
     }
   };
 
   const handleBulkReject = async () => {
+    if (bulkBusy) return;
     if (selectedIds.size === 0) {
       notify('Выберите заявки', 'error');
       return;
     }
+    if (!(await confirm({ title: 'Отклонить заявки?', message: `Будет отклонено заявок: ${selectedIds.size}. Волонтёры получат уведомления.`, confirmLabel: 'Отклонить', danger: true }))) return;
 
+    setBulkBusy('reject');
     try {
       const res = await adminApi.bulkRejectParticipations(Array.from(selectedIds));
       notify(`${res.RejectedCount} заявок отклонено`);
@@ -424,6 +435,8 @@ export function AdminParticipationsPage() {
     } catch (e) {
       console.error('Error bulk rejecting:', e);
       notify(adminErrorMessage(e, 'Не удалось отклонить заявки'), 'error');
+    } finally {
+      setBulkBusy(null);
     }
   };
 
@@ -470,8 +483,8 @@ export function AdminParticipationsPage() {
             <div className="glass sticky top-0 z-10 flex flex-wrap items-center gap-3 px-4 py-2.5 border-b border-line-strong">
               <span className="text-[13px] text-ink-900 font-medium">Выбрано: {selectedIds.size}</span>
               <div className="flex gap-2 ml-auto">
-                <Button size="sm" variant="success" onClick={handleBulkApprove}><i className="fas fa-check" />Одобрить</Button>
-                <Button size="sm" variant="secondary" onClick={handleBulkReject}>Отклонить</Button>
+                <Button size="sm" variant="success" loading={bulkBusy === 'approve'} disabled={bulkBusy !== null} onClick={handleBulkApprove}><i className="fas fa-check" />Одобрить</Button>
+                <Button size="sm" variant="secondary" loading={bulkBusy === 'reject'} disabled={bulkBusy !== null} onClick={handleBulkReject}>Отклонить</Button>
                 <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>Снять выбор</Button>
               </div>
             </div>

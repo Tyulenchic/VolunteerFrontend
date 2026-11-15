@@ -54,6 +54,7 @@ export function AdminEventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<AdminEventListDto | null>(null);
   const [statsFor, setStatsFor] = useState<AdminEventListDto | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   const setStatus = (s: string) => { setParams(s ? { status: s } : {}, { replace: true }); };
   const changeView = (v: View) => { setView(v); try { localStorage.setItem(VIEW_KEY, v); } catch { /* not remembered */ } };
@@ -86,28 +87,47 @@ export function AdminEventsPage() {
   const setLocalStatus = (id: string, st: AdminEventListDto['status']) =>
     setEvents(list => list.map(e => (e.id === id ? { ...e, status: st } : e)));
 
+  // Одно действие за раз: повторное нажатие, пока запрос идёт, ничего не отправляет.
+  const guarded = async (ev: AdminEventListDto, action: () => Promise<void>) => {
+    if (busyId) return;
+    setBusyId(ev.id);
+    try { await action(); } finally { setBusyId(null); }
+  };
+
   const publish = async (ev: AdminEventListDto) => {
-    try { await adminApi.publishEvent(ev.id); setLocalStatus(ev.id, 'Published'); notify('Мероприятие опубликовано'); }
-    catch (e) { console.error(e); notify(adminErrorMessage(e, 'Не удалось опубликовать мероприятие'), 'error'); }
+    if (busyId || !(await confirm({ title: 'Опубликовать мероприятие?', message: `«${ev.title}» станет видно всем, волонтёры смогут подавать заявки.`, confirmLabel: 'Опубликовать', danger: false }))) return;
+    await guarded(ev, async () => {
+      try { await adminApi.publishEvent(ev.id); setLocalStatus(ev.id, 'Published'); notify('Мероприятие опубликовано'); }
+      catch (e) { console.error(e); notify(adminErrorMessage(e, 'Не удалось опубликовать мероприятие'), 'error'); }
+    });
   };
   const complete = async (ev: AdminEventListDto) => {
-    try { await adminApi.completeEvent(ev.id); setLocalStatus(ev.id, 'Completed'); notify('Мероприятие завершено'); }
-    catch (e) { console.error(e); notify(adminErrorMessage(e, 'Не удалось завершить мероприятие'), 'error'); }
+    if (busyId || !(await confirm({ title: 'Завершить мероприятие?', message: `«${ev.title}» будет отмечено как прошедшее: заявки закроются. Вернуть его в опубликованные нельзя.`, confirmLabel: 'Завершить' }))) return;
+    await guarded(ev, async () => {
+      try { await adminApi.completeEvent(ev.id); setLocalStatus(ev.id, 'Completed'); notify('Мероприятие завершено'); }
+      catch (e) { console.error(e); notify(adminErrorMessage(e, 'Не удалось завершить мероприятие'), 'error'); }
+    });
   };
   const cancel = async (ev: AdminEventListDto) => {
-    if (!(await confirm({ title: 'Отменить мероприятие?', message: `«${ev.title}» будет отменено. Участники увидят новый статус.`, confirmLabel: 'Отменить мероприятие' }))) return;
-    try { await adminApi.cancelEvent(ev.id, 'Отменено администратором'); setLocalStatus(ev.id, 'Cancelled'); notify('Мероприятие отменено'); }
-    catch (e) { console.error(e); notify(adminErrorMessage(e, 'Не удалось отменить мероприятие'), 'error'); }
+    if (busyId || !(await confirm({ title: 'Отменить мероприятие?', message: `«${ev.title}» будет отменено. Участники увидят новый статус.`, confirmLabel: 'Отменить мероприятие' }))) return;
+    await guarded(ev, async () => {
+      try { await adminApi.cancelEvent(ev.id, 'Отменено администратором'); setLocalStatus(ev.id, 'Cancelled'); notify('Мероприятие отменено'); }
+      catch (e) { console.error(e); notify(adminErrorMessage(e, 'Не удалось отменить мероприятие'), 'error'); }
+    });
   };
   const archive = async (ev: AdminEventListDto) => {
-    if (!(await confirm({ title: 'Отправить в архив?', message: `«${ev.title}» исчезнет из публичного показа. Запись сохранится и останется видна здесь.`, confirmLabel: 'В архив' }))) return;
-    try { await adminApi.archiveEvent(ev.id); setLocalStatus(ev.id, 'Archived'); notify('Мероприятие отправлено в архив'); }
-    catch (e) { console.error(e); notify(adminErrorMessage(e, 'Не удалось отправить в архив'), 'error'); }
+    if (busyId || !(await confirm({ title: 'Отправить в архив?', message: `«${ev.title}» исчезнет из публичного показа. Запись сохранится и останется видна здесь.`, confirmLabel: 'В архив' }))) return;
+    await guarded(ev, async () => {
+      try { await adminApi.archiveEvent(ev.id); setLocalStatus(ev.id, 'Archived'); notify('Мероприятие отправлено в архив'); }
+      catch (e) { console.error(e); notify(adminErrorMessage(e, 'Не удалось отправить в архив'), 'error'); }
+    });
   };
   const remove = async (ev: AdminEventListDto) => {
-    if (!(await confirm({ title: 'Удалить мероприятие?', message: `«${ev.title}» будет удалено без возможности восстановления${ev.status === 'Completed' || ev.status === 'Archived' ? ', вместе с историей участия' : ''}.`, confirmLabel: 'Удалить' }))) return;
-    try { await adminApi.deleteEvent(ev.id); notify('Мероприятие удалено'); if (events.length === 1 && skip > 0) setSkip(Math.max(0, skip - TAKE)); else load(); }
-    catch (e) { console.error(e); notify(adminErrorMessage(e, 'Не удалось удалить мероприятие'), 'error'); }
+    if (busyId || !(await confirm({ title: 'Удалить мероприятие?', message: `«${ev.title}» будет удалено без возможности восстановления${ev.status === 'Completed' || ev.status === 'Archived' ? ', вместе с историей участия' : ''}.`, confirmLabel: 'Удалить' }))) return;
+    await guarded(ev, async () => {
+      try { await adminApi.deleteEvent(ev.id); notify('Мероприятие удалено'); if (events.length === 1 && skip > 0) setSkip(Math.max(0, skip - TAKE)); else load(); }
+      catch (e) { console.error(e); notify(adminErrorMessage(e, 'Не удалось удалить мероприятие'), 'error'); }
+    });
   };
 
   const menuFor = (ev: AdminEventListDto): MenuAction[] => [
@@ -122,8 +142,8 @@ export function AdminEventsPage() {
   ];
 
   const quickAction = (ev: AdminEventListDto) =>
-    ev.status === 'Draft' ? <Button size="sm" onClick={() => publish(ev)}><i className="fas fa-upload" />Опубликовать</Button>
-    : ev.status === 'Published' && new Date(ev.startsAt).getTime() < Date.now() ? <Button size="sm" variant="secondary" onClick={() => complete(ev)}><i className="fas fa-flag-checkered" />Завершить</Button>
+    ev.status === 'Draft' ? <Button size="sm" loading={busyId === ev.id} onClick={() => publish(ev)}><i className="fas fa-upload" />Опубликовать</Button>
+    : ev.status === 'Published' && new Date(ev.startsAt).getTime() < Date.now() ? <Button size="sm" variant="secondary" loading={busyId === ev.id} onClick={() => complete(ev)}><i className="fas fa-flag-checkered" />Завершить</Button>
     : null;
 
   const filtered = !!(searchInput || status);

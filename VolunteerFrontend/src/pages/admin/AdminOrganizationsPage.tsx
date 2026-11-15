@@ -186,6 +186,7 @@ function OrganizersModal({ org, onClose }: { org: OrganizationListItem; onClose:
   const search = useDebounced(query, 350);
   const [found, setFound] = useState<AdminUserListItemDto[]>([]);
   const [searching, setSearching] = useState(false);
+  const [memberBusy, setMemberBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -208,13 +209,18 @@ function OrganizersModal({ org, onClose }: { org: OrganizationListItem; onClose:
   }, [search, organizers]);
 
   const add = async (u: AdminUserListItemDto) => {
+    if (memberBusy) return;
+    setMemberBusy(u.id);
     try { await organizationsApi.addOrganizer(org.id, u.id); notify(`${u.fullName || u.email} назначен организатором`); setQuery(''); setFound([]); await load(); }
     catch (err) { notify(adminErrorMessage(err, 'Не удалось назначить организатора.'), 'error'); }
+    finally { setMemberBusy(null); }
   };
   const remove = async (m: OrganizationMember) => {
-    if (!(await confirm({ message: `Снять «${m.fullName}» с роли организатора этой организации?`, confirmLabel: 'Снять', danger: true }))) return;
+    if (memberBusy || !(await confirm({ message: `Снять «${m.fullName}» с роли организатора этой организации?`, confirmLabel: 'Снять', danger: true }))) return;
+    setMemberBusy(m.userId);
     try { await organizationsApi.removeMember(org.id, m.userId); notify('Организатор снят'); await load(); }
     catch (err) { notify(adminErrorMessage(err, 'Не удалось снять организатора.'), 'error'); }
+    finally { setMemberBusy(null); }
   };
 
   return (
@@ -231,7 +237,7 @@ function OrganizersModal({ org, onClose }: { org: OrganizationListItem; onClose:
                 <li key={u.id} className="flex items-center gap-3 px-3 py-2">
                   <Avatar name={u.fullName || u.email} src={u.avatarUrl} size="sm" />
                   <div className="min-w-0 flex-1"><p className="text-[13px] font-medium truncate">{u.fullName || u.email}</p><p className="meta truncate">{u.email}{u.role === 'Volunteer' ? ' · станет организатором' : ''}</p></div>
-                  <Button size="sm" onClick={() => add(u)}>Назначить</Button>
+                  <Button size="sm" loading={memberBusy === u.id} disabled={memberBusy !== null} onClick={() => add(u)}>Назначить</Button>
                 </li>
               ))}
             </ul>
@@ -247,7 +253,7 @@ function OrganizersModal({ org, onClose }: { org: OrganizationListItem; onClose:
                 <li key={m.userId} className="flex items-center gap-3 px-3 py-2">
                   <Avatar name={m.fullName} src={m.avatarThumbnailUrl} size="sm" />
                   <div className="min-w-0 flex-1"><p className="text-[13px] font-medium truncate">{m.fullName}</p><p className="meta truncate">{m.email}</p></div>
-                  <Button size="sm" variant="ghost" onClick={() => remove(m)} aria-label={`Снять ${m.fullName}`}><i className="fas fa-user-minus" aria-hidden /></Button>
+                  <Button size="sm" variant="ghost" loading={memberBusy === m.userId} disabled={memberBusy !== null} onClick={() => remove(m)} aria-label={`Снять ${m.fullName}`}><i className="fas fa-user-minus" aria-hidden /></Button>
                 </li>
               ))}
             </ul>
