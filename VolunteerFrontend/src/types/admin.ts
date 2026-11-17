@@ -74,6 +74,8 @@ export interface AdminUserListItemDto {
   attendedEventsCount: number;
   /** Подтверждена ли почта (в списке и в карточке). */
   emailConfirmed?: boolean;
+  /** Последний вход; null — ни разу не входил. */
+  lastLoginAt?: string | null;
 }
 
 export interface AdminUserDetailDto extends AdminUserListItemDto {
@@ -215,8 +217,17 @@ export interface AdminAnalyticsDto {
   topOrganizers: ActiveOrganizerDto[];
   userGrowthPercentage: number;
   averageEventParticipants: number;
+  /** Кто реально пользуется сайтом и кто застрял на подтверждении почты. */
+  audience?: { signedInLast30Days: number; unconfirmedEmails: number; neverSignedIn: number };
+  /** Путь заявки: подано → одобрено → пришёл. */
+  participationFunnel?: {
+    applications: number; pending: number; approved: number; attended: number; rejected: number; withdrawn: number;
+    approvalRatePercent: number; attendanceRatePercent: number;
+  };
+  usersByCity?: { city: string; users: number }[];
+  eventsByCategory?: Record<string, number>;
+  topOrganizations?: { id: string; name: string; events: number; participants: number; members: number }[];
 }
-
 // ==================== NOTIFICATIONS ====================
 
 export interface AdminNotificationDto {

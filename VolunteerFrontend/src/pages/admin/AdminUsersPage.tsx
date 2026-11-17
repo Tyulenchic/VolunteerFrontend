@@ -8,6 +8,7 @@ import { Modal } from '../../components/Modal';
 import { DossierExportButtons } from '../../components/DossierExportButtons';
 import { DossierModal } from '../../components/admin/DossierModal';
 import { AccountRecoveryPanel } from '../../components/admin/AccountRecoveryPanel';
+import { EmailSupportPanel } from '../../components/admin/EmailSupportPanel';
 import { useAuth } from '../../context/AuthContext';
 import { useConfirm } from '../../components/ui/ConfirmDialog';
 import { ActionMenu } from '../../components/ui/ActionMenu';
@@ -25,6 +26,15 @@ import { SearchInput } from '../../components/ui/Input';
 import type { AdminUserDetailDto, AdminUserListItemDto } from '../../types/admin';
 
 const TAKE = 20;
+
+const USER_SORTS = {
+  newest: { label: 'Сначала новые', sort: 'createdAt', order: 'desc' },
+  oldest: { label: 'Сначала давние', sort: 'createdAt', order: 'asc' },
+  name: { label: 'По фамилии', sort: 'name', order: 'asc' },
+  email: { label: 'По email', sort: 'email', order: 'asc' },
+  lastLogin: { label: 'По последнему входу', sort: 'lastLoginAt', order: 'desc' },
+} as const satisfies Record<string, { label: string; sort: string; order: 'asc' | 'desc' }>;
+type UserSort = keyof typeof USER_SORTS;
 
 /** Состояние учётной записи: заблокирована, почта не подтверждена (вход невозможен, в публичных списках нет) или всё в порядке. */
 const accountStatus = (u: { isActive: boolean; emailConfirmed?: boolean }): { label: string; tone: Tone } =>
@@ -144,6 +154,10 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
         </div>
         {showDossier && <DossierModal userId={user.id} onClose={() => setShowDossier(false)} />}
 
+        {!user.isDeleted && (
+          <EmailSupportPanel userId={user.id} emailConfirmed={user.emailConfirmed !== false} onDone={() => { onRefresh(); onClose(); }} />
+        )}
+
         {!user.isDeleted && user.id !== me?.id && (
           <AccountRecoveryPanel userId={user.id} email={user.email} isActive={user.isActive} onDone={() => { onRefresh(); onClose(); }} />
         )}
@@ -262,7 +276,9 @@ export function AdminUsersPage() {
   const search = useDebounced(searchInput);
   const [role, setRole] = useState<string>('');
   const [isActive, setIsActive] = useState<boolean | null>(null);
-  const [skip, setSkip] = usePaging(`${search}|${role}|${isActive}`);
+  const [unconfirmedOnly, setUnconfirmedOnly] = useState(false);
+  const [sort, setSort] = useState<UserSort>('newest');
+  const [skip, setSkip] = usePaging(`${search}|${role}|${isActive}|${unconfirmedOnly}|${sort}`);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
   const beginRequest = useLatestRequest();
@@ -273,7 +289,7 @@ export function AdminUsersPage() {
     setLoading(true);
     setFailed(false);
     try {
-      const res = await adminApi.getUsers(skip, TAKE, search, role || undefined, isActive ?? undefined);
+      const res = await adminApi.getUsers(skip, TAKE, search, role || undefined, isActive ?? undefined, unconfirmedOnly ? false : undefined, USER_SORTS[sort].sort, USER_SORTS[sort].order);
       if (!isCurrent()) return;
       setUsers(res.Items || []);
       setTotal(res.Total || 0);
@@ -287,7 +303,7 @@ export function AdminUsersPage() {
       if (isCurrent()) setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [skip, search, role, isActive]);
+  }, [skip, search, role, isActive, unconfirmedOnly, sort]);
 
   useEffect(() => {
     load();
@@ -315,8 +331,8 @@ export function AdminUsersPage() {
   };
 
   const statusValue = isActive === null ? 'all' : isActive ? 'active' : 'blocked';
-  const filtered = !!(searchInput || role || isActive !== null);
-  const resetFilters = () => { setSearchInput(''); setRole(''); setIsActive(null); };
+  const filtered = !!(searchInput || role || isActive !== null || unconfirmedOnly);
+  const resetFilters = () => { setSearchInput(''); setRole(''); setIsActive(null); setUnconfirmedOnly(false); };
 
   return (
     <div className="space-y-5">
@@ -328,6 +344,13 @@ export function AdminUsersPage() {
           options={[{ value: '', label: 'Все' }, { value: 'Volunteer', label: 'Волонтёры' }, { value: 'Organizer', label: 'Организаторы' }, { value: 'Admin', label: 'Админы' }]} />
         <Segmented label="Статус" value={statusValue} onChange={v => setIsActive(v === 'all' ? null : v === 'active')}
           options={[{ value: 'all', label: 'Любой' }, { value: 'active', label: 'Не заблокированные' }, { value: 'blocked', label: 'Заблокированные' }]} />
+        <label className="inline-flex items-center gap-2 text-sm text-ink-700">
+          <input type="checkbox" checked={unconfirmedOnly} onChange={e => setUnconfirmedOnly(e.target.checked)} />
+          Почта не подтверждена
+        </label>
+        <select aria-label="Сортировка" value={sort} onChange={e => setSort(e.target.value as UserSort)} className="px-3 py-2 text-sm">
+          {(Object.keys(USER_SORTS) as UserSort[]).map(key => <option key={key} value={key}>{USER_SORTS[key].label}</option>)}
+        </select>
       </div>
 
       <Card className="overflow-hidden">
@@ -368,7 +391,7 @@ export function AdminUsersPage() {
                     <td className="px-4 py-3"><StatusBadge tone={ROLE_TONE[user.role] ?? 'neutral'}>{ROLE_LABEL[user.role] ?? user.role}</StatusBadge></td>
                     <td className="px-4 py-3"><StatusBadge tone={accountStatus(user).tone}>{accountStatus(user).label}</StatusBadge></td>
                     <td className="px-4 py-3 hidden md:table-cell text-ink-500 whitespace-nowrap">{new Date(user.createdAt).toLocaleDateString('ru-RU')}</td>
-                    <td className="px-4 py-3 hidden 2xl:table-cell meta whitespace-nowrap">заявок {user.participationsCount} · посещено {user.attendedEventsCount}</td>
+                    <td className="px-4 py-3 hidden 2xl:table-cell meta whitespace-nowrap">заявок {user.participationsCount} · посещено {user.attendedEventsCount} · вход: {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString('ru-RU') : 'не входил'}</td>
                     <td className="px-4 py-3 rt-end">
                       <div className="flex items-center justify-end gap-1">
                         <Button variant="secondary" size="sm" onClick={() => openDetail(user.id)}>Профиль</Button>

@@ -60,6 +60,46 @@ function TrendTable<T extends { month: string }>({ title, rows, cols }: { title:
   );
 }
 
+const CATEGORY_LABEL: Record<string, string> = {
+  Veterans: 'Помощь ветеранам', Medical: 'Медицина', Donation: 'Донорство', Animals: 'Помощь животным', HealthyLife: 'ЗОЖ',
+  Culture: 'Культура', Education: 'Образование', Media: 'Медиа', Social: 'Социальное', Events: 'Событийное',
+  Patriotic: 'Патриотическое', Urban: 'Городская среда', Ecological: 'Экология',
+};
+
+function Metric({ label, value, hint }: { label: string; value: number | string; hint: string }) {
+  return (
+    <Card padding="sm">
+      <p className="text-ink-500 text-xs">{label}</p>
+      <p className="text-ink-900 text-2xl font-bold tabular-nums">{value}</p>
+      <p className="meta">{hint}</p>
+    </Card>
+  );
+}
+
+function BarList({ title, items, empty }: { title: string; items: { label: string; value: number }[]; empty: string }) {
+  const max = Math.max(1, ...items.map(i => i.value));
+  return (
+    <Card>
+      <CardHeader title={title} />
+      {items.length === 0 ? (
+        <p className="px-5 py-6 text-sm text-ink-400">{empty}</p>
+      ) : (
+        <ul className="divide-y divide-line">
+          {items.map(item => (
+            <li key={item.label} className="px-5 py-2.5">
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="text-ink-700 truncate">{item.label}</span>
+                <span className="font-medium text-ink-900 tabular-nums">{item.value}</span>
+              </div>
+              <div className="mt-1 h-1 rounded-full bg-surface-3 overflow-hidden" aria-hidden><div className="h-full bg-brand-500" style={{ width: `${(item.value / max) * 100}%` }} /></div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
 function TopList({ title, items, empty }: { title: string; items: { id: string; name: string; meta: string }[]; empty: string }) {
   return (
     <Card>
@@ -154,6 +194,34 @@ export function AdminAnalyticsPage() {
             <TopList title="Активные организаторы" empty="Данных пока нет"
               items={analytics.topOrganizers.map(o => ({ id: o.id, name: o.name, meta: `${o.eventsCreated} мероприятий · ${o.totalParticipants} участников` }))} />
           </div>
+
+          {(analytics.audience || analytics.participationFunnel) && (
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {analytics.audience && (
+                <>
+                  <Metric label="Входили за 30 дней" value={analytics.audience.signedInLast30Days} hint="активная аудитория" />
+                  <Metric label="Почта не подтверждена" value={analytics.audience.unconfirmedEmails} hint="не могут войти — раздел «Пользователи», фильтр" />
+                </>
+              )}
+              {analytics.participationFunnel && (
+                <>
+                  <Metric label="Одобрено заявок" value={`${analytics.participationFunnel.approvalRatePercent}%`} hint={`${analytics.participationFunnel.approved} из рассмотренных, ждут решения: ${analytics.participationFunnel.pending}`} />
+                  <Metric label="Пришли на мероприятие" value={`${analytics.participationFunnel.attendanceRatePercent}%`} hint={`${analytics.participationFunnel.attended} из ${analytics.participationFunnel.approved} одобренных`} />
+                </>
+              )}
+            </div>
+          )}
+
+          {(analytics.usersByCity || analytics.eventsByCategory || analytics.topOrganizations) && (
+            <div className="grid gap-6 xl:grid-cols-3">
+              <BarList title="Пользователи по городам" empty="Города в профилях не указаны"
+                items={(analytics.usersByCity ?? []).map(c => ({ label: c.city, value: c.users }))} />
+              <BarList title="Мероприятия по направлениям" empty="Мероприятий пока нет"
+                items={Object.entries(analytics.eventsByCategory ?? {}).map(([key, value]) => ({ label: CATEGORY_LABEL[key] ?? key, value })).sort((a, b) => b.value - a.value)} />
+              <TopList title="Активные организации" empty="Данных пока нет"
+                items={(analytics.topOrganizations ?? []).filter(o => o.events > 0 || o.members > 0).map(o => ({ id: o.id, name: o.name, meta: `${o.events} мероприятий · ${o.participants} участников · ${o.members} в составе` }))} />
+            </div>
+          )}
 
           <p className="meta">
             В среднем {analytics.averageEventParticipants.toFixed(1)} участников на мероприятие · изменение числа пользователей за период: {analytics.userGrowthPercentage > 0 ? '+' : ''}{analytics.userGrowthPercentage}%

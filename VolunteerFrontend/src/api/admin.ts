@@ -41,10 +41,10 @@ export const adminApi = {
 
   // ==================== USERS ====================
 
-  async getUsers(skip = 0, take = 20, search?: string, role?: string, isActive?: boolean) {
+  async getUsers(skip = 0, take = 20, search?: string, role?: string, isActive?: boolean, emailConfirmed?: boolean, sort?: string, order?: 'asc' | 'desc') {
     const res = await apiClient.get<{ items: AdminUserListItemDto[]; total: number }>(
         `${API_BASE}/users`,
-        { params: { skip, take, search, role, isActive } }
+        { params: { skip, take, search, role, isActive, emailConfirmed, sort, order } }
     );
     return { Items: res.data.items, Total: res.data.total };
   },
@@ -143,10 +143,10 @@ export const adminApi = {
 
   // ==================== EVENTS ====================
 
-  async getEvents(skip = 0, take = 20, search?: string, status?: string) {
+  async getEvents(skip = 0, take = 20, search?: string, status?: string, sort?: string, order?: 'asc' | 'desc') {
     const res = await apiClient.get<{ items: AdminEventListDto[]; total: number }>(
         `${API_BASE}/events`,
-        { params: { skip, take, search, status } }
+        { params: { skip, take, search, status, sort, order } }
     );
     return { Items: res.data.items, Total: res.data.total };
   },
@@ -234,11 +234,13 @@ export const adminApi = {
       take = 20,
       search?: string,
       status?: string,
-      eventId?: string
+      eventId?: string,
+      sort?: string,
+      order?: 'asc' | 'desc'
   ) {
     const res = await apiClient.get<{ items: AdminParticipationDto[]; total: number }>(
         `${API_BASE}/participations`,
-        { params: { skip, take, search, status, eventId } }
+        { params: { skip, take, search, status, eventId, sort, order } }
     );
     return { Items: res.data.items, Total: res.data.total };
   },
