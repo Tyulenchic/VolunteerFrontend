@@ -62,8 +62,9 @@ export const databaseApi = {
   },
 
   async endSession(): Promise<void> {
+    const headers = accessHeaders();
     grant = null;
-    await apiClient.delete(`${API_BASE}/session`).catch(() => { /* ключ всё равно истечёт сам */ });
+    await apiClient.delete(`${API_BASE}/session`, { headers }).catch(() => { /* ключ всё равно истечёт сам */ });
   },
 
   async getTables(): Promise<DbTableInfo[]> {

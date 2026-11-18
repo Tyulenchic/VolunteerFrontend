@@ -1,6 +1,6 @@
 import { apiClient } from "./client";
 import { clearSession, getRefreshToken, setTokens } from "../auth/session";
-import type { LoginDto, RegisterDto, AuthResponseDto, ForgotPasswordDto, ResetPasswordDto, ConfirmEmailDto, ResendConfirmationDto } from "../types/auth";
+import type { LoginDto, RegisterDto, AuthResponseDto, ForgotPasswordDto, ResetPasswordDto, ConfirmEmailDto, ResendConfirmationDto, SessionDto } from "../types/auth";
 
 export const authApi = {
   login: async (dto: LoginDto): Promise<void> => {
@@ -26,6 +26,24 @@ export const authApi = {
     } catch {
       // сервер недоступен / 429 — локальный выход уже выполнен
     }
+  },
+
+  // Сеансы входа этого пользователя на всех устройствах (текущий помечен current).
+  listSessions: async (): Promise<SessionDto[]> => {
+    const { data } = await apiClient.get<SessionDto[]>("/api/auth/sessions");
+    return data;
+  },
+
+  // Завершает сеанс на другом устройстве: там access-токен перестаёт работать сразу, refresh — тоже.
+  // Текущий сеанс завершить так нельзя (сервер ответит 400): для него есть logout.
+  endSession: async (id: string): Promise<void> => {
+    await apiClient.delete(`/api/auth/sessions/${encodeURIComponent(id)}`);
+  },
+
+  // Завершает все сеансы, кроме текущего; локальная сессия остаётся. Возвращает, сколько сеансов завершено.
+  endOtherSessions: async (): Promise<number> => {
+    const { data } = await apiClient.post<{ revoked: number }>("/api/auth/sessions/revoke-others");
+    return data.revoked;
   },
 
   // Отзывает на сервере все refresh-токены пользователя (все устройства, включая это) — локальная сессия завершается.

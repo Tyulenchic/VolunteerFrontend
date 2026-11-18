@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { AuthProvider, useAuth } from "./AuthContext";
 import { FakeServer } from "../test/fakeServer";
@@ -114,5 +114,40 @@ describe("logout through the context", () => {
     await act(async () => { await auth.refreshUser(); });
 
     await settled("guest");
+  });
+});
+
+describe("session ended from another device", () => {
+  const sessionCheck = async () => { await act(async () => { await vi.advanceTimersByTimeAsync(60_000); }); };
+
+  afterEach(() => { vi.useRealTimers(); });
+
+  it("signs the device out by itself within a minute, without any action of the user", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    setTokens("A1", "R1");
+    mount();
+    await settled("user:u@example.test");
+
+    server.validAccess = "A-ended";
+    server.refreshMode = "reject401";
+    await sessionCheck();
+
+    await settled("guest");
+    expect(getAccessToken()).toBeNull();
+    expect(getRefreshToken()).toBeNull();
+  });
+
+  it("keeps the user signed in while the check only meets a temporary failure", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    setTokens("A1", "R1");
+    mount();
+    await settled("user:u@example.test");
+
+    server.validAccess = "A-other";
+    server.refreshMode = "status503";
+    await sessionCheck();
+
+    expect(screen.getByTestId("state").textContent).toBe("user:u@example.test");
+    expect(getRefreshToken()).toBe("R1");
   });
 });

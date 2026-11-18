@@ -14,6 +14,7 @@ import { Card } from '../../components/ui/Card';
 import { useAuthBlobUrl } from '../../components/SecureImage';
 import { DossierExportButtons } from '../../components/DossierExportButtons';
 import { AvatarPanel } from '../../components/profile/AvatarPanel';
+import { SessionsPanel } from '../../components/profile/SessionsPanel';
 import { MyOrganizationsPanel } from '../../components/profile/MyOrganizationsPanel';
 import { PublicProfileView } from '../../components/profile/PublicProfileView';
 import { checkPhone, phoneError, PHONE_HINT, PHONE_PLACEHOLDER } from '../../utils/phone';
@@ -503,6 +504,8 @@ export function ProfilePage() {
                 </form>
               </div>
             )}
+
+            {tab === 'security' && <SessionsPanel />}
 
             {tab === 'security' && (
               <div className="mt-8 border-t border-vol-line pt-6">

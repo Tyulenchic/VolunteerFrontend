@@ -24,6 +24,8 @@ interface AuthCtx {
 }
 const Ctx = createContext<AuthCtx | null>(null);
 
+const SESSION_CHECK_INTERVAL_MS = 60_000;
+
 /** 401, который остался после попытки refresh и НЕ связан с временной недоступностью refresh. */
 const isDefinitiveUnauthorized = (err: unknown) =>
   axios.isAxiosError(err) && err.response?.status === 401 && !isRefreshUnavailable(err);
@@ -63,6 +65,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Одна точка выхода из состояния «аутентифицирован»: refresh отклонён, logout, выход в другой вкладке.
   useEffect(() => onSessionCleared(() => { setUser(null); setUnavailable(false); }), []);
+
+  // Сеанс могли завершить с другого устройства: проверяем раз в минуту и при возвращении на вкладку.
+  // 401 после неудачного refresh очищает сессию — устройство выходит из аккаунта само. Временный сбой игнорируется.
+  const signedIn = user !== null;
+  useEffect(() => {
+    if (!signedIn) return;
+    const verify = async () => {
+      if (document.visibilityState === "hidden" || !hasSession()) return;
+      try { await usersApi.getMe(); }
+      catch (err) { if (isDefinitiveUnauthorized(err)) { clearSession(); setUser(null); } }
+    };
+    const timer = window.setInterval(() => { void verify(); }, SESSION_CHECK_INTERVAL_MS);
+    document.addEventListener("visibilitychange", verify);
+    return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", verify); };
+  }, [signedIn]);
 
   /** Перечитать профиль (после правок). Временный сбой не разлогинивает: прежний user сохраняется. */
   const refreshUser = useCallback(async () => {
