@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CroppedImage } from '../ImageCropper';
+import { useSecureSrc } from '../SecureImage';
 import type { ImageCropDto } from '../../types/organization';
 
 /**
@@ -65,9 +66,12 @@ export function Avatar({ name, thumb, src, crop, size = 'sm', square = false, cl
   return initial;
 }
 
-/** Thumbnail for a stored image URL (used as-is). Broken or missing images fall back to a neutral placeholder. */
+/**
+ * Thumbnail for a stored image URL. Images of drafts are not public (the server answers a plain <img> with 404),
+ * so a failed load is retried with the token (see useSecureSrc); only then the neutral placeholder is shown.
+ */
 export function Thumb({ src, className = '' }: { src?: string | null; className?: string }) {
-  const [failed, setFailed] = useState(false);
-  if (src && !failed) return <img src={src} alt="" className={`object-cover ${className}`} onError={() => setFailed(true)} />;
+  const resolved = useSecureSrc(src);
+  if (resolved.src && !resolved.failed) return <img src={resolved.src} alt="" className={`object-cover ${className}`} onError={resolved.onError} />;
   return <span className={`bg-surface-3 text-ink-400 flex items-center justify-center ${className}`}><i className="far fa-image text-lg" /></span>;
 }
