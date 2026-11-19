@@ -92,6 +92,8 @@ export interface EventResponseDto {
   imageCrop?: ImageCropDto | null;
   /** Организация-организатор; null — мероприятие от платформы. */
   organization?: OrganizationSummary | null;
+  /** Когда черновик будет опубликован сам (UTC, ISO); null — публикация не запланирована. */
+  scheduledPublishAt?: string | null;
 }
 
 export interface EventListResponseDto {
@@ -112,6 +114,8 @@ export interface CreateEventDto {
   maxParticipants?: number | null;
   category?: EventCategoryCode | null;
   tags?: string[];
+  /** Запланированная публикация черновика (ISO); без неё мероприятие остаётся черновиком до ручной публикации. */
+  publishAt?: string | null;
   /** Организация, от имени которой проводится мероприятие (организатору обязательна, если у него их несколько). */
   organizationId?: string | null;
   /** Фото, загруженное заранее (POST /api/images) — идентификатор мероприятия для этого не нужен. */

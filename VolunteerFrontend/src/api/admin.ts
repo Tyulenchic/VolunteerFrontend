@@ -129,6 +129,15 @@ export const adminApi = {
     await apiClient.post(`${API_BASE}/news/${newsId}/publish`);
   },
 
+  /** Опубликовать черновик новости в указанное время (ISO); публикует фоновая задача сервера. */
+  async scheduleNews(newsId: string, publishAt: string) {
+    await apiClient.put(`${API_BASE}/news/${newsId}/schedule`, { publishAt });
+  },
+
+  async unscheduleNews(newsId: string) {
+    await apiClient.delete(`${API_BASE}/news/${newsId}/schedule`);
+  },
+
   async unpublishNews(newsId: string) {
     await apiClient.post(`${API_BASE}/news/${newsId}/unpublish`);
   },
@@ -212,6 +221,15 @@ export const adminApi = {
 
   async publishEvent(eventId: string) {
     await apiClient.post(`/api/events/${eventId}/publish`);
+  },
+
+  /** Опубликовать черновик мероприятия в указанное время (ISO); публикует фоновая задача сервера. */
+  async scheduleEvent(eventId: string, publishAt: string) {
+    await apiClient.put(`/api/events/${eventId}/schedule`, { publishAt });
+  },
+
+  async unscheduleEvent(eventId: string) {
+    await apiClient.delete(`/api/events/${eventId}/schedule`);
   },
 
   async cancelEvent(eventId: string, reason?: string) {

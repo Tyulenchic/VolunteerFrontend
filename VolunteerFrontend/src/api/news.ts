@@ -15,6 +15,8 @@ export interface NewsResponseDto {
   createdAt: string;
   updatedAt?: string;
   category?: string;
+  /** Когда черновик будет опубликован сам (UTC, ISO); null — публикация не запланирована. */
+  scheduledPublishAt?: string | null;
 }
 
 export interface NewsListResponseDto {

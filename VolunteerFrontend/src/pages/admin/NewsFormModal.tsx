@@ -7,6 +7,8 @@ import { newsApi } from '../../api/news';
 import { useNotification } from '../../context/NotificationContext';
 import { adminErrorMessage } from '../../utils/adminErrors';
 import type { AdminNewsListDto } from '../../types/admin';
+import { fromDatetimeLocal, toDatetimeLocal } from '../../utils/datetimeLocal';
+import { SchedulePublicationField } from '../../components/admin/SchedulePublicationField';
 
 interface NewsFormModalProps {
   isOpen: boolean;
@@ -28,6 +30,11 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
     category: '',
   });
 
+  // Запланированная публикация черновика (datetime-local); savedPublishAt — что уже сохранено на сервере.
+  const [publishAt, setPublishAt] = useState('');
+  const [savedPublishAt, setSavedPublishAt] = useState('');
+  const canSchedule = !news || news.status === 'Draft';
+
   const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
   const [currentImageCrop, setCurrentImageCrop] = useState<import('../../types/organization').ImageCropDto | null>(null);
   const [photo, setPhoto] = useState<PhotoSelection | null>(null);
@@ -45,6 +52,9 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
       setCurrentImageUrl(news.coverImageUrl || null);
       setCurrentImageCrop(null);
       setPhoto(null);
+      const listed = toDatetimeLocal(news.scheduledPublishAt);
+      setPublishAt(listed);
+      setSavedPublishAt(listed);
       setLoadingDetails(true);
 
       // ...и догружаем полную новость (текст, описание, категорию, обложку)
@@ -76,6 +86,8 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
       setCurrentImageUrl(null);
       setCurrentImageCrop(null);
       setPhoto(null);
+      setPublishAt('');
+      setSavedPublishAt('');
     }
     setError(null);
     return () => { alive = false; };
@@ -110,6 +122,18 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
         return;
       }
 
+      const publishAtIso = canSchedule ? fromDatetimeLocal(publishAt) : null;
+      if (canSchedule && publishAt && !publishAtIso) {
+        setError('Укажите корректное время публикации');
+        setLoading(false);
+        return;
+      }
+      if (publishAtIso && publishAt !== savedPublishAt && new Date(publishAtIso) <= new Date()) {
+        setError('Время публикации должно быть в будущем');
+        setLoading(false);
+        return;
+      }
+
       const payload = {
         title: formData.title,
         content: formData.content,
@@ -120,6 +144,10 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
 
       if (news) {
         await adminApi.updateNews(news.id, payload);
+        if (canSchedule && publishAt !== savedPublishAt) {
+          if (publishAtIso) await adminApi.scheduleNews(news.id, publishAtIso);
+          else await adminApi.unscheduleNews(news.id);
+        }
         // Обложка: новый файл, только кадр или удаление.
         if (photo?.file) {
           await adminApi.uploadNewsImage(news.id, photo.file, photo.crop);
@@ -134,8 +162,12 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
       } else {
         // Новая новость: обложка загружается заранее и привязывается при создании — идентификатор для этого не нужен.
         const staged = await stagePhoto(photo);
-        await adminApi.createNews({ ...payload, ...(staged && { imageId: staged.imageId, imageCrop: staged.crop }) });
-        notify('Новость создана');
+        await adminApi.createNews({
+          ...payload,
+          ...(staged && { imageId: staged.imageId, imageCrop: staged.crop }),
+          ...(publishAtIso && { publishAt: publishAtIso }),
+        });
+        notify(publishAtIso ? 'Новость создана и будет опубликована в назначенное время' : 'Новость создана');
       }
 
       onSuccess();
@@ -234,6 +266,10 @@ export function NewsFormModal({ isOpen, onClose, onSuccess, news }: NewsFormModa
                 className="w-full px-3 py-2 text-sm"
             />
           </div>
+
+          {canSchedule && (
+            <SchedulePublicationField value={publishAt} onChange={setPublishAt} subject="Новость" disabled={loading || loadingDetails} />
+          )}
 
           <div className="flex gap-2 pt-4">
             <button

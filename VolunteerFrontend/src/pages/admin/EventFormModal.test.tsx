@@ -60,6 +60,7 @@ describe("EventFormModal: category", () => {
 
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
     expect(create.mock.calls[0][0]).toMatchObject({ category: "custom-0123456789ab" });
+    expect(create.mock.calls[0][0]).not.toHaveProperty("publishAt");
   });
 
   it("adds a new category with the plus button and selects it", async () => {
@@ -90,5 +91,35 @@ describe("EventFormModal: category", () => {
 
     expect(screen.getByText(/не короче 2 символов/)).toBeTruthy();
     expect(post).not.toHaveBeenCalled();
+  });
+});
+
+describe("EventFormModal: scheduled publication", () => {
+  it("sends the chosen time with a new event", async () => {
+    const create = vi.spyOn(adminApi, "createEvent").mockResolvedValue({} as never);
+    const { onSuccess } = renderForm();
+
+    fillRequired();
+    fireEvent.change(screen.getByLabelText(/Категория/), { target: { value: "Ecological" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Запланировать публикацию" }));
+    fireEvent.change(screen.getByLabelText("Время публикации"), { target: { value: "2030-06-01T09:00" } });
+    fireEvent.click(screen.getByRole("button", { name: "Создать мероприятие" }));
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    expect(create.mock.calls[0][0].publishAt).toBe(new Date("2030-06-01T09:00").toISOString());
+  });
+
+  it("refuses a publication time after the end of the event", async () => {
+    const create = vi.spyOn(adminApi, "createEvent").mockResolvedValue({} as never);
+    renderForm();
+
+    fillRequired();
+    fireEvent.change(screen.getByLabelText(/Категория/), { target: { value: "Ecological" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Запланировать публикацию" }));
+    fireEvent.change(screen.getByLabelText("Время публикации"), { target: { value: "2030-06-03T09:00" } });
+    fireEvent.click(screen.getByRole("button", { name: "Создать мероприятие" }));
+
+    expect(await screen.findByText(/раньше окончания мероприятия/)).toBeTruthy();
+    expect(create).not.toHaveBeenCalled();
   });
 });

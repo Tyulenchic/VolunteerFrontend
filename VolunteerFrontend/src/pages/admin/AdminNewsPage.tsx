@@ -209,6 +209,9 @@ export function AdminNewsPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="text-sm font-semibold text-ink-900 line-clamp-1">{item.title}</h3>
                     <StatusBadge tone={STATUS_TONE[item.status] ?? 'neutral'}>{STATUS_LABEL[item.status]}</StatusBadge>
+                    {item.status === 'Draft' && item.scheduledPublishAt && (
+                      <StatusBadge tone="pending"><i className="far fa-clock mr-1" />Опубликуется {new Date(item.scheduledPublishAt).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</StatusBadge>
+                    )}
                   </div>
                   <p className="meta mt-1.5">
                     <i className="far fa-user mr-1.5" />{item.createdBy}

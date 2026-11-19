@@ -232,7 +232,10 @@ function EventCard({ ev, menu, quick, onOpen }: ItemProps) {
           </button>
           <p className="meta mt-1"><i className="far fa-clock mr-1.5" />{timeOf(ev.startsAt)}</p>
         </div>
-        <StatusBadge tone={STATUS_TONE[ev.status] ?? 'neutral'}>{STATUS_LABEL[ev.status] ?? ev.status}</StatusBadge>
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <StatusBadge tone={STATUS_TONE[ev.status] ?? 'neutral'}>{STATUS_LABEL[ev.status] ?? ev.status}</StatusBadge>
+          {ev.status === 'Draft' && ev.scheduledPublishAt && <StatusBadge tone="pending"><i className="far fa-clock mr-1" />Опубликуется {new Date(ev.scheduledPublishAt).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</StatusBadge>}
+        </div>
       </div>
       <div className="flex-1 px-4 pb-4 space-y-2">
         <p className="meta truncate"><i className="fas fa-location-dot mr-1.5" />{ev.location}</p>
@@ -256,6 +259,7 @@ function EventRow({ ev, menu, quick, onOpen }: ItemProps) {
             <h3 className="text-sm font-semibold text-ink-900 truncate hover:text-brand-700">{ev.title}</h3>
           </button>
           <StatusBadge tone={STATUS_TONE[ev.status] ?? 'neutral'}>{STATUS_LABEL[ev.status] ?? ev.status}</StatusBadge>
+        {ev.status === 'Draft' && ev.scheduledPublishAt && <StatusBadge tone="pending"><i className="far fa-clock mr-1" />Опубликуется {new Date(ev.scheduledPublishAt).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</StatusBadge>}
         </div>
         <p className="meta mt-1"><i className="far fa-clock mr-1.5" />{timeOf(ev.startsAt)}<i className="fas fa-location-dot mx-1.5 ml-3" />{ev.location}</p>
         <p className="meta mt-0.5"><i className="far fa-user mr-1.5" />{ev.createdBy}</p>

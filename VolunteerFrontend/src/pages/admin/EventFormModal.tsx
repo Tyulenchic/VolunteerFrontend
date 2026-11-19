@@ -13,6 +13,8 @@ import { adminErrorMessage } from '../../utils/adminErrors';
 import type { AdminEventListDto } from '../../types/admin';
 import { CATEGORIES } from '../../utils/afisha';
 import { eventCategoriesApi, useEventCategories } from '../../utils/eventCategories';
+import { fromDatetimeLocal, toDatetimeLocal } from '../../utils/datetimeLocal';
+import { SchedulePublicationField } from '../../components/admin/SchedulePublicationField';
 
 interface EventFormModalProps {
   isOpen: boolean;
@@ -24,14 +26,6 @@ interface EventFormModalProps {
 /** Ограничения тегов совпадают с серверными (Event.MaxTags / MaxTagLength). */
 const MAX_TAGS = 10;
 const MAX_TAG_LENGTH = 30;
-
-const toDatetimeLocal = (iso: string): string => {
-  if (!iso) return '';
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '';
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-};
 
 export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormModalProps) {
   const { notify } = useNotification();
@@ -52,6 +46,11 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
   });
 
   const [tagsInput, setTagsInput] = useState('');
+
+  // Запланированная публикация черновика (datetime-local); savedPublishAt — что уже сохранено на сервере.
+  const [publishAt, setPublishAt] = useState('');
+  const [savedPublishAt, setSavedPublishAt] = useState('');
+  const canSchedule = !event || event.status === 'Draft';
 
   // Категории: встроенные и добавленные администратором. Пока список не загрузился, показываем встроенные.
   const categories = useEventCategories();
@@ -107,6 +106,8 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
       setCurrentImageCrop(null);
       setPhoto(null);
       setEventOrg(null);
+      setPublishAt('');
+      setSavedPublishAt('');
       setLoadingDetails(true);
 
       // ...и догружаем полную карточку мероприятия (описание, дата окончания, фото и т.д.)
@@ -126,6 +127,9 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
             setCurrentImageUrl(full.imageUrl ?? null);
             setCurrentImageCrop(full.imageCrop ?? null);
             setEventOrg(full.organization ?? null);
+            const scheduled = toDatetimeLocal(full.scheduledPublishAt);
+            setPublishAt(scheduled);
+            setSavedPublishAt(scheduled);
           })
           .catch((err) => {
             if (!alive) return;
@@ -148,6 +152,8 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
       setCurrentImageCrop(null);
       setPhoto(null);
       setOrganizationId('');
+      setPublishAt('');
+      setSavedPublishAt('');
     }
     setError(null);
     setTagsInput('');
@@ -253,6 +259,25 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
         setLoading(false);
         return;
       }
+      const publishAtIso = canSchedule ? fromDatetimeLocal(publishAt) : null;
+      if (canSchedule && publishAt && !publishAtIso) {
+        setError('Укажите корректное время публикации');
+        setLoading(false);
+        return;
+      }
+      if (publishAtIso && publishAt !== savedPublishAt) {
+        if (new Date(publishAtIso) <= new Date()) {
+          setError('Время публикации должно быть в будущем');
+          setLoading(false);
+          return;
+        }
+        if (new Date(publishAtIso) >= new Date(formData.endsAt)) {
+          setError('Публикация должна быть запланирована раньше окончания мероприятия');
+          setLoading(false);
+          return;
+        }
+      }
+
       if (!event && !isAdmin && orgs.length === 0) {
         setError('Вы не состоите ни в одной организации в роли организатора. Обратитесь к администратору.');
         setLoading(false);
@@ -278,6 +303,11 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
 
       if (event) {
         await adminApi.updateEvent(event.id, payload);
+        // Расписание публикации черновика: меняем только если оно изменилось.
+        if (canSchedule && publishAt !== savedPublishAt) {
+          if (publishAtIso) await adminApi.scheduleEvent(event.id, publishAtIso);
+          else await adminApi.unscheduleEvent(event.id);
+        }
         // Фото: новый файл, только кадр или удаление — тем, что нужно, без повторной отправки неизменённого.
         if (photo?.file) {
           await adminApi.uploadEventImage(event.id, photo.file, photo.crop);
@@ -296,8 +326,9 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
           ...payload,
           ...(organizationId && { organizationId }),
           ...(staged && { imageId: staged.imageId, imageCrop: staged.crop }),
+          ...(publishAtIso && { publishAt: publishAtIso }),
         });
-        notify('Мероприятие создано');
+        notify(publishAtIso ? 'Мероприятие создано и будет опубликовано в назначенное время' : 'Мероприятие создано');
       }
 
       onSuccess();
@@ -545,6 +576,10 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
                 </div>
             )}
           </div>
+
+          {canSchedule && (
+            <SchedulePublicationField value={publishAt} onChange={setPublishAt} subject="Мероприятие" disabled={loading || loadingDetails} />
+          )}
 
           <div className="flex gap-2 pt-4">
             <button

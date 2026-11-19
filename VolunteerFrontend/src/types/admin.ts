@@ -100,6 +100,8 @@ export interface AdminEventListDto {
   freeSlots?: number;
   createdAt: string;
   createdBy: string;
+  /** Запланированная публикация черновика (ISO, UTC). */
+  scheduledPublishAt?: string | null;
   status: 'Draft' | 'Published' | 'Cancelled' | 'Completed' | 'Archived';
 }
 
@@ -163,6 +165,8 @@ export interface AdminNewsListDto {
   createdBy: string;
   createdAt: string;
   publishedAt?: string;
+  /** Запланированная публикация черновика (ISO, UTC). */
+  scheduledPublishAt?: string | null;
   status: 'Draft' | 'Published' | 'Archived';
 }
 
