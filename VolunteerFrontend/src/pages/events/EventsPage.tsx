@@ -9,7 +9,8 @@ import { useNotification } from '../../context/NotificationContext';
 import type { EventResponseDto, ParticipationResponseDto } from '../../types/event';
 import { loginState } from '../../utils/redirect';
 import { mapApiError } from '../../utils/apiError';
-import { CAT, CATEGORIES, MONTH_SHORT, WD_ABBR, WEEKDAYS, dayKey, parseDay, plural, seatsLeft } from '../../utils/afisha';
+import { useEventCategories } from '../../utils/eventCategories';
+import { CATEGORIES, MONTH_SHORT, WD_ABBR, WEEKDAYS, dayKey, parseDay, plural, seatsLeft } from '../../utils/afisha';
 import { MiniCalendar } from '../../components/afisha/MiniCalendar';
 import { Ticket } from '../../components/afisha/Ticket';
 import { CancelParticipationDialog } from '../../components/CancelParticipationDialog';
@@ -131,7 +132,12 @@ export function EventsPage() {
     events.forEach(e => { if (e.category) c[e.category] = (c[e.category] || 0) + 1; });
     return c;
   }, [events]);
-  const cats = CATEGORIES.filter(c => counts[c.id]); // a category without events is not shown
+  const categories = useEventCategories();
+  // Встроенные категории, затем добавленные администратором; категория без мероприятий не показывается.
+  const cats = [
+    ...CATEGORIES.map(c => ({ id: c.id as string, label: c.label, icon: c.icon })),
+    ...categories.list.filter(o => !o.builtIn).map(o => ({ id: o.value, label: o.label, icon: 'tag' as const })),
+  ].filter(c => counts[c.id]);
   const eventDays = useMemo(() => new Set(events.map(e => dayKey(e.startsAt))), [events]);
 
   const list = useMemo(() => {
@@ -140,8 +146,8 @@ export function EventsPage() {
     return events.filter(e =>
       (cat === 'all' || e.category === cat) &&
       (!freeOnly || seatsLeft(e) !== 0) &&
-      (!q || (e.title + ' ' + e.location + ' ' + (e.category ? CAT[e.category].label : '') + ' ' + (e.tags ?? []).join(' ')).toLowerCase().includes(q)));
-  }, [events, cat, query, freeOnly]);
+      (!q || (e.title + ' ' + e.location + ' ' + (e.category ? categories.labelOf(e.category) : '') + ' ' + (e.tags ?? []).join(' ')).toLowerCase().includes(q)));
+  }, [events, cat, query, freeOnly, categories]);
 
   const groups = useMemo(() => {
     const m = new Map<string, EventResponseDto[]>();

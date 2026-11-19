@@ -25,6 +25,8 @@ export const AUDIT_ACTIONS: Record<string, { label: string; icon: string; tone: 
   EventCompleted:            { label: 'Мероприятие завершено', icon: 'fa-flag-checkered', tone: 'completed' },
   EventDeleted:              { label: 'Мероприятие удалено', icon: 'fa-trash', tone: 'error' },
   EventArchived:             { label: 'Мероприятие в архиве', icon: 'fa-box-archive', tone: 'neutral' },
+  EventCategoryCreated:      { label: 'Категория мероприятий добавлена', icon: 'fa-tag', tone: 'brand' },
+  EventCategoryDeleted:      { label: 'Категория мероприятий удалена', icon: 'fa-tag', tone: 'error' },
   ParticipationApproved:     { label: 'Заявка одобрена', icon: 'fa-check', tone: 'success' },
   ParticipationRejected:     { label: 'Заявка отклонена', icon: 'fa-xmark', tone: 'cancelled' },
   ParticipationBulkApproved: { label: 'Заявки одобрены (массово)', icon: 'fa-check-double', tone: 'success' },

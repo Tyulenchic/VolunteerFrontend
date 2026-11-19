@@ -17,6 +17,7 @@ export const ICONS = {
   camera: '<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
   flag: '<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',
   city: '<path d="M4 21V7l7-3v17M11 21V10l9 3v8M3 21h18"/>',
+  tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/>',
   cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
   cross: '<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/>',
   check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',

@@ -12,7 +12,8 @@ import { CroppedImage } from '../../components/ImageCropper';
 import { PostCard } from '../../components/organizations/PostCard';
 import { Breadcrumbs } from '../../components/afisha/Breadcrumbs';
 import { FEED_BLEED, PostFeed } from '../../components/organizations/PostFeed';
-import { getCategoryColor, getCategoryLabel, type EventResponseDto } from '../../types/event';
+import { getCategoryColor, type EventResponseDto } from '../../types/event';
+import { useEventCategories } from '../../utils/eventCategories';
 import {
   CATEGORY_BADGE, CATEGORY_LABEL, DIRECTION_ICON, DIRECTION_LABEL, LEVEL_ICON, LEVEL_LABEL,
   type OrganizationApplication, type OrganizationDetails, type OrganizationMember, type OrganizationPost,
@@ -381,6 +382,7 @@ function MembersTab({ orgId }: { orgId: string }) {
 }
 
 function EventsTab({ orgId, canManage }: { orgId: string; canManage: boolean }) {
+  const categories = useEventCategories();
   const [items, setItems] = useState<EventResponseDto[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -420,7 +422,7 @@ function EventsTab({ orgId, canManage }: { orgId: string; canManage: boolean }) 
             <div className="relative">
               <CroppedImage src={e.imageThumbnailUrl ?? e.imageUrl} crop={e.imageCrop} aspect={16 / 10} className="!rounded-none w-full" alt={e.title}
                 placeholder={<MediaPlaceholder kind="event" />} />
-              <span className={`absolute left-3 top-3 px-2.5 py-1 rounded-full text-[0.8125rem] font-bold text-white ${getCategoryColor(e.category)}`}>{getCategoryLabel(e.category)}</span>
+              <span className={`absolute left-3 top-3 px-2.5 py-1 rounded-full text-[0.8125rem] font-bold text-white ${getCategoryColor(e.category)}`}>{categories.labelOf(e.category)}</span>
               {STATUS_LABEL[e.status] && <span className="absolute right-3 top-3 px-2.5 py-1 rounded-full text-[0.8125rem] font-semibold bg-white/90 text-gray-700">{STATUS_LABEL[e.status]}</span>}
             </div>
             <div className="p-5 flex flex-col flex-grow">

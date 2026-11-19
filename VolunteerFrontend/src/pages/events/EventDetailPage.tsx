@@ -3,7 +3,7 @@ import { OrganizationBadge } from '../../components/organizations/OrganizationBa
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { publicEventsApi } from '../../api/publicEvents';
 import type { EventResponseDto } from '../../types/event';
-import { getCategoryLabel } from '../../types/event';
+import { useEventCategories } from '../../utils/eventCategories';
 import { Spinner } from '../../components/Spinner';
 import { Button } from '../../components/ui/Button';
 import { Heading } from '../../components/ui/Heading';
@@ -105,6 +105,7 @@ function ApplyModal({ event, onClose, onApplied }: { event: EventResponseDto; on
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export function EventDetailPage() {
+  const categories = useEventCategories();
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -216,7 +217,7 @@ export function EventDetailPage() {
                 <Heading level={1} look="h1-detail" className="max-w-[48ch]">{event.title}</Heading>
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-meta">
                   <span className={`rounded-full px-2.5 py-0.5 font-semibold ${badge.cls}`}>{badge.label}</span>
-                  {event.category && <span className="text-vol-muted">{getCategoryLabel(event.category)}</span>}
+                  {event.category && <span className="text-vol-muted">{categories.labelOf(event.category)}</span>}
                 </div>
                 <OrganizationBadge organization={event.organization} size="md" className="mt-2" />
                 {!!event.tags?.length && (

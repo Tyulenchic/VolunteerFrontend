@@ -5,6 +5,7 @@ import { VolIcon } from './VolIcon';
 import { OrganizationBadge } from '../organizations/OrganizationBadge';
 import { CroppedImage } from '../ImageCropper';
 import { MediaPlaceholder } from '../ui/MediaPlaceholder';
+import { useEventCategories } from '../../utils/eventCategories';
 
 interface Props {
   e: EventResponseDto;
@@ -17,7 +18,8 @@ interface Props {
 }
 
 export function Ticket({ e, mine, busy = false, onToggle, onTag }: Props) {
-  const cat = e.category ? CAT[e.category] : undefined;
+  const categories = useEventCategories();
+  const cat = e.category ? (CAT[e.category as keyof typeof CAT] ?? { label: categories.labelOf(e.category), icon: 'tag' as const }) : undefined;
   const left = seatsLeft(e);
   const closed = left === 0;
   const low = left != null && left > 0 && left <= 5;

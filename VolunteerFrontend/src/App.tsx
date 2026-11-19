@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
+import { loadEventCategories } from './utils/eventCategories';
 import { HashRouter, Navigate, Routes, Route } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -95,6 +96,9 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  // Названия категорий, добавленных администратором, нужны на афише, в ленте и карточках — загружаем один раз.
+  useEffect(() => { void loadEventCategories(); }, []);
+
   return (
       <HashRouter>
       <ScrollToTop />

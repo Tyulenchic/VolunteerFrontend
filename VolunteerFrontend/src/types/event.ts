@@ -17,6 +17,9 @@ export type EventCategory =
     | 'Urban'         // Урбанистика
     | 'Ecological';   // Экологическое
 
+/** Категория в ответах API: встроенная или код категории, добавленной администратором (custom-…). */
+export type EventCategoryCode = EventCategory | (string & {});
+
 export const CATEGORY_LABELS: Record<EventCategory, string> = {
   Veterans: 'Ветераны',
   Medical: 'Мед',
@@ -51,15 +54,16 @@ export const CATEGORY_COLORS: Record<EventCategory, string> = {
 };
 
 // Helper to get category color
-export const getCategoryColor = (cat?: EventCategory | null): string => {
+export const getCategoryColor = (cat?: EventCategoryCode | null): string => {
   if (!cat) return 'bg-blue-600';
-  return CATEGORY_COLORS[cat] ?? 'bg-blue-600';
+  return CATEGORY_COLORS[cat as EventCategory] ?? 'bg-blue-600';
 };
 
 // Helper to get category label
-export const getCategoryLabel = (cat?: EventCategory | null): string => {
+/** Названия встроенных категорий; для добавленных администратором используйте categoryLabel из utils/eventCategories. */
+export const getCategoryLabel = (cat?: EventCategoryCode | null): string => {
   if (!cat) return 'Не указано';
-  return CATEGORY_LABELS[cat] ?? cat;
+  return CATEGORY_LABELS[cat as EventCategory] ?? cat;
 };
 
 // Matches ParticipationStatus enum (AttendanceConfirmed = 3, Withdrawn = 4 — волонтёр отозвал заявку)
@@ -76,7 +80,7 @@ export interface EventResponseDto {
   endsAt: string;
   maxParticipants: number | null;
   imageUrl: string | null;
-  category: EventCategory | null;
+  category: EventCategoryCode | null;
   /** Теги мероприятия; участвуют в поиске. */
   tags?: string[];
   approvedCount: number;
@@ -96,7 +100,7 @@ export interface EventListResponseDto {
   skip: number;
   take: number;
   status?: EventStatus | null;
-  category?: EventCategory | null;
+  category?: EventCategoryCode | null;
 }
 
 export interface CreateEventDto {
@@ -106,7 +110,7 @@ export interface CreateEventDto {
   startsAt: string;  // ISO datetime
   endsAt: string;
   maxParticipants?: number | null;
-  category?: EventCategory | null;
+  category?: EventCategoryCode | null;
   tags?: string[];
   /** Организация, от имени которой проводится мероприятие (организатору обязательна, если у него их несколько). */
   organizationId?: string | null;

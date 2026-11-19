@@ -8,6 +8,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { EmptyState, ErrorState } from '../../components/ui/PageStates';
 import { Skeleton } from '../../components/ui/Skeleton';
 import type { AdminAnalyticsDto } from '../../types/admin';
+import { categoryLabel } from '../../utils/eventCategories';
 
 const formatMonth = (dateString: string) => {
   try {
@@ -217,7 +218,7 @@ export function AdminAnalyticsPage() {
               <BarList title="Пользователи по городам" empty="Города в профилях не указаны"
                 items={(analytics.usersByCity ?? []).map(c => ({ label: c.city, value: c.users }))} />
               <BarList title="Мероприятия по направлениям" empty="Мероприятий пока нет"
-                items={Object.entries(analytics.eventsByCategory ?? {}).map(([key, value]) => ({ label: CATEGORY_LABEL[key] ?? key, value })).sort((a, b) => b.value - a.value)} />
+                items={Object.entries(analytics.eventsByCategory ?? {}).map(([key, value]) => ({ label: CATEGORY_LABEL[key] ?? categoryLabel(key), value })).sort((a, b) => b.value - a.value)} />
               <TopList title="Активные организации" empty="Данных пока нет"
                 items={(analytics.topOrganizations ?? []).filter(o => o.events > 0 || o.members > 0).map(o => ({ id: o.id, name: o.name, meta: `${o.events} мероприятий · ${o.participants} участников · ${o.members} в составе` }))} />
             </div>

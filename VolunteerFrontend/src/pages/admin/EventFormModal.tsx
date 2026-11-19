@@ -11,6 +11,8 @@ import { eventsApi } from '../../api/events';
 import { useNotification } from '../../context/NotificationContext';
 import { adminErrorMessage } from '../../utils/adminErrors';
 import type { AdminEventListDto } from '../../types/admin';
+import { CATEGORIES } from '../../utils/afisha';
+import { eventCategoriesApi, useEventCategories } from '../../utils/eventCategories';
 
 interface EventFormModalProps {
   isOpen: boolean;
@@ -50,6 +52,17 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
   });
 
   const [tagsInput, setTagsInput] = useState('');
+
+  // Категории: встроенные и добавленные администратором. Пока список не загрузился, показываем встроенные.
+  const categories = useEventCategories();
+  const categoryOptions = categories.list.length > 0
+    ? categories.list
+    : CATEGORIES.map(c => ({ value: c.id as string, label: c.label, builtIn: true }));
+  const [categoryInvalid, setCategoryInvalid] = useState(false);
+  const [addingCategory, setAddingCategory] = useState(false);
+  const [newCategory, setNewCategory] = useState('');
+  const [categoryBusy, setCategoryBusy] = useState(false);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
   const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
   const [currentImageCrop, setCurrentImageCrop] = useState<import('../../types/organization').ImageCropDto | null>(null);
   const [photo, setPhoto] = useState<PhotoSelection | null>(null);
@@ -138,6 +151,10 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
     }
     setError(null);
     setTagsInput('');
+    setCategoryInvalid(false);
+    setAddingCategory(false);
+    setNewCategory('');
+    setCategoryError(null);
     return () => { alive = false; };
   }, [isOpen, event]);
 
@@ -145,10 +162,33 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+    if (name === 'category' && value) setCategoryInvalid(false);
     setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleCreateCategory = async () => {
+    const name = newCategory.trim().replace(/\s+/g, ' ');
+    if (name.length < 2) {
+      setCategoryError('Название категории — не короче 2 символов');
+      return;
+    }
+    setCategoryBusy(true);
+    setCategoryError(null);
+    try {
+      const created = await eventCategoriesApi.create(name);
+      setFormData(prev => ({ ...prev, category: created.value }));
+      setCategoryInvalid(false);
+      setAddingCategory(false);
+      setNewCategory('');
+      notify(`Категория «${created.label}» добавлена`);
+    } catch (err) {
+      setCategoryError(adminErrorMessage(err, 'Не удалось добавить категорию. Попробуйте ещё раз.'));
+    } finally {
+      setCategoryBusy(false);
+    }
   };
 
   const handleAddTag = () => {
@@ -207,6 +247,12 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
         return;
       }
 
+      if (!formData.category) {
+        setCategoryInvalid(true);
+        setError('Выберите категорию мероприятия — это обязательное поле');
+        setLoading(false);
+        return;
+      }
       if (!event && !isAdmin && orgs.length === 0) {
         setError('Вы не состоите ни в одной организации в роли организатора. Обратитесь к администратору.');
         setLoading(false);
@@ -225,7 +271,7 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
         endsAt: new Date(formData.endsAt).toISOString(),
         location: formData.location,
         ...(formData.maxParticipants && { maxParticipants: parseInt(formData.maxParticipants) }),
-        ...(formData.category && { category: formData.category }),
+        category: formData.category,
         // Всегда отправляем список: пустой при редактировании очищает теги.
         tags: formData.tags,
       };
@@ -399,30 +445,58 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
             </div>
 
             <div>
-              <label className="block text-[13px] font-medium text-ink-700 mb-1.5">
-                Категория
+              <label htmlFor="event-category" className="block text-[13px] font-medium text-ink-700 mb-1.5">
+                Категория <span className="text-danger-700">*</span>
               </label>
-              <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 text-sm"
-              >
-                <option value="">Выберите категорию</option>
-                <option value="Veterans">Ветераны</option>
-                <option value="Medical">Медицина</option>
-                <option value="Donation">Донорство</option>
-                <option value="Animals">Животные</option>
-                <option value="HealthyLife">Здоровый образ жизни</option>
-                <option value="Culture">Культура</option>
-                <option value="Education">Образование</option>
-                <option value="Media">Медиа</option>
-                <option value="Social">Социальное</option>
-                <option value="Events">События</option>
-                <option value="Patriotic">Патриотизм</option>
-                <option value="Urban">Город</option>
-                <option value="Ecological">Экология</option>
-              </select>
+              <div className="flex gap-2">
+                <select
+                    id="event-category"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    aria-required="true"
+                    aria-invalid={categoryInvalid}
+                    aria-describedby={categoryInvalid ? 'event-category-error' : undefined}
+                    className={`w-full px-3 py-2 text-sm ${categoryInvalid ? '!border-danger-600 ring-1 ring-danger-600' : ''}`}
+                >
+                  <option value="">Выберите категорию</option>
+                  {categoryOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+                {isAdmin && (
+                  <button
+                      type="button"
+                      onClick={() => { setAddingCategory(v => !v); setCategoryError(null); }}
+                      aria-expanded={addingCategory}
+                      title="Добавить свою категорию"
+                      aria-label="Добавить свою категорию"
+                      className="btn btn-secondary shrink-0 !px-3"
+                  >
+                    <i className="fas fa-plus" />
+                  </button>
+                )}
+              </div>
+              {categoryInvalid && <p id="event-category-error" className="text-xs text-danger-700 mt-1">Выберите категорию из списка</p>}
+              {addingCategory && (
+                <div className="mt-2 space-y-1.5">
+                  <div className="flex gap-2">
+                    <input
+                        type="text"
+                        value={newCategory}
+                        maxLength={40}
+                        onChange={(e) => setNewCategory(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void handleCreateCategory(); } }}
+                        placeholder="Название новой категории"
+                        aria-label="Название новой категории"
+                        className="flex-1 px-3 py-2 text-sm"
+                        autoFocus
+                    />
+                    <button type="button" onClick={() => void handleCreateCategory()} disabled={categoryBusy} className="btn btn-primary shrink-0">
+                      {categoryBusy && <Spinner />}Добавить
+                    </button>
+                  </div>
+                  {categoryError && <p className="text-xs text-danger-700">{categoryError}</p>}
+                </div>
+              )}
             </div>
           </div>
 

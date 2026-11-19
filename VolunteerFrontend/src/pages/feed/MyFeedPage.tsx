@@ -6,6 +6,7 @@ import {apiClient} from "../../api/client.ts";
 import type {ParticipationResponseDto} from "../../types/event.ts";
 import { SecureImage } from '../../components/SecureImage';
 import { Avatar } from '../../components/ui/Avatar';
+import { categoryLabel } from '../../utils/eventCategories';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -258,7 +259,7 @@ function EventCard({ event, participatedIds, pendingSet, onApply }: {
                 )}
                 {/* category */}
                 <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[0.8125rem] font-bold ${CAT_COLORS[event.category as EventCategory] ?? 'bg-gray-100 text-gray-600'}`}>
-          {CAT_LABELS[event.category as EventCategory] ?? event.category}
+          {CAT_LABELS[event.category as EventCategory] ?? categoryLabel(event.category)}
         </span>
                 {/* urgency */}
                 {urgencyBadge && (
