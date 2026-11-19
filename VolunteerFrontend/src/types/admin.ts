@@ -141,6 +141,8 @@ export interface UpdateEventDto {
 
 export interface AdminParticipationDto {
   id: string;
+  /** Профиль волонтёра: /users/{userId}. */
+  userId: string;
   userName: string;
   userEmail: string;
   eventTitle: string;

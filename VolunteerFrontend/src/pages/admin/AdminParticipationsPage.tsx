@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useCallback, useEffect, useState, type ReactElement } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { adminApi } from '../../api/admin';
 import { useNotification } from '../../context/NotificationContext';
 import { adminErrorMessage } from '../../utils/adminErrors';
@@ -202,6 +202,9 @@ function ActionModal({ participation, action, onClose, onSuccess }: ActionModalP
           <p className="text-ink-500 text-sm mb-2">Пользователь</p>
           <p className="text-ink-900 font-medium">{participation.userName}</p>
           <p className="text-ink-400 text-xs">{participation.userEmail}</p>
+          <Link to={`/users/${participation.userId}`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm mt-2 no-underline">
+            <i className="far fa-user" />Открыть профиль волонтёра
+          </Link>
         </div>
 
         <div>
@@ -286,6 +289,9 @@ function CommentModal({ participation, onClose, onSuccess }: CommentModalProps) 
           <p className="text-ink-500 text-sm mb-2">Пользователь</p>
           <p className="text-ink-900 font-medium">{participation.userName}</p>
           <p className="text-ink-400 text-xs">{participation.userEmail}</p>
+          <Link to={`/users/${participation.userId}`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm mt-2 no-underline">
+            <i className="far fa-user" />Открыть профиль волонтёра
+          </Link>
         </div>
 
         <div>
@@ -530,7 +536,7 @@ export function AdminParticipationsPage() {
                           <div className="flex items-center gap-3 min-w-0">
                             <Avatar name={p.userName} thumb={p.userAvatarThumbnailUrl} />
                             <div className="min-w-0">
-                              <p className="font-medium text-ink-900 truncate max-w-[14rem]">{p.userName}</p>
+                              <Link to={`/users/${p.userId}`} target="_blank" rel="noopener noreferrer" title="Открыть профиль волонтёра" className="block font-medium text-ink-900 truncate max-w-[14rem] hover:underline no-underline">{p.userName}</Link>
                               <p className="meta truncate max-w-[14rem]">{p.userEmail}</p>
                             </div>
                           </div>
@@ -558,6 +564,7 @@ export function AdminParticipationsPage() {
                                 </button>
                               );
                             })}
+                            <Link to={`/users/${p.userId}`} target="_blank" rel="noopener noreferrer" title="Профиль волонтёра" aria-label={`Профиль: ${p.userName}`} className="icon-btn"><i className="far fa-user" /></Link>
                             <button onClick={() => setCommentModal(p)} title="Комментарий" aria-label="Комментарий" className="icon-btn"><CommentIcon className="w-4 h-4" /></button>
                           </div>
                         </td>
