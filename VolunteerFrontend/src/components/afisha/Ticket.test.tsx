@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import type { EventResponseDto } from "../../types/event";
 import { resetEventCategories } from "../../utils/eventCategories";
 import { Ticket } from "./Ticket";
@@ -11,17 +11,50 @@ const event: EventResponseDto = {
   approvedCount: 3, status: "Published", createdByUserId: "u1", createdAt: "2026-05-01T10:00:00Z", updatedAt: null,
 };
 
-const renderTicket = (e: EventResponseDto = event) => {
-  render(<MemoryRouter><Ticket e={e} onToggle={vi.fn()} /></MemoryRouter>);
+const renderTicket = (e: EventResponseDto = event, onToggle = vi.fn(), onTag = vi.fn()) => {
+  render(
+    <MemoryRouter initialEntries={["/events"]}>
+      <Routes>
+        <Route path="/events" element={<Ticket e={e} onToggle={onToggle} onTag={onTag} />} />
+        <Route path="/events/:id" element={<div>ПОДРОБНОСТИ</div>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+  return { onToggle, onTag };
 };
 
 beforeEach(() => { cleanup(); resetEventCategories([]); });
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe("Ticket", () => {
-  it("shows the name of a built-in category", () => {
+  it("opens the event page from any area of the ticket", () => {
     renderTicket();
-    expect(screen.getByText("Экологическое")).toBeTruthy();
+    fireEvent.click(screen.getByRole("heading", { name: "Уборка набережной" }));
+    expect(screen.getByText("ПОДРОБНОСТИ")).toBeTruthy();
+  });
+
+  it("opens the event page from the free-places area as well", () => {
+    renderTicket();
+    fireEvent.click(screen.getByText("Осталось"));
+    expect(screen.getByText("ПОДРОБНОСТИ")).toBeTruthy();
+  });
+
+  it("keeps the apply button and the tags working without leaving the list", () => {
+    const { onToggle, onTag } = renderTicket();
+
+    fireEvent.click(screen.getByRole("button", { name: /Подать заявку/ }));
+    expect(onToggle).toHaveBeenCalledWith(event);
+    fireEvent.click(screen.getByRole("button", { name: "#эко" }));
+    expect(onTag).toHaveBeenCalledWith("эко");
+
+    expect(screen.queryByText("ПОДРОБНОСТИ")).toBeNull();
+  });
+
+  it("does not open the page when the user selects text on the ticket", () => {
+    renderTicket();
+    vi.spyOn(window, "getSelection").mockReturnValue({ toString: () => "Уборка" } as unknown as Selection);
+    fireEvent.click(screen.getByRole("heading", { name: "Уборка набережной" }));
+    expect(screen.queryByText("ПОДРОБНОСТИ")).toBeNull();
   });
 
   it("shows the name of a category added by an administrator", () => {

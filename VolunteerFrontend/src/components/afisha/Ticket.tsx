@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import type { MouseEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import type { EventResponseDto, ParticipationResponseDto } from '../../types/event';
 import { CAT, plural, seatsLeft, timeOf } from '../../utils/afisha';
 import { VolIcon } from './VolIcon';
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export function Ticket({ e, mine, busy = false, onToggle, onTag }: Props) {
+  const navigate = useNavigate();
   const categories = useEventCategories();
   const cat = e.category ? (CAT[e.category as keyof typeof CAT] ?? { label: categories.labelOf(e.category), icon: 'tag' as const }) : undefined;
   const left = seatsLeft(e);
@@ -45,9 +47,16 @@ export function Ticket({ e, mine, busy = false, onToggle, onTag }: Props) {
   const num = e.maxParticipants == null ? '∞' : left;
   const word = e.maxParticipants == null ? 'без лимита' : plural(left ?? 0, ['место', 'места', 'мест']);
 
+  // Клик по любой области тикета открывает страницу мероприятия; кнопки и ссылки внутри работают как прежде.
+  const open = (ev: MouseEvent<HTMLElement>) => {
+    if ((ev.target as HTMLElement).closest('button, a, input, select, textarea')) return;
+    if (window.getSelection()?.toString()) return;
+    navigate(`/events/${e.id}`);
+  };
+
   return (
     <div id={'ev-' + e.id} className="vol-ticket-wrap scroll-mt-24">
-      <article className="vol-ticket flex flex-col sm:flex-row">
+      <article onClick={open} className="vol-ticket flex cursor-pointer flex-col sm:flex-row">
         <div className="relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-t-2xl sm:aspect-auto sm:w-40 sm:rounded-l-2xl sm:rounded-tr-none">
           {/* Кадр мероприятия сохранён в 16:10, а здесь рамка то 2:1 (телефон), то вертикальная (≥640px):
               CroppedImage с fill сам вписывает выбранную область в текущие пропорции, сохраняя её центр и масштаб. */}
