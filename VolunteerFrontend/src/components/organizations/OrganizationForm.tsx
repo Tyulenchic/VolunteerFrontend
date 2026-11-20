@@ -44,6 +44,12 @@ export function OrganizationForm({ initial, onSaved, onCancel }: Props) {
   const [phone, setPhone] = useState(initial?.contactPhone ?? '');
   const [email, setEmail] = useState(initial?.contactEmail ?? '');
   const [website, setWebsite] = useState(initial?.website ?? '');
+  const [address, setAddress] = useState(initial?.address ?? '');
+  const [facebookUrl, setFacebookUrl] = useState(initial?.facebookUrl ?? '');
+  const [telegramUrl, setTelegramUrl] = useState(initial?.telegramUrl ?? '');
+  const [instagramUrl, setInstagramUrl] = useState(initial?.instagramUrl ?? '');
+  const [vkUrl, setVkUrl] = useState(initial?.vkUrl ?? '');
+  const [joinFormUrl, setJoinFormUrl] = useState(initial?.joinFormUrl ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [movements, setMovements] = useState<MovementInput[]>(
     initial?.movements.map(m => ({ name: m.name, directions: m.directions, leaderName: m.leaderName, phone: m.phone ?? '', email: m.email ?? '' })) ?? [],
@@ -62,6 +68,10 @@ export function OrganizationForm({ initial, onSaved, onCancel }: Props) {
     if (!description.trim()) return 'Добавьте описание организации';
     if (email.trim() && !isEmail(email.trim())) return 'Контактный email указан неверно';
     if (website.trim() && !isHttp(website.trim())) return 'Адрес сайта должен начинаться с http:// или https://';
+    for (const [title, value, allowHandle] of [['Facebook', facebookUrl, false], ['Telegram', telegramUrl, true], ['Instagram', instagramUrl, false], ['ВКонтакте', vkUrl, false], ['Форма вступления', joinFormUrl, false]] as const) {
+      const v = value.trim();
+      if (v && !isHttp(v) && !(allowHandle && /^@[A-Za-z0-9_]{4,32}$/.test(v))) return `${title}: ссылка должна начинаться с http:// или https://${allowHandle ? ' (или @имя)' : ''}`;
+    }
     const orgPhone = checkPhone(phone);
     if (!orgPhone.ok) return `Телефон организации: ${orgPhone.error}`;
     for (const [i, m] of movements.entries()) {
@@ -84,6 +94,8 @@ export function OrganizationForm({ initial, onSaved, onCancel }: Props) {
     const base = {
       name: name.trim(), description: description.trim(),
       city: city.trim() || null, contactEmail: email.trim() || null, website: website.trim() || null,
+      address: address.trim() || null, facebookUrl: facebookUrl.trim() || null, telegramUrl: telegramUrl.trim() || null,
+      instagramUrl: instagramUrl.trim() || null, vkUrl: vkUrl.trim() || null, joinFormUrl: joinFormUrl.trim() || null,
       shortName: shortName.trim() || null, level, categories, contactPhone: phoneValue(phone),
       movements: movements.map(m => ({ ...m, name: m.name.trim(), leaderName: m.leaderName.trim(), phone: phoneValue(m.phone), email: m.email?.trim() || null })),
     };
@@ -189,7 +201,38 @@ export function OrganizationForm({ initial, onSaved, onCancel }: Props) {
           <label className={label} htmlFor="org-site">Сайт</label>
           <input id="org-site" value={website} onChange={e => setWebsite(e.target.value)} maxLength={300} placeholder="https://" className="w-full px-3 py-2 text-sm" />
         </div>
+        <div className="sm:col-span-2">
+          <label className={label} htmlFor="org-address">Адрес</label>
+          <input id="org-address" value={address} onChange={e => setAddress(e.target.value)} maxLength={300} placeholder="Улица, дом, офис" className="w-full px-3 py-2 text-sm" />
+        </div>
       </div>
+
+      <fieldset className="space-y-3">
+        <legend className={label}>Социальные сети и вступление</legend>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className={label} htmlFor="org-telegram">Telegram</label>
+            <input id="org-telegram" value={telegramUrl} onChange={e => setTelegramUrl(e.target.value)} maxLength={300} placeholder="https://t.me/… или @имя" className="w-full px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className={label} htmlFor="org-instagram">Instagram</label>
+            <input id="org-instagram" value={instagramUrl} onChange={e => setInstagramUrl(e.target.value)} maxLength={300} placeholder="https://instagram.com/…" className="w-full px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className={label} htmlFor="org-facebook">Facebook</label>
+            <input id="org-facebook" value={facebookUrl} onChange={e => setFacebookUrl(e.target.value)} maxLength={300} placeholder="https://facebook.com/…" className="w-full px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className={label} htmlFor="org-vk">ВКонтакте</label>
+            <input id="org-vk" value={vkUrl} onChange={e => setVkUrl(e.target.value)} maxLength={300} placeholder="https://vk.com/…" className="w-full px-3 py-2 text-sm" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={label} htmlFor="org-join">Ссылка на форму вступления</label>
+            <input id="org-join" value={joinFormUrl} onChange={e => setJoinFormUrl(e.target.value)} maxLength={300} placeholder="https://forms.gle/… (Google Форма)" aria-describedby="org-join-hint" className="w-full px-3 py-2 text-sm" />
+            <p id="org-join-hint" className="text-xs text-ink-400 mt-1">Необязательно. Человек сможет вступить и через сайт, и по этой анкете.</p>
+          </div>
+        </div>
+      </fieldset>
 
       <fieldset className="space-y-3">
         <legend className={label}>Волонтёрские движения</legend>

@@ -303,12 +303,21 @@ function AboutTab({ org }: { org: OrganizationDetails }) {
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
           <h2 className="vol-h3 mb-4">Контакты</h2>
           <ul className="space-y-3 text-sm">
-            {org.city && <li className="flex gap-3 text-gray-700"><i className="fas fa-map-marker-alt w-4 text-primary mt-0.5" aria-hidden />{org.city}</li>}
+            {(org.city || org.address) && <li className="flex gap-3 text-gray-700"><i className="fas fa-map-marker-alt w-4 text-primary mt-0.5" aria-hidden />{[org.city, org.address].filter(Boolean).join(', ')}</li>}
             {org.contactPhone && <li className="flex gap-3 text-gray-700"><i className="fas fa-phone w-4 text-primary mt-0.5" aria-hidden />{org.contactPhone}</li>}
             {org.contactEmail && <li className="flex gap-3"><i className="fas fa-envelope w-4 text-primary mt-0.5" aria-hidden /><a href={`mailto:${org.contactEmail}`} className="text-primary hover:underline break-all">{org.contactEmail}</a></li>}
             {org.website && <li className="flex gap-3"><i className="fas fa-globe w-4 text-primary mt-0.5" aria-hidden /><a href={org.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">{org.website.replace(/^https?:\/\//, '')}</a></li>}
-            {!org.city && !org.contactPhone && !org.contactEmail && !org.website && <li className="text-gray-500">Контакты не указаны.</li>}
+            {SOCIALS.map(s => org[s.key] && (
+              <li key={s.key} className="flex gap-3"><i className={`${s.icon} w-4 text-primary mt-0.5`} aria-hidden /><a href={org[s.key] ?? undefined} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">{s.label}</a></li>
+            ))}
+            {!org.city && !org.address && !org.contactPhone && !org.contactEmail && !org.website && !SOCIALS.some(s => org[s.key]) && <li className="text-gray-500">Контакты не указаны.</li>}
           </ul>
+          {org.joinFormUrl && org.isActive && (
+            <a href={org.joinFormUrl} target="_blank" rel="noopener noreferrer"
+              className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 border border-primary text-primary rounded-xl text-sm font-semibold hover:bg-primary hover:text-white transition no-underline">
+              <i className="fas fa-clipboard-list" aria-hidden />Заполнить анкету вступления
+            </a>
+          )}
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-6 text-sm text-gray-600">
           <p>На странице — мероприятия организации и её публикации. Подайте заявку, чтобы стать волонтёром: организатор рассмотрит её, а организация появится в вашем профиле.</p>
@@ -317,6 +326,13 @@ function AboutTab({ org }: { org: OrganizationDetails }) {
     </div>
   );
 }
+
+const SOCIALS = [
+  { key: 'telegramUrl', icon: 'fab fa-telegram', label: 'Telegram' },
+  { key: 'instagramUrl', icon: 'fab fa-instagram', label: 'Instagram' },
+  { key: 'facebookUrl', icon: 'fab fa-facebook', label: 'Facebook' },
+  { key: 'vkUrl', icon: 'fab fa-vk', label: 'ВКонтакте' },
+] as const;
 
 // ─── Вкладка «Мероприятия» ────────────────────────────────────────────────────
 

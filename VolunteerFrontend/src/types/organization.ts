@@ -70,6 +70,14 @@ export interface OrganizationDetails {
   city: string | null;
   contactEmail: string | null;
   website: string | null;
+  /** Точный адрес (город хранится отдельно). */
+  address: string | null;
+  facebookUrl: string | null;
+  telegramUrl: string | null;
+  instagramUrl: string | null;
+  vkUrl: string | null;
+  /** Ссылка на внешнюю анкету вступления (например, Google Форма). */
+  joinFormUrl: string | null;
   logoUrl: string | null;
   logoThumbnailUrl: string | null;
   logoCrop: ImageCropDto | null;
@@ -94,6 +102,12 @@ export interface OrganizationInput {
   city?: string | null;
   contactEmail?: string | null;
   website?: string | null;
+  address?: string | null;
+  facebookUrl?: string | null;
+  telegramUrl?: string | null;
+  instagramUrl?: string | null;
+  vkUrl?: string | null;
+  joinFormUrl?: string | null;
   shortName?: string | null;
   level: OrganizationLevel;
   categories: OrganizationCategory[];
