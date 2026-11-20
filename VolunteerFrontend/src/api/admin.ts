@@ -423,45 +423,4 @@ export const adminApi = {
     );
     return res.data;
   },
-
-  // ==================== IMPORT ====================
-
-  /** Одна порция CSV-выгрузки пользователей WordPress. dryRun — только проверка, без записи. */
-  async importWordPressUsers(csv: string, firstLine: number, dryRun: boolean) {
-    const form = new FormData();
-    form.append('file', new Blob([csv], { type: 'text/csv' }), 'users.csv');
-    form.append('firstLine', String(firstLine));
-    form.append('dryRun', String(dryRun));
-    const res = await apiClient.post<ImportReportDto>(`${API_BASE}/import/wordpress-users`, form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return res.data;
-  },
-
-  /** Одна порция пользователей из таблиц WordPress в этой же базе (по ID, начиная после afterId). dryRun — только проверка. */
-  async importWordPressDatabase(prefix: string, afterId: number, limit: number, dryRun: boolean) {
-    const res = await apiClient.post<ImportDatabaseReportDto>(`${API_BASE}/import/wordpress-database`, { prefix, afterId, limit, dryRun });
-    return res.data;
-  },
 };
-
-export interface ImportIssueDto {
-  line: number;
-  wpId: number | null;
-  reason: string;
-}
-
-export interface ImportReportDto {
-  created: number;
-  updated: number;
-  skipped: ImportIssueDto[];
-  warnings: ImportIssueDto[];
-}
-
-export interface ImportDatabaseReportDto extends ImportReportDto {
-  /** Сколько пользователей в таблице WordPress всего. */
-  total: number;
-  /** ID последнего обработанного пользователя: с него начинается следующая порция. */
-  lastId: number;
-  done: boolean;
-}

@@ -36,7 +36,6 @@ const NAV: NavGroup[] = [
     { to: '/admin/system',    icon: 'fa-heart-pulse',       label: 'Состояние системы', section: 'system' },
     { to: '/admin/audit-log', icon: 'fa-clock-rotate-left', label: 'Журнал действий', section: 'system' },
     { to: '/admin/database',  icon: 'fa-database',          label: 'База данных', section: 'system' },
-    { to: '/admin/import',    icon: 'fa-file-import',       label: 'Импорт пользователей', section: 'system' },
   ]},
 ];
 

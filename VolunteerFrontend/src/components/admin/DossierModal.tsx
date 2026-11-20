@@ -47,7 +47,6 @@ export function DossierModal({ userId, onClose }: { userId: string; onClose: () 
                 ['Согласие на обработку данных', dossier.account.consentGiven ? 'Дано' : 'Отозвано'],
                 ['Регистрация', date(dossier.account.createdAt)],
                 ['Последний вход', date(dossier.account.lastLoginAt)],
-                ...(dossier.wordPress ? [['Логин WordPress', dossier.wordPress.userLogin ?? '—'] as [string, string]] : []),
               ]} />
             </Section>
 

@@ -54,7 +54,7 @@ describe("AdminLayout menu", () => {
   it("a system administrator sees every group including the system pages", () => {
     renderLayout();
     const labels = navLabels();
-    expect(labels).toEqual(expect.arrayContaining(["Дашборд", "Новости", "Состояние системы", "Журнал действий", "База данных", "Импорт пользователей"]));
+    expect(labels).toEqual(expect.arrayContaining(["Дашборд", "Новости", "Состояние системы", "Журнал действий", "База данных"]));
   });
 
   it("an administrator of content sees only the ticked sections and no system pages", () => {

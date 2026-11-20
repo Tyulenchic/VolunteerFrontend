@@ -274,6 +274,4 @@ export interface UserDossierDto {
   organizedEventIds: string[];
   moderation: { openReports: number; reports: { id: string; reason: string; status: string; resolution: string | null; createdAt: string }[] } | null;
   summary: { totalParticipations: number; pending: number; approved: number; rejected: number; attendanceConfirmed: number; organizedEvents: number };
-  /** Данные учётной записи WordPress — только у импортированных пользователей (поле есть в PHP-версии API). */
-  wordPress?: { id: number; userLogin: string | null; displayName: string | null; roles: string | null; locale: string | null } | null;
 }
