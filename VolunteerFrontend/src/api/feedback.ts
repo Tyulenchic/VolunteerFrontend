@@ -20,7 +20,6 @@ export interface FeedbackItem {
   userId: string | null;
   isRead: boolean;
   createdAt: string;
-  readAt: string | null;
   replies: FeedbackReply[];
 }
 
@@ -30,6 +29,10 @@ export interface FeedbackPage { items: FeedbackItem[]; totalCount: number; skip:
 export const feedbackApi = {
   list: async (skip: number, take: number, isRead?: boolean): Promise<FeedbackPage> =>
     (await apiClient.get<FeedbackPage>('/api/feedback', { params: { skip, take, ...(isRead === undefined ? {} : { isRead }) } })).data,
+
+  /** Сколько обращений не прочитал вошедший администратор (у каждой учётной записи свой счётчик). */
+  unreadCount: async (): Promise<{ unreadCount: number }> =>
+    (await apiClient.get<{ unreadCount: number }>('/api/feedback/unread-count')).data,
 
   get: async (id: string): Promise<FeedbackItem> => (await apiClient.get<FeedbackItem>(`/api/feedback/${id}`)).data,
 

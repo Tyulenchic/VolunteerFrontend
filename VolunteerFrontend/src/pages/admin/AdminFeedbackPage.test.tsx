@@ -8,7 +8,7 @@ import { AdminFeedbackPage } from "./AdminFeedbackPage";
 
 const item = (over: Partial<FeedbackItem> = {}): FeedbackItem => ({
   id: "f1", name: "Ольга", email: "olga@example.org", message: "Хочу в волонтёры", userId: null,
-  isRead: false, createdAt: "2026-06-01T12:00:00Z", readAt: null, replies: [], ...over,
+  isRead: false, createdAt: "2026-06-01T12:00:00Z", replies: [], ...over,
 });
 const answer: FeedbackReply = { id: "r1", message: "Приходите в субботу", adminId: "a1", adminName: "Анна Админ", createdAt: "2026-06-01T13:00:00Z" };
 const page = (items: FeedbackItem[]) => ({ items, totalCount: items.length, skip: 0, take: 15 });
@@ -39,6 +39,20 @@ describe("AdminFeedbackPage replies", () => {
     expect(within(sent).getByText(/Анна Админ/)).toBeTruthy();
     expect(screen.queryByLabelText(/Ответ/)).toBeNull();
     expect(screen.getByRole("button", { name: /^Ответить$/ })).toBeTruthy();
+  });
+
+  it("tells the menu counter about a message that was opened", async () => {
+    vi.spyOn(feedbackApi, "list").mockResolvedValue(page([item()]));
+    const markRead = vi.spyOn(feedbackApi, "markRead").mockResolvedValue();
+    const changed = vi.fn();
+    window.addEventListener("feedback-unread-changed", changed);
+    renderPage();
+
+    fireEvent.click(await screen.findByRole("button", { name: /Ольга/ }));
+
+    await waitFor(() => expect(markRead).toHaveBeenCalledWith("f1"));
+    await waitFor(() => expect(changed).toHaveBeenCalled());
+    window.removeEventListener("feedback-unread-changed", changed);
   });
 
   it("shows the answers that were sent earlier", async () => {

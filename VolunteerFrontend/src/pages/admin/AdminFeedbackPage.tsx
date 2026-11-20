@@ -14,6 +14,7 @@ import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useNotification } from '../../context/NotificationContext';
 import { useLatestRequest, usePaging } from '../../hooks/useListHelpers';
 import { adminErrorMessage } from '../../utils/adminErrors';
+import { announceFeedbackRead } from '../../utils/feedbackUnread';
 
 const TAKE = 15;
 type Filter = 'unread' | 'all';
@@ -69,14 +70,15 @@ export function AdminFeedbackPage() {
   const patch = (id: string, change: Partial<FeedbackItem>) => setItems(list => list.map(i => (i.id === id ? { ...i, ...change } : i)));
 
   const onReplySent = (item: FeedbackItem, reply: FeedbackReply) => {
-    patch(item.id, { replies: [...item.replies, reply], isRead: true, readAt: item.readAt ?? reply.createdAt });
+    patch(item.id, { replies: [...item.replies, reply], isRead: true });
     setReplying(null);
+    announceFeedbackRead();
   };
 
   const markRead = async (item: FeedbackItem) => {
     if (item.isRead) return;
     setBusy(item.id);
-    try { await feedbackApi.markRead(item.id); patch(item.id, { isRead: true, readAt: new Date().toISOString() }); }
+    try { await feedbackApi.markRead(item.id); patch(item.id, { isRead: true }); announceFeedbackRead(); }
     catch (e) { notify(adminErrorMessage(e, 'Не удалось отметить обращение.'), 'error'); }
     finally { setBusy(null); }
   };
@@ -90,7 +92,7 @@ export function AdminFeedbackPage() {
   };
 
   const readAll = async () => {
-    try { await feedbackApi.markAllRead(); notify('Все обращения отмечены прочитанными'); await load(); }
+    try { await feedbackApi.markAllRead(); notify('Все обращения отмечены прочитанными'); announceFeedbackRead(); await load(); }
     catch (e) { notify(adminErrorMessage(e, 'Не удалось отметить обращения.'), 'error'); }
   };
 

@@ -7,6 +7,7 @@ import { AdminScopeContext } from '../../components/ui/AdminScope';
 import { Avatar } from '../../components/ui/Avatar';
 import { ConfirmProvider } from '../../components/ui/ConfirmDialog';
 import { NotificationBell } from '../../components/ui/NotificationBell';
+import { useFeedbackUnread } from '../../utils/feedbackUnread';
 
 interface NavItem { to: string; icon: string; label: string; }
 interface NavGroup { title: string; items: NavItem[]; }
@@ -68,6 +69,7 @@ export function AdminLayout({ children, variant = 'admin' }: { children: ReactNo
   const { notify } = useNotification();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const unreadFeedback = useFeedbackUnread(!organizer);
   const [sideOpen, setSideOpen] = useState(false);       // mobile drawer
   const [collapsed, setCollapsed] = useState(readCollapsed); // desktop rail
 
@@ -157,6 +159,12 @@ export function AdminLayout({ children, variant = 'admin' }: { children: ReactNo
                       <NavLink key={item.to} to={item.to} end={item.to === home} className={linkCls} title={collapsed ? item.label : undefined}>
                         <i className={`fas ${item.icon} w-4 text-center text-[13px]`} />
                         <span className={labelCls}>{item.label}</span>
+                        {item.to === '/admin/feedback' && unreadFeedback > 0 && (
+                          <span className={`ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-brand-500 text-white text-[11px] font-semibold leading-5 text-center ${collapsed ? 'lg:absolute lg:top-0.5 lg:right-1 lg:ml-0 lg:min-w-[16px] lg:h-4 lg:px-1 lg:text-[10px] lg:leading-4' : ''}`}
+                            aria-label={`Непрочитанных обращений: ${unreadFeedback}`}>
+                            {unreadFeedback > 99 ? '99+' : unreadFeedback}
+                          </span>
+                        )}
                       </NavLink>
                     ))}
                   </div>
