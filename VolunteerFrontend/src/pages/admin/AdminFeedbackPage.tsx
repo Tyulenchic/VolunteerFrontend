@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { feedbackApi, type FeedbackItem } from '../../api/feedback';
-import { REPLY_FROM_EMAIL } from '../../config';
+import { feedbackApi, type FeedbackItem, type FeedbackReply } from '../../api/feedback';
+import { FeedbackReplyForm } from '../../components/admin/FeedbackReplyForm';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { useConfirm } from '../../components/ui/ConfirmDialog';
@@ -20,22 +20,9 @@ type Filter = 'unread' | 'all';
 
 const fmt = (iso: string) => new Date(iso).toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-const REPLY_SUBJECT = 'Ответ на ваше обращение — ВолонтёрыПМР';
-// Текст письма: приветствие, место для ответа и цитата обращения (обрезана, чтобы ссылка не вышла за предел длины URL)
-const replyBody = (item: FeedbackItem) => {
-  const quote = item.message.length > 1500 ? `${item.message.slice(0, 1500)}…` : item.message;
-  const quoted = quote.split('\n').map(l => `> ${l}`).join('\n');
-  return `Здравствуйте, ${item.name}!\n\n\n\n— — —\nВаше обращение от ${fmt(item.createdAt)}:\n${quoted}`;
-};
-// Окно нового письма Gmail в аккаунте REPLY_FROM_EMAIL (работает в браузере, почтовый клиент не нужен)
-const gmailReplyUrl = (item: FeedbackItem) => {
-  const q = new URLSearchParams({ ...(REPLY_FROM_EMAIL ? { authuser: REPLY_FROM_EMAIL } : {}), view: 'cm', fs: '1', to: item.email, su: REPLY_SUBJECT, body: replyBody(item) });
-  return `https://mail.google.com/mail/?${q}`;
-};
-
 /**
  * Обращения с формы «Написать нам». Новое обращение приходит в колокольчик и (если задан App:AdminEmail) на почту;
- * здесь их читают, отвечают (окно письма Gmail с ящика REPLY_FROM_EMAIL; адрес автора можно скопировать), отмечают прочитанными и удаляют.
+ * здесь их читают, отвечают (письмо уходит с почтового ящика сайта, ответ сохраняется), отмечают прочитанными и удаляют.
  * Ссылка из письма открывает страницу с нужным обращением (?open=…).
  */
 export function AdminFeedbackPage() {
@@ -53,6 +40,7 @@ export function AdminFeedbackPage() {
   const [failed, setFailed] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(openId);
   const [busy, setBusy] = useState<string | null>(null);
+  const [replying, setReplying] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const isCurrent = beginRequest();
@@ -80,6 +68,11 @@ export function AdminFeedbackPage() {
   };
   const patch = (id: string, change: Partial<FeedbackItem>) => setItems(list => list.map(i => (i.id === id ? { ...i, ...change } : i)));
 
+  const onReplySent = (item: FeedbackItem, reply: FeedbackReply) => {
+    patch(item.id, { replies: [...item.replies, reply], isRead: true, readAt: item.readAt ?? reply.createdAt });
+    setReplying(null);
+  };
+
   const markRead = async (item: FeedbackItem) => {
     if (item.isRead) return;
     setBusy(item.id);
@@ -91,6 +84,7 @@ export function AdminFeedbackPage() {
   const toggle = (item: FeedbackItem) => {
     const next = expanded === item.id ? null : item.id;
     setExpanded(next);
+    setReplying(null);
     if (next) void markRead(item);   // открыли — значит прочитали
     if (openId) setParams({}, { replace: true });
   };
@@ -142,13 +136,26 @@ export function AdminFeedbackPage() {
                       </span>
                       <i className={`fas fa-chevron-down text-xs text-ink-400 mt-2 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />
                     </button>
+                    {open && item.replies.length > 0 && (
+                      <ul className="mt-3 ml-5 space-y-2" aria-label="Отправленные ответы">
+                        {item.replies.map(reply => (
+                          <li key={reply.id} className="rounded-xl border border-line bg-surface-2 px-4 py-3">
+                            <p className="meta">Ответ отправлен {fmt(reply.createdAt)}{reply.adminName ? ` · ${reply.adminName}` : ''}</p>
+                            <p className="text-sm text-ink-700 whitespace-pre-line mt-1">{reply.message}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {open && replying === item.id && (
+                      <FeedbackReplyForm feedbackId={item.id} email={item.email} onSent={reply => onReplySent(item, reply)} onCancel={() => setReplying(null)} />
+                    )}
                     {open && (
                       <div className="flex flex-wrap gap-2 mt-3 pl-5">
-                        <a className="btn btn-primary btn-sm no-underline" href={gmailReplyUrl(item)} target="_blank" rel="noopener noreferrer"
-                          title={REPLY_FROM_EMAIL ? `Откроется письмо в Gmail от ${REPLY_FROM_EMAIL}` : 'Откроется письмо в Gmail'}>
-                          <i className="fas fa-reply" aria-hidden /> Ответить в Gmail
-                        </a>
-                        {/* вместо mailto: без назначенного в системе почтового приложения ссылка не открывается */}
+                        {replying !== item.id && (
+                          <Button size="sm" onClick={() => setReplying(item.id)}>
+                            <i className="fas fa-reply" aria-hidden /> Ответить
+                          </Button>
+                        )}
                         <Button size="sm" variant="secondary" onClick={() => copyEmail(item.email)}>
                           <i className="fas fa-copy" aria-hidden /> Скопировать адрес
                         </Button>

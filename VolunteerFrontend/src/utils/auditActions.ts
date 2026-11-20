@@ -51,6 +51,7 @@ export const AUDIT_ACTIONS: Record<string, { label: string; icon: string; tone: 
   SiteContentUpdated:        { label: 'Изменён текст сайта', icon: 'fa-pen-to-square', tone: 'neutral' },
   SiteContentReset:          { label: 'Текст сайта возвращён к исходному', icon: 'fa-rotate-left', tone: 'neutral' },
   FeedbackDeleted:           { label: 'Обращение удалено', icon: 'fa-trash', tone: 'error' },
+  FeedbackReplied:           { label: 'Отправлен ответ на обращение', icon: 'fa-reply', tone: 'brand' },
   UserDossierViewed:         { label: 'Просмотрено досье пользователя', icon: 'fa-id-card', tone: 'pending' },
   VideoLinkCreated:          { label: 'Видео добавлено', icon: 'fa-plus', tone: 'brand' },
   VideoLinkUpdated:          { label: 'Видео изменено', icon: 'fa-pen', tone: 'neutral' },
