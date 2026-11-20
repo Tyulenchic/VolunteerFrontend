@@ -42,7 +42,51 @@ export interface UserEmailDto {
   updatedAt: string | null;
 }
 
+/** Одна запись журнала запросов: что запросили, каким номером ответил сервер и сколько это заняло. */
+export interface RequestLogEntryDto {
+  id: number;
+  createdAt: string;
+  method: string;
+  path: string;
+  status: number;
+  durationMs: number;
+  userId: string | null;
+  ip: string | null;
+}
+
+export interface RequestLogParams {
+  skip?: number;
+  take?: number;
+  /** Точный номер ответа: 200, 404, 500… */
+  status?: number;
+  /** Класс ответа: 2, 3, 4 или 5. */
+  statusClass?: number;
+  method?: string;
+  /** Часть адреса. */
+  path?: string;
+  userId?: string;
+  /** Даты ГГГГ-ММ-ДД, обе включительно. */
+  from?: string;
+  to?: string;
+  slowerThanMs?: number;
+  sort?: 'time' | 'status' | 'duration' | 'path';
+  order?: 'asc' | 'desc';
+}
+
+export interface RequestLogPage {
+  items: RequestLogEntryDto[];
+  total: number;
+  /** Сколько записей каждого номера при тех же фильтрах, кроме номера (для кнопок над таблицей). */
+  statuses: Record<string, number>;
+}
+
 export const systemApi = {
+  /** Журнал запросов к API с номерами ответов; только системному администратору. */
+  async getRequests(params: RequestLogParams): Promise<RequestLogPage> {
+    const res = await apiClient.get<RequestLogPage>(`${API_BASE}/requests`, { params });
+    return res.data;
+  },
+
   async getStatus(): Promise<SystemStatusDto> {
     const res = await apiClient.get<SystemStatusDto>(`${API_BASE}/status`);
     return res.data;

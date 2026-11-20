@@ -35,6 +35,7 @@ const NAV: NavGroup[] = [
   { title: 'Система', items: [
     { to: '/admin/system',    icon: 'fa-heart-pulse',       label: 'Состояние системы', section: 'system' },
     { to: '/admin/audit-log', icon: 'fa-clock-rotate-left', label: 'Журнал действий', section: 'system' },
+    { to: '/admin/requests',  icon: 'fa-list-check',        label: 'Журнал запросов', section: 'system' },
     { to: '/admin/database',  icon: 'fa-database',          label: 'База данных', section: 'system' },
   ]},
 ];
