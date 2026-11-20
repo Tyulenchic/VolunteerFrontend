@@ -12,6 +12,9 @@ import axios from "axios";
  *  E. нет response — сеть / таймаут;  F. HTML от прокси.
  */
 
+/** Ответ входа для заблокированного аккаунта: для него подсказки про письмо подтверждения неуместны. */
+export const isBlockedMessage = (message: string | undefined): boolean => !!message && /заблокирован/i.test(message);
+
 export type ApiErrorKind = "invalid" | "rate_limited" | "network" | "timeout" | "server" | "other";
 
 export const MESSAGES = {

@@ -68,6 +68,7 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDossier, setShowDossier] = useState(false);
+  const [blockReason, setBlockReason] = useState('');
 
   const name = `${user.firstName} ${user.lastName}`.trim() || user.email.split('@')[0];
 
@@ -167,12 +168,20 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
           <Link to={`/users/${user.id}`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary no-underline">
             <i className="fas fa-arrow-up-right-from-square text-xs" aria-hidden /> Открыть профиль на сайте
           </Link>
+          {user.isActive && (
+            <div>
+              <label htmlFor="block-reason" className="block text-[13px] font-medium text-ink-700 mb-1.5">Причина блокировки (необязательно)</label>
+              <textarea id="block-reason" value={blockReason} onChange={e => setBlockReason(e.target.value)} rows={2} maxLength={1000}
+                aria-describedby="block-reason-hint" className="w-full px-3 py-2 text-sm bg-surface-2 border border-line-strong rounded-lg" />
+              <p id="block-reason-hint" className="text-xs text-ink-400 mt-1">Пользователь получит письмо и увидит при входе: «Вы были заблокированы за несоблюдение правил сообщества». Если укажете причину, она добавится к этому тексту.</p>
+            </div>
+          )}
           {user.isActive ? (
               <button
                   onClick={() =>
                       do_(
                           'block',
-                          () => adminApi.blockUser(user.id, 'Заблокирован администратором'),
+                          () => adminApi.blockUser(user.id, blockReason),
                           'Пользователь заблокирован',
                           { title: 'Заблокировать пользователя?', message: `${name} не сможет войти, все его входы завершатся. Разблокировать можно здесь же.`, confirmLabel: 'Заблокировать' }
                       )

@@ -6,6 +6,7 @@ import { safeRedirect } from '../../utils/redirect';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { useApiError } from '../../hooks/useApiError';
+import { isBlockedMessage } from '../../utils/apiError';
 import { Spinner } from '../../components/Spinner';
 import { ResendHint } from '../../components/ResendHint';
 
@@ -40,7 +41,7 @@ export function LoginPage() {
           <p className="text-gray-600 mt-1">Добро пожаловать обратно!</p>
         </div>
         {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm">{error}</div>}
-        {error && <ResendHint email={email.includes('@') ? email : ''} />}
+        {error && !isBlockedMessage(error) && <ResendHint email={email.includes('@') ? email : ''} />}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="login-name" className="block text-sm font-medium text-gray-700 mb-1">Email или логин</label>

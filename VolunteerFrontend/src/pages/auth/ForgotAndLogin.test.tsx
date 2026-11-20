@@ -17,14 +17,23 @@ describe("ForgotPasswordPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /Отправить ссылку/ }));
   };
 
-  it("POSTs { email } (camelCase, trimmed) and shows a neutral message that does not claim the account exists", async () => {
+  it("POSTs { email } (camelCase, trimmed) and says where the letter went", async () => {
     renderRoutes(routes, ["/forgot-password"]);
     send("  User@Example.test ");
 
-    await screen.findByText("Если аккаунт с таким адресом существует, мы отправили письмо с инструкциями.");
+    await screen.findByText(/Мы отправили письмо с инструкциями на User@Example\.test/);
     expect(server.publicCalls).toEqual([{ url: "/api/auth/forgot-password", body: { email: "User@Example.test" }, authorization: undefined }]);
     expect(Object.keys(server.publicCalls[0].body as object)).toEqual(["email"]);
-    expect(screen.queryByText("User@Example.test")).toBeNull();
+  });
+
+  it("an address that is not registered gets a plain explanation and no success state", async () => {
+    server.publicResponses["/api/auth/forgot-password"] = { status: 404, data: { error: "Пользователя с такой почтой не существует." } };
+    renderRoutes(routes, ["/forgot-password"]);
+    send("ghost@example.test");
+
+    await screen.findByText("Пользователя с такой почтой не существует.");
+    expect(screen.queryByText(/Мы отправили письмо/)).toBeNull();
+    expect(screen.getByRole("button", { name: /Отправить ссылку/ })).toBeTruthy();
   });
 
   it.each([
@@ -69,6 +78,16 @@ describe("LoginPage", () => {
     expect(screen.queryByText(/не подтвержд/i)).toBeNull();   // состояние аккаунта не раскрывается
     expect(server.requestLog.filter(r => r.includes("resend")).length).toBe(0); // и автоматического запроса нет
     expect(getRefreshToken()).toBeNull();
+  });
+
+  it("a blocked person who typed the right password is told about the block, with no hint about the confirmation letter", async () => {
+    server.publicResponses["/api/auth/login"] = { status: 403, data: { error: "Вы были заблокированы за несоблюдение правил сообщества. Причина: Спам. Если вы считаете, что это ошибка, напишите нам через страницу «Обратная связь»." } };
+    renderRoutes(routes, ["/login"]);
+    login();
+
+    expect((await screen.findByRole("alert")).textContent).toContain("Вы были заблокированы за несоблюдение правил сообщества. Причина: Спам.");
+    expect(screen.queryByText(/Не пришло письмо подтверждения/)).toBeNull();
+    expect(screen.queryByText(/Неверный email или пароль/)).toBeNull();
   });
 
   it("the link opens the resend page with the email prefilled (via router state) and sends nothing by itself", async () => {

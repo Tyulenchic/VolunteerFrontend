@@ -60,8 +60,10 @@ export const adminApi = {
     return res.data;
   },
 
-  async blockUser(userId: string, reason: string) {
-    await apiClient.post(`${API_BASE}/users/${userId}/block`, { reason });
+  /** Причина необязательна: пользователь получает стандартный текст, а если причина есть — она добавляется к нему. */
+  async blockUser(userId: string, reason?: string) {
+    const text = reason?.trim();
+    await apiClient.post(`${API_BASE}/users/${userId}/block`, text ? { reason: text } : {});
   },
 
   async unblockUser(userId: string, reason?: string) {

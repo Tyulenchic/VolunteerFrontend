@@ -26,7 +26,7 @@ export function ForgotPasswordPage() {
           <>
             <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-envelope text-3xl text-green-600" /></div>
             <h1 className="vol-compact mb-2">Проверьте почту</h1>
-            <p className="text-gray-600 mb-6">Если аккаунт с таким адресом существует, мы отправили письмо с инструкциями.</p>
+            <p className="text-gray-600 mb-6">Мы отправили письмо с инструкциями на {email.trim()}. Если его нет во «Входящих», загляните в «Спам».</p>
             <Link to="/login" className="inline-flex items-center text-primary hover:underline font-medium no-underline"><i className="fas fa-arrow-left mr-2" />Вернуться к входу</Link>
           </>
         ) : (
