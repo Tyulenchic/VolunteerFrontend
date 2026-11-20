@@ -7,7 +7,7 @@ import collage5 from '../../assets/about/collage-5.webp';
 import { Reveal } from '../../components/ui/Reveal';
 import { useFeedback } from '../../context/FeedbackContext';
 import { useSiteJson, useSiteText } from '../../context/SiteContentContext';
-import { ABOUT_TEAM_DEFAULT, ABOUT_TEXT_DEFAULT as T, ABOUT_VALUES_DEFAULT, type TeamMember } from '../../content/defaults';
+import { ABOUT_TEAM_DEFAULT, ABOUT_TEXT_DEFAULT as T, ABOUT_VALUES_DEFAULT, FOOTER_TEXT_DEFAULT, type TeamMember } from '../../content/defaults';
 
 // Номер для ссылки tel: — только цифры и ведущий «+» («0 (533) 2-22-29» → «053322229»)
 const telHref = (phone: string) => `tel:${phone.trim().replace(/(?!^\+)[^\d]/g, '')}`;
@@ -33,6 +33,8 @@ export function AboutPage() {
   const hours = useSiteText('about.contacts.hours', T.hours);
   const city = useSiteText('about.contacts.city', T.city);
   const office = useSiteText('about.contacts.office', T.office);
+  // Точный адрес один на сайт: он же в подвале, правится в «Тексты сайта» (footer.address).
+  const address = useSiteText('footer.address', FOOTER_TEXT_DEFAULT.address);
   const { openFeedback } = useFeedback();
   return (
     <>
@@ -227,7 +229,7 @@ export function AboutPage() {
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Адрес</p>
 
-                    <p className="font-semibold text-gray-900">{city}</p>
+                    <p className="font-semibold text-gray-900">{address.trim() || city}</p>
 
                     <span className="text-sm text-gray-500">
                                 {office}
@@ -281,15 +283,6 @@ export function AboutPage() {
                       aria-label="Instagram"
                   >
                     <i className="fab fa-instagram"/>
-                  </a>
-
-                  <a
-                      href="https://vk.com"
-                      target="_blank" rel="noopener noreferrer"
-                      className="inline-block text-gray-500 hover:text-blue-700 hover:-translate-y-1 transition duration-300"
-                      aria-label="VK"
-                  >
-                    <i className="fab fa-vk"/>
                   </a>
 
                 </div>
