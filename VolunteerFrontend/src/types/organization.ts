@@ -64,6 +64,8 @@ export interface OrganizationDetails {
   shortName: string | null;
   level: OrganizationLevel;
   categories: OrganizationCategory[];
+  /** Направления, добавленные администратором (code — идентификатор, name — название). */
+  customCategories: CustomOrganizationCategory[];
   contactPhone: string | null;
   movements: Movement[];
   description: string;
@@ -96,6 +98,12 @@ export interface OrganizationDetails {
   cannotApplyReason: string | null;
 }
 
+/** Направление организации, добавленное администратором рядом со встроенными. */
+export interface CustomOrganizationCategory {
+  code: string;
+  name: string;
+}
+
 export interface OrganizationInput {
   name: string;
   description: string;
@@ -111,6 +119,8 @@ export interface OrganizationInput {
   shortName?: string | null;
   level: OrganizationLevel;
   categories: OrganizationCategory[];
+  /** Коды добавленных администратором направлений. */
+  customCategories?: string[];
   contactPhone?: string | null;
   movements: MovementInput[];
 }

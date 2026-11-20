@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { organizationsApi } from '../../api/organizations';
 import { PhotoField, stagePhoto, type PhotoSelection } from '../PhotoField';
 import { Button } from '../ui/Button';
@@ -6,7 +7,7 @@ import { adminErrorMessage } from '../../utils/adminErrors';
 import { checkPhone, PHONE_HINT, PHONE_PLACEHOLDER } from '../../utils/phone';
 import {
   ALL_CATEGORIES, ALL_DIRECTIONS, ALL_LEVELS, CATEGORY_LABEL, DIRECTION_LABEL, LEVEL_LABEL,
-  type MovementDirection, type MovementInput, type OrganizationCategory, type OrganizationDetails, type OrganizationLevel,
+  type CustomOrganizationCategory, type MovementDirection, type MovementInput, type OrganizationCategory, type OrganizationDetails, type OrganizationLevel,
 } from '../../types/organization';
 
 const CITIES = ['Тирасполь', 'Бендеры', 'Рыбница', 'Дубоссары', 'Слободзея', 'Григориополь', 'Каменка'];
@@ -36,10 +37,17 @@ const isHttp = (v: string) => { try { const u = new URL(v); return u.protocol ==
  */
 export function OrganizationForm({ initial, onSaved, onCancel }: Props) {
   const editing = !!initial;
+  const { isAdmin } = useAuth();
   const [name, setName] = useState(initial?.name ?? '');
   const [shortName, setShortName] = useState(initial?.shortName ?? '');
   const [level, setLevel] = useState<OrganizationLevel>(initial?.level ?? 'School');
   const [categories, setCategories] = useState<OrganizationCategory[]>(initial?.categories ?? []);
+  const [customOptions, setCustomOptions] = useState<CustomOrganizationCategory[]>(initial?.customCategories ?? []);
+  const [customCodes, setCustomCodes] = useState<string[]>(initial?.customCategories.map(c => c.code) ?? []);
+  const [addingCategory, setAddingCategory] = useState(false);
+  const [newCategory, setNewCategory] = useState('');
+  const [categoryBusy, setCategoryBusy] = useState(false);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
   const [city, setCity] = useState(initial?.city ?? '');
   const [phone, setPhone] = useState(initial?.contactPhone ?? '');
   const [email, setEmail] = useState(initial?.contactEmail ?? '');
@@ -58,6 +66,33 @@ export function OrganizationForm({ initial, onSaved, onCancel }: Props) {
   const [cover, setCover] = useState<PhotoSelection | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Список добавленных направлений: все, что есть на сервере, плюс уже выбранные у этой организации.
+  useEffect(() => {
+    let alive = true;
+    organizationsApi.customCategories()
+      .then(list => { if (alive) setCustomOptions(prev => [...list, ...prev.filter(p => !list.some(l => l.code === p.code))]); })
+      .catch(() => { /* остаются выбранные у организации */ });
+    return () => { alive = false; };
+  }, []);
+
+  const createCategory = async () => {
+    const value = newCategory.trim().replace(/\s+/g, ' ');
+    if (value.length < 2) { setCategoryError('Название направления — не короче 2 символов'); return; }
+    setCategoryBusy(true);
+    setCategoryError(null);
+    try {
+      const created = await organizationsApi.createCategory(value);
+      setCustomOptions(list => [...list.filter(c => c.code !== created.code), created].sort((a, b) => a.name.localeCompare(b.name, 'ru')));
+      setCustomCodes(codes => [...codes, created.code]);
+      setNewCategory('');
+      setAddingCategory(false);
+    } catch (err) {
+      setCategoryError(adminErrorMessage(err, 'Не удалось добавить направление. Попробуйте ещё раз.'));
+    } finally {
+      setCategoryBusy(false);
+    }
+  };
 
   const toggle = <T,>(list: T[], value: T) => (list.includes(value) ? list.filter(v => v !== value) : [...list, value]);
   const patchMovement = (i: number, patch: Partial<MovementInput>) =>
@@ -96,7 +131,7 @@ export function OrganizationForm({ initial, onSaved, onCancel }: Props) {
       city: city.trim() || null, contactEmail: email.trim() || null, website: website.trim() || null,
       address: address.trim() || null, facebookUrl: facebookUrl.trim() || null, telegramUrl: telegramUrl.trim() || null,
       instagramUrl: instagramUrl.trim() || null, vkUrl: vkUrl.trim() || null, joinFormUrl: joinFormUrl.trim() || null,
-      shortName: shortName.trim() || null, level, categories, contactPhone: phoneValue(phone),
+      shortName: shortName.trim() || null, level, categories, customCategories: customCodes, contactPhone: phoneValue(phone),
       movements: movements.map(m => ({ ...m, name: m.name.trim(), leaderName: m.leaderName.trim(), phone: phoneValue(m.phone), email: m.email?.trim() || null })),
     };
 
@@ -171,7 +206,30 @@ export function OrganizationForm({ initial, onSaved, onCancel }: Props) {
               {CATEGORY_LABEL[c]}
             </button>
           ))}
+          {customOptions.map(c => (
+            <button key={c.code} type="button" aria-pressed={customCodes.includes(c.code)} onClick={() => setCustomCodes(toggle(customCodes, c.code))} className={chip(customCodes.includes(c.code))}>
+              {c.name}
+            </button>
+          ))}
+          {isAdmin && (
+            <button type="button" aria-expanded={addingCategory} aria-label="Добавить своё направление" title="Добавить своё направление"
+              onClick={() => { setAddingCategory(v => !v); setCategoryError(null); }}
+              className="px-3 py-1.5 rounded-full text-[13px] border border-dashed border-line-strong text-ink-500 hover:bg-surface-3">
+              <i className="fas fa-plus" aria-hidden />
+            </button>
+          )}
         </div>
+        {addingCategory && (
+          <div className="mt-2 space-y-1.5">
+            <div className="flex gap-2">
+              <input type="text" value={newCategory} maxLength={40} onChange={e => setNewCategory(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); void createCategory(); } }}
+                placeholder="Название нового направления" aria-label="Название нового направления" className="flex-1 px-3 py-2 text-sm" autoFocus />
+              <Button type="button" onClick={() => void createCategory()} loading={categoryBusy}>Добавить</Button>
+            </div>
+            {categoryError && <p className="text-xs text-danger-700">{categoryError}</p>}
+          </div>
+        )}
       </div>
 
       <div>

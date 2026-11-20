@@ -166,6 +166,9 @@ export function OrganizationDetailPage() {
                 {org.categories.map(c => (
                   <span key={c} className={`px-3 py-1 rounded-full text-[0.8125rem] font-bold uppercase tracking-wide ${CATEGORY_BADGE[c]}`}>{CATEGORY_LABEL[c]}</span>
                 ))}
+                {org.customCategories.map(c => (
+                  <span key={c.code} className="px-3 py-1 rounded-full text-[0.8125rem] font-bold uppercase tracking-wide bg-gray-100 text-gray-700">{c.name}</span>
+                ))}
               </div>
 
               {/* действия */}

@@ -2,7 +2,7 @@ import { apiClient } from './client';
 import type { EventResponseDto } from '../types/event';
 import type {
   CreateOrganizationInput, ImageCropDto, MemberRole, Membership, OrganizationApplication, OrganizationCategory,
-  OrganizationDetails, OrganizationInput, OrganizationLevel, OrganizationListItem, OrganizationMember,
+  CustomOrganizationCategory, OrganizationDetails, OrganizationInput, OrganizationLevel, OrganizationListItem, OrganizationMember,
   OrganizationPost, OrganizationFeedItem, Paged, PostImageInput, UnassignedOrganizer,
 } from '../types/organization';
 
@@ -17,6 +17,13 @@ export interface OrganizationListParams {
 
 /** Организации: публичные страницы, заявки на вступление, управление и публикации. */
 export const organizationsApi = {
+  // ── Направления, добавленные администратором ──────────────────────────────
+  customCategories: async (): Promise<CustomOrganizationCategory[]> =>
+    (await apiClient.get<CustomOrganizationCategory[]>('/api/organizations/categories')).data,
+  createCategory: async (name: string): Promise<CustomOrganizationCategory> =>
+    (await apiClient.post<CustomOrganizationCategory>('/api/organizations/categories', { name })).data,
+  deleteCategory: async (code: string): Promise<void> => { await apiClient.delete(`/api/organizations/categories/${code}`); },
+
   // ── Публичные страницы ────────────────────────────────────────────────────
   list: async (params: OrganizationListParams = {}): Promise<Paged<OrganizationListItem>> => {
     const { data } = await apiClient.get<Paged<OrganizationListItem>>('/api/organizations', { params });
