@@ -123,3 +123,43 @@ describe("EventFormModal: scheduled publication", () => {
     expect(create).not.toHaveBeenCalled();
   });
 });
+
+describe("EventFormModal: tags", () => {
+  const tagInput = () => screen.getByLabelText("Новый тег");
+
+  it("adds a tag with Enter alone and does not save the form", () => {
+    const create = vi.spyOn(adminApi, "createEvent").mockResolvedValue({} as never);
+    renderForm();
+
+    fireEvent.change(tagInput(), { target: { value: "#эко" } });
+    fireEvent.keyDown(tagInput(), { key: "Enter" });
+
+    expect(screen.getByText("эко")).toBeTruthy();
+    expect((tagInput() as HTMLInputElement).value).toBe("");
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("adds a tag with a comma, skips repeats of any letter case and ignores empty input", () => {
+    renderForm();
+
+    for (const typed of ["Субботник", "субботник", "  ", "Парк"]) {
+      fireEvent.change(tagInput(), { target: { value: typed } });
+      fireEvent.keyDown(tagInput(), { key: "," });
+    }
+
+    expect(screen.getAllByText(/^(Субботник|Парк)$/).map(e => e.textContent)).toEqual(["Субботник", "Парк"]);
+  });
+
+  it("keeps a tag that was typed but not confirmed when the event is saved", async () => {
+    const create = vi.spyOn(adminApi, "createEvent").mockResolvedValue({} as never);
+    const { onSuccess } = renderForm();
+    fillRequired();
+    fireEvent.change(screen.getByLabelText(/Категория/), { target: { value: "Ecological" } });
+    fireEvent.change(tagInput(), { target: { value: "волонтёры" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Создать мероприятие" }));
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    expect(create.mock.calls[0][0]).toMatchObject({ tags: ["волонтёры"] });
+  });
+});

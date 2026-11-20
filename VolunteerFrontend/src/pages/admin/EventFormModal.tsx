@@ -197,13 +197,15 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
     }
   };
 
+  /** Теги с учётом набранного, но ещё не добавленного: как на сервере — без ведущего «#», без дублей (регистр не важен), не больше MAX_TAGS. */
+  const withTag = (tags: string[], raw: string): string[] => {
+    const tag = raw.trim().replace(/^#+/, '').replace(/\s+/g, ' ');
+    if (!tag || tags.length >= MAX_TAGS || tags.some(t => t.toLowerCase() === tag.toLowerCase())) return tags;
+    return [...tags, tag];
+  };
+
   const handleAddTag = () => {
-    // Как на сервере: без ведущего «#», без дублей (регистр не важен), не больше MAX_TAGS.
-    const tag = tagsInput.trim().replace(/^#+/, '').replace(/\s+/g, ' ');
-    if (!tag) return;
-    setFormData(prev => prev.tags.length >= MAX_TAGS || prev.tags.some(t => t.toLowerCase() === tag.toLowerCase())
-      ? prev
-      : { ...prev, tags: [...prev.tags, tag] });
+    setFormData(prev => ({ ...prev, tags: withTag(prev.tags, tagsInput) }));
     setTagsInput('');
   };
 
@@ -298,7 +300,8 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
         ...(formData.maxParticipants && { maxParticipants: parseInt(formData.maxParticipants) }),
         category: formData.category,
         // Всегда отправляем список: пустой при редактировании очищает теги.
-        tags: formData.tags,
+        // Тег, который набран, но не добавлен Enter'ом, не теряется при сохранении.
+        tags: withTag(formData.tags, tagsInput),
       };
 
       if (event) {
@@ -539,13 +542,16 @@ export function EventFormModal({ isOpen, onClose, onSuccess, event }: EventFormM
                   value={tagsInput}
                   maxLength={MAX_TAG_LENGTH}
                   onChange={(e) => setTagsInput(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
+                  onKeyDown={(e) => {
+                    // Enter (и запятая) добавляют тег; пока идёт ввод через IME, Enter подтверждает слово, а не тег.
+                    if (e.nativeEvent.isComposing) return;
+                    if (e.key === 'Enter' || e.key === ',') {
                       e.preventDefault();
                       handleAddTag();
                     }
                   }}
                   placeholder="Введите тег и нажмите Enter"
+                  aria-label="Новый тег"
                   className="flex-1 bg-surface-2 border border-line-strong rounded-lg px-3 py-2 text-ink-900 placeholder-ink-400 focus:outline-none focus:border-brand-500"
               />
               <button
