@@ -17,6 +17,7 @@ const ADMIN_LINKS: Record<string, string> = {
   AvatarPendingModeration: '/admin/moderation',
   UserComplaintReceived: '/admin/moderation?tab=reports',
   FeedbackReceived: '/admin/feedback',
+  BookletRequested: '/admin/booklets',
 };
 
 /**

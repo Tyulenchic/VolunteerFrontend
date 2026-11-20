@@ -14,6 +14,7 @@ import { Card } from '../../components/ui/Card';
 import { useAuthBlobUrl } from '../../components/SecureImage';
 import { DossierExportButtons } from '../../components/DossierExportButtons';
 import { AvatarPanel } from '../../components/profile/AvatarPanel';
+import { BookletCard } from '../../components/profile/BookletCard';
 import { SessionsPanel } from '../../components/profile/SessionsPanel';
 import { MyOrganizationsPanel } from '../../components/profile/MyOrganizationsPanel';
 import { PublicProfileView } from '../../components/profile/PublicProfileView';
@@ -300,6 +301,7 @@ export function ProfilePage() {
                     </div>
                   ))}
                 </div>
+                <BookletCard />
                 {user.updatedAt && (
                   <p className="vol-meta">
                     Последнее обновление: {new Date(user.updatedAt).toLocaleString('ru-RU')}
@@ -419,7 +421,9 @@ export function ProfilePage() {
                     </div>
                     <div>
                       <label htmlFor="pf-book" className={lbl}>Номер личной книжки добровольца</label>
-                      <input id="pf-book" value={bookNumber} onChange={e => setBookNumber(e.target.value)} className={inp} maxLength={50} />
+                      <input id="pf-book" value={bookNumber} onChange={e => setBookNumber(e.target.value)} onBlur={() => setBookNumber(b => b.trim().toUpperCase())}
+                        className={inp} maxLength={50} placeholder="V-00414" aria-describedby="pf-book-hint" />
+                      <p id="pf-book-hint" className="mt-1 text-meta text-vol-faint">Только свой номер, в виде V-00 и число (V-00414). Его выдаёт администратор после заявки на книжку; чужой номер сохранить нельзя.</p>
                     </div>
                     <div>
                       <label htmlFor="pf-bio" className={lbl}>О себе</label>

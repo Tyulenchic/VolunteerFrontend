@@ -14,7 +14,7 @@ import type { ImageCropDto } from '../types/organization';
 
 export type CropRect = { x: number; y: number; w: number; h: number };
 
-export type ImagePurpose = 'avatar' | 'news' | 'event' | 'orgLogo' | 'orgCover' | 'post' | 'video';
+export type ImagePurpose = 'avatar' | 'news' | 'event' | 'orgLogo' | 'orgCover' | 'post' | 'video' | 'booklet';
 
 export type PurposeConfig = {
   label: string;
@@ -38,6 +38,7 @@ export const PURPOSES: Record<ImagePurpose, PurposeConfig> = {
               previews: [{ label: 'Билет — телефон', aspect: 2 / 1 }, { label: 'Билет — компьютер', aspect: 2 / 3 }] },
   orgLogo:  { label: 'Логотип организации', aspect: 1,       min: [256, 256],   round: true,  note: 'Логотип в карточке организации' },
   orgCover: { label: 'Обложка организации', aspect: 16 / 5,  min: [1200, 375],                 note: 'Широкая обложка страницы организации' },
+  booklet:  { label: 'Фото для книжки',     aspect: 3 / 4,   min: [600, 800],                  note: 'Вертикальное фото, как в бумажной книжке (3×4)' },
   video:    { label: 'Обложка видео',      aspect: 16 / 9,  min: [640, 360],                  note: 'Обложка видео на главной странице' },
   post:     { label: 'Фото публикации',     aspect: 4 / 3,   min: [600, 450],                  note: 'Фото в ленте организации',
               previews: [{ label: 'Плитка в сетке', aspect: 1 }] },

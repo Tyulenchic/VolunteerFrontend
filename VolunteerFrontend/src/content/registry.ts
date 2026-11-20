@@ -1,6 +1,6 @@
 import {
   ABOUT_TEAM_DEFAULT, ABOUT_TEXT_DEFAULT as T, ABOUT_VALUES_DEFAULT, FAQ_DEFAULT, FOOTER_TEXT_DEFAULT as F, HOME_FEATURES_DEFAULT,
-  HOME_PERKS_DEFAULT, HOME_STEPS_DEFAULT, HOME_TEXT_DEFAULT as H, PAGE_TEXT_DEFAULT as PG, PRIVACY_DEFAULT, RULES_DEFAULT,
+  BOOKLET_TEXT_DEFAULT as BK, HOME_PERKS_DEFAULT, HOME_STEPS_DEFAULT, HOME_TEXT_DEFAULT as H, PAGE_TEXT_DEFAULT as PG, PRIVACY_DEFAULT, RULES_DEFAULT,
 } from './defaults';
 
 /**
@@ -114,6 +114,21 @@ export const CONTENT_GROUPS: ContentGroup[] = [
       { key: 'pages.volunteers.lead', label: 'Волонтёры — вступление', type: 'textarea', default: PG.volunteersLead },
       { key: 'pages.volunteers.stat.actions', label: 'Волонтёры — число акций в счётчике', type: 'text', default: PG.volunteersStatActions, hint: 'Это число вписывается вручную, сайт его не считает: держите его актуальным.' },
       { key: 'pages.volunteers.stat.years', label: 'Волонтёры — срок движения в счётчике', type: 'text', default: PG.volunteersStatYears, hint: 'Это значение вписывается вручную, сайт его не считает: держите его актуальным.' },
+    ],
+  },
+  {
+    id: 'booklet', title: 'Добровольческая книжка', icon: 'fa-id-card', path: '/profile',
+    entries: [
+      { key: 'booklet.title', label: 'Заголовок окна в профиле', type: 'text', default: BK.title },
+      { key: 'booklet.teaser', label: 'Короткий текст в карточке профиля', type: 'textarea', default: BK.teaser },
+      { key: 'booklet.intro', label: 'Вступление в окне «Узнать подробнее»', type: 'textarea', default: BK.intro },
+      { key: 'booklet.benefits.title', label: 'Заголовок списка льгот', type: 'text', default: BK.benefitsTitle },
+      { key: 'booklet.benefits', label: 'Льготы и возможности', type: 'lines', default: BK.benefits, hint: 'Каждый пункт — с новой строки. Впишите, когда будет готов официальный перечень.' },
+      { key: 'booklet.data.title', label: 'Заголовок списка данных', type: 'text', default: BK.dataTitle },
+      { key: 'booklet.data', label: 'Какие данные собираются', type: 'lines', default: BK.data, hint: 'Каждый пункт — с новой строки.' },
+      { key: 'booklet.how.title', label: 'Заголовок «Как получить»', type: 'text', default: BK.howTitle },
+      { key: 'booklet.how', label: 'Как получить книжку', type: 'textarea', default: BK.how },
+      { key: 'booklet.photo-hint', label: 'Подсказка про качество фото', type: 'textarea', default: BK.photoHint },
     ],
   },
   {

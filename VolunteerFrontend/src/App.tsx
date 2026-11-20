@@ -59,6 +59,7 @@ const AdminParticipationsPage = lazy(() => import('./pages/admin/AdminParticipat
 const AdminNewsPage = lazy(() => import('./pages/admin/AdminNewsPage').then(m => ({ default: m.AdminNewsPage })));
 const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage').then(m => ({ default: m.AdminAnalyticsPage })));
 const AdminDatabasePage = lazy(() => import('./pages/admin/AdminDatabasePage').then(m => ({ default: m.AdminDatabasePage })));
+const AdminBookletsPage = lazy(() => import('./pages/admin/AdminBookletsPage').then(m => ({ default: m.AdminBookletsPage })));
 const AdminRequestLogPage = lazy(() => import('./pages/admin/AdminRequestLogPage').then(m => ({ default: m.AdminRequestLogPage })));
 const AdminSystemPage = lazy(() => import('./pages/admin/AdminSystemPage').then(m => ({ default: m.AdminSystemPage })));
 const AdminAuditLogPage = lazy(() => import('./pages/admin/AdminAuditLogPage').then(m => ({ default: m.AdminAuditLogPage })));
@@ -174,6 +175,7 @@ export default function App() {
               <Route path="/admin/database"        element={<WAL><AdminDatabasePage /></WAL>} />
               <Route path="/admin/system"          element={<WAL><AdminSystemPage /></WAL>} />
               <Route path="/admin/requests"        element={<WAL><AdminRequestLogPage /></WAL>} />
+              <Route path="/admin/booklets"        element={<WAL><AdminBookletsPage /></WAL>} />
             </Route>
 
             {/* ── 404 ─────────────────────────────────────────── */}

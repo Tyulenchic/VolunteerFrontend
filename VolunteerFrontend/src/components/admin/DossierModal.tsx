@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { bookletAdminApi } from '../../api/booklet';
+import type { BookletDto } from '../../types/booklet';
+import { useAuth } from '../../context/AuthContext';
 import { adminApi } from '../../api/admin';
 import type { UserDossierDto } from '../../types/admin';
 import { adminErrorMessage } from '../../utils/adminErrors';
@@ -61,6 +64,8 @@ export function DossierModal({ userId, onClose }: { userId: string; onClose: () 
               ]} />
               {dossier.profile.bio && <p className="mt-2 text-ink-700 whitespace-pre-line break-words">{dossier.profile.bio}</p>}
             </Section>
+
+            <BookletSection userId={userId} />
 
             <Section title="Итоги">
               <div className="flex flex-wrap gap-2">
@@ -130,6 +135,41 @@ export function DossierModal({ userId, onClose }: { userId: string; onClose: () 
           </div>
         )}
     </Modal>
+  );
+}
+
+/**
+ * Добровольческая книжка пользователя и кнопка «Печать» (PDF титульного листа). Показывается администраторам, которым
+ * открыт раздел «Книжки»; у остальных досье остаётся как было.
+ */
+function BookletSection({ userId }: { userId: string }) {
+  const { canUse } = useAuth();
+  const allowed = canUse('booklets');
+  const [booklet, setBooklet] = useState<BookletDto | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    if (!allowed) return;
+    let alive = true;
+    bookletAdminApi.ofUser(userId).then(b => { if (alive) setBooklet(b); }).catch(() => { if (alive) setFailed(true); });
+    return () => { alive = false; };
+  }, [allowed, userId]);
+
+  if (!allowed) return null;
+  return (
+    <Section title="Добровольческая книжка">
+      {failed ? <p className="meta">Не удалось загрузить данные книжки.</p>
+        : !booklet ? <p className="meta">Книжка не оформлена.</p>
+        : (
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="mono font-semibold text-ink-900">{booklet.label}</span>
+            <span className="text-ink-700">{[booklet.lastName, booklet.firstName, booklet.middleName].filter(Boolean).join(' ')}, {booklet.birthYear} г.р.</span>
+            <button type="button" className="btn btn-secondary btn-sm" onClick={() => { void bookletAdminApi.openPdf(booklet.id); }}>
+              <i className="fas fa-print" aria-hidden /> Печать книжки
+            </button>
+          </div>
+        )}
+    </Section>
   );
 }
 

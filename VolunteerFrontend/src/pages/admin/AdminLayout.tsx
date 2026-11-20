@@ -31,6 +31,7 @@ const NAV: NavGroup[] = [
     { to: '/admin/videos', icon: 'fa-video',     label: 'Видеоотчёты', section: 'videos' },
     { to: '/admin/moderation', icon: 'fa-user-check', label: 'Модерация', section: 'moderation' },
     { to: '/admin/content', icon: 'fa-pen-to-square', label: 'Тексты сайта', section: 'content' },
+    { to: '/admin/booklets', icon: 'fa-id-card', label: 'Книжки', section: 'booklets' },
   ]},
   { title: 'Система', items: [
     { to: '/admin/system',    icon: 'fa-heart-pulse',       label: 'Состояние системы', section: 'system' },

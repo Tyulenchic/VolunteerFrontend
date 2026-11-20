@@ -15,6 +15,7 @@ export const ADMIN_SECTIONS = [
   { key: 'videos', label: 'Видеоотчёты', hint: 'Ссылки на видео' },
   { key: 'moderation', label: 'Модерация', hint: 'Аватары, жалобы, запрещённые слова' },
   { key: 'content', label: 'Тексты сайта', hint: 'Редактируемые тексты страниц' },
+  { key: 'booklets', label: 'Книжки', hint: 'Заявки на добровольческую книжку, номера, печать PDF' },
 ] as const;
 
 export type AdminSectionKey = (typeof ADMIN_SECTIONS)[number]['key'];
