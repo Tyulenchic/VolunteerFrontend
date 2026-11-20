@@ -33,6 +33,8 @@ export interface UserResponseDto {
   avatarPreviewUrl?: string | null;   // аватар виден другим только после проверки
   /** Организации пользователя: заполняются автоматически, когда организатор принимает заявку на вступление. */
   organizations?: Membership[] | null;
+  /** Только у администратора: null — системный администратор (всё), список — какие разделы панели ему открыты. */
+  adminSections?: string[] | null;
 }
 
 // Public view: fields are null / empty unless the volunteer opened them.

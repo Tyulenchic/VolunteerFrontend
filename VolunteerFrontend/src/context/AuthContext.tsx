@@ -5,6 +5,7 @@ import { authApi } from "../api/auth";
 import { clearSession, getAccessToken, hasSession, isRefreshUnavailable, onSessionCleared, refreshSession } from "../auth/session";
 import type { UserResponseDto } from "../types/user";
 import type { LoginDto, RegisterDto } from "../types/auth";
+import { canUseSection, type AdminSectionKey } from "../utils/adminSections";
 
 interface AuthCtx {
   user: UserResponseDto | null;
@@ -13,6 +14,10 @@ interface AuthCtx {
   /** Сессия есть, но проверить её сейчас нельзя (сеть/5xx/429). Токены сохранены, пользователь не разлогинен. */
   unavailable: boolean;
   isAdmin: boolean;
+  /** Администратор без ограничений (видит и системные страницы). */
+  isSystemAdmin: boolean;
+  /** Открыт ли администратору раздел панели; для не-администратора всегда false. */
+  canUse: (section: AdminSectionKey) => boolean;
   /** Организатор (глобальная роль). Кабинет организатора доступен также администратору. */
   isOrganizer: boolean;
   login: (dto: LoginDto) => Promise<void>;
@@ -104,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => { await authApi.logout(); setUser(null); setUnavailable(false); };
 
   return (
-    <Ctx.Provider value={{ user, loading, unavailable, isAdmin: user?.role === "Admin", isOrganizer: user?.role === "Organizer", login, register, logout, refreshUser, retrySession: restoreSession }}>
+    <Ctx.Provider value={{ user, loading, unavailable, isAdmin: user?.role === "Admin", isSystemAdmin: user?.role === "Admin" && user.adminSections == null, canUse: (section) => user?.role === "Admin" && canUseSection(user.adminSections, section), isOrganizer: user?.role === "Organizer", login, register, logout, refreshUser, retrySession: restoreSession }}>
       {children}
     </Ctx.Provider>
   );

@@ -60,6 +60,12 @@ export const adminApi = {
     return res.data;
   },
 
+  /** Только системный администратор. null — снять ограничения (системный администратор), список — администратор контента. */
+  async setAdminSections(userId: string, sections: string[] | null): Promise<{ adminSections: string[] | null }> {
+    const { data } = await apiClient.put<{ adminSections: string[] | null }>(`${API_BASE}/users/${userId}/admin-sections`, { sections });
+    return data;
+  },
+
   /** Причина необязательна: пользователь получает стандартный текст, а если причина есть — она добавляется к нему. */
   async blockUser(userId: string, reason?: string) {
     const text = reason?.trim();

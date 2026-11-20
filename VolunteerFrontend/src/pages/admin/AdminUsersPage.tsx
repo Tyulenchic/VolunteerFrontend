@@ -9,6 +9,7 @@ import { DossierExportButtons } from '../../components/DossierExportButtons';
 import { DossierModal } from '../../components/admin/DossierModal';
 import { AccountRecoveryPanel } from '../../components/admin/AccountRecoveryPanel';
 import { EmailSupportPanel } from '../../components/admin/EmailSupportPanel';
+import { AdminAccessPanel } from '../../components/admin/AdminAccessPanel';
 import { useAuth } from '../../context/AuthContext';
 import { useConfirm } from '../../components/ui/ConfirmDialog';
 import { ActionMenu } from '../../components/ui/ActionMenu';
@@ -63,8 +64,9 @@ interface UserDetailModalProps {
 function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
   const { notify } = useNotification();
   const { error, setError } = useApiError();
-  const { user: me } = useAuth();
+  const { user: me, isSystemAdmin } = useAuth();
   const confirm = useConfirm();
+  const [sections, setSections] = useState<string[] | null>(user.adminSections ?? null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDossier, setShowDossier] = useState(false);
@@ -155,11 +157,16 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
         </div>
         {showDossier && <DossierModal userId={user.id} onClose={() => setShowDossier(false)} />}
 
-        {!user.isDeleted && (
+        {/* Системные действия (почта, восстановление доступа, роли, удаление) — только системному администратору. */}
+        {!user.isDeleted && isSystemAdmin && (
           <EmailSupportPanel userId={user.id} emailConfirmed={user.emailConfirmed !== false} onDone={() => { onRefresh(); onClose(); }} />
         )}
 
-        {!user.isDeleted && user.id !== me?.id && (
+        {user.role === 'Admin' && !user.isDeleted && isSystemAdmin && user.id !== me?.id && (
+          <AdminAccessPanel userId={user.id} initial={sections} onSaved={setSections} />
+        )}
+
+        {!user.isDeleted && isSystemAdmin && user.id !== me?.id && (
           <AccountRecoveryPanel userId={user.id} email={user.email} isActive={user.isActive} onDone={() => { onRefresh(); onClose(); }} />
         )}
 
@@ -212,7 +219,7 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
                  <p className="meta">Организатором пользователя назначают в разделе «Организации»: роль выдаётся вместе с организацией.</p>
              )}
 
-             {user.role !== 'Admin' && (
+             {user.role !== 'Admin' && isSystemAdmin && (
                  <button
                      onClick={() =>
                          do_(
@@ -230,6 +237,7 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
              )}
            </div>
 
+           {isSystemAdmin && (
            <button
                onClick={() => setShowDeleteConfirm(true)}
                disabled={actionLoading !== null}
@@ -237,8 +245,9 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
            >
              <i className="fas fa-trash-alt" />Удалить пользователя
            </button>
+           )}
 
-           {showDeleteConfirm && (
+           {isSystemAdmin && showDeleteConfirm && (
                <div className="p-3 bg-danger-100 border border-danger-200 rounded-lg text-sm text-danger-700 space-y-2">
                  <p>Вы уверены? Это действие необратимо.</p>
                  <div className="flex gap-2">
@@ -277,6 +286,7 @@ function UserDetailModal({ user, onClose, onRefresh }: UserDetailModalProps) {
 }
 
 export function AdminUsersPage() {
+  const { isSystemAdmin } = useAuth();
   const confirm = useConfirm();
   const { notify } = useNotification();
   const [users, setUsers] = useState<AdminUserListItemDto[]>([]);
@@ -404,7 +414,7 @@ export function AdminUsersPage() {
                     <td className="px-4 py-3 rt-end">
                       <div className="flex items-center justify-end gap-1">
                         <Button variant="secondary" size="sm" onClick={() => openDetail(user.id)}>Профиль</Button>
-                        <ActionMenu label={`Действия: ${user.fullName}`} actions={[{ label: 'Удалить', icon: 'fa-trash', danger: true, onSelect: () => removeUser(user) }]} />
+                        {isSystemAdmin && <ActionMenu label={`Действия: ${user.fullName}`} actions={[{ label: 'Удалить', icon: 'fa-trash', danger: true, onSelect: () => removeUser(user) }]} />}
                       </div>
                     </td>
                   </tr>

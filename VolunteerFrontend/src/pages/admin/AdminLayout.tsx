@@ -1,6 +1,6 @@
 import logoMark from '../../assets/logo-mark.webp';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { AdminScopeContext } from '../../components/ui/AdminScope';
@@ -8,33 +8,35 @@ import { Avatar } from '../../components/ui/Avatar';
 import { ConfirmProvider } from '../../components/ui/ConfirmDialog';
 import { NotificationBell } from '../../components/ui/NotificationBell';
 import { useFeedbackUnread } from '../../utils/feedbackUnread';
+import type { AdminSectionKey } from '../../utils/adminSections';
 
-interface NavItem { to: string; icon: string; label: string; }
+/** `section` — раздел, который нужно открыть администратору контента; 'system' — только системному администратору. */
+interface NavItem { to: string; icon: string; label: string; section?: AdminSectionKey | 'system'; }
 interface NavGroup { title: string; items: NavItem[]; }
 
 const NAV: NavGroup[] = [
   { title: 'Обзор', items: [
-    { to: '/admin',           icon: 'fa-gauge-high', label: 'Дашборд' },
-    { to: '/admin/analytics', icon: 'fa-chart-line', label: 'Аналитика' },
+    { to: '/admin',           icon: 'fa-gauge-high', label: 'Дашборд', section: 'dashboard' },
+    { to: '/admin/analytics', icon: 'fa-chart-line', label: 'Аналитика', section: 'analytics' },
   ]},
   { title: 'Платформа', items: [
-    { to: '/admin/events',         icon: 'fa-calendar-days',  label: 'Мероприятия' },
-    { to: '/admin/participations', icon: 'fa-clipboard-list', label: 'Заявки' },
-    { to: '/admin/users',          icon: 'fa-users',          label: 'Пользователи' },
-    { to: '/admin/organizations',  icon: 'fa-building-columns', label: 'Организации' },
-    { to: '/admin/feedback',       icon: 'fa-envelope',       label: 'Обращения' },
+    { to: '/admin/events',         icon: 'fa-calendar-days',  label: 'Мероприятия', section: 'events' },
+    { to: '/admin/participations', icon: 'fa-clipboard-list', label: 'Заявки', section: 'participations' },
+    { to: '/admin/users',          icon: 'fa-users',          label: 'Пользователи', section: 'users' },
+    { to: '/admin/organizations',  icon: 'fa-building-columns', label: 'Организации', section: 'organizations' },
+    { to: '/admin/feedback',       icon: 'fa-envelope',       label: 'Обращения', section: 'feedback' },
   ]},
   { title: 'Контент', items: [
-    { to: '/admin/news',   icon: 'fa-newspaper', label: 'Новости' },
-    { to: '/admin/videos', icon: 'fa-video',     label: 'Видеоотчёты' },
-    { to: '/admin/moderation', icon: 'fa-user-check', label: 'Модерация' },
-    { to: '/admin/content', icon: 'fa-pen-to-square', label: 'Тексты сайта' },
+    { to: '/admin/news',   icon: 'fa-newspaper', label: 'Новости', section: 'news' },
+    { to: '/admin/videos', icon: 'fa-video',     label: 'Видеоотчёты', section: 'videos' },
+    { to: '/admin/moderation', icon: 'fa-user-check', label: 'Модерация', section: 'moderation' },
+    { to: '/admin/content', icon: 'fa-pen-to-square', label: 'Тексты сайта', section: 'content' },
   ]},
   { title: 'Система', items: [
-    { to: '/admin/system',    icon: 'fa-heart-pulse',       label: 'Состояние системы' },
-    { to: '/admin/audit-log', icon: 'fa-clock-rotate-left', label: 'Журнал действий' },
-    { to: '/admin/database',  icon: 'fa-database',          label: 'База данных' },
-    { to: '/admin/import',    icon: 'fa-file-import',       label: 'Импорт пользователей' },
+    { to: '/admin/system',    icon: 'fa-heart-pulse',       label: 'Состояние системы', section: 'system' },
+    { to: '/admin/audit-log', icon: 'fa-clock-rotate-left', label: 'Журнал действий', section: 'system' },
+    { to: '/admin/database',  icon: 'fa-database',          label: 'База данных', section: 'system' },
+    { to: '/admin/import',    icon: 'fa-file-import',       label: 'Импорт пользователей', section: 'system' },
   ]},
 ];
 
@@ -63,9 +65,11 @@ const readCollapsed = () => { try { return localStorage.getItem(COLLAPSE_KEY) ==
 
 export function AdminLayout({ children, variant = 'admin' }: { children: ReactNode; variant?: 'admin' | 'organizer' }) {
   const organizer = variant === 'organizer';
-  const nav = organizer ? ORGANIZER_NAV : NAV;
+  const { user, logout, isSystemAdmin, canUse } = useAuth();
+  // Администратору контента остаются только открытые ему разделы; пустые группы не показываем.
+  const visible = (item: NavItem) => organizer || item.section === undefined || (item.section === 'system' ? isSystemAdmin : canUse(item.section));
+  const nav = organizer ? ORGANIZER_NAV : NAV.map(g => ({ ...g, items: g.items.filter(visible) })).filter(g => g.items.length > 0);
   const home = organizer ? '/organizer' : '/admin';
-  const { user, logout } = useAuth();
   const { notify } = useNotification();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -111,6 +115,9 @@ export function AdminLayout({ children, variant = 'admin' }: { children: ReactNo
   // вложенные страницы (/organizer/organizations/:id) наследуют заголовок ближайшего раздела
   const section = Object.keys(titles).filter(p => pathname === p || pathname.startsWith(p + '/')).sort((a, b) => b.length - a.length)[0];
   const current = titles[section ?? home] ?? titles[home];
+  // Закрытый раздел по прямой ссылке: уводим на первый открытый (или в профиль, если открытого нет).
+  const closed = !organizer && !!user && !NAV.flatMap(g => g.items).some(i => (pathname === i.to || pathname.startsWith(i.to + '/')) && visible(i)) && NAV.flatMap(g => g.items).some(i => pathname === i.to || pathname.startsWith(i.to + '/'));
+  if (closed) return <Navigate to={nav[0]?.items[0]?.to ?? '/profile'} replace />;
   // On desktop the rail can be collapsed; in the mobile drawer it is always expanded.
   const rail = collapsed ? 'lg:w-[68px]' : 'lg:w-[248px]';
   const labelCls = collapsed ? 'lg:hidden' : '';

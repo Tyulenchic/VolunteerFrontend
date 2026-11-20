@@ -76,6 +76,8 @@ export interface AdminUserListItemDto {
   emailConfirmed?: boolean;
   /** Последний вход; null — ни разу не входил. */
   lastLoginAt?: string | null;
+  /** Только у администратора: null — системный администратор, список — открытые разделы панели. */
+  adminSections?: string[] | null;
 }
 
 export interface AdminUserDetailDto extends AdminUserListItemDto {
